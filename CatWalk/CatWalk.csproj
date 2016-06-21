@@ -1,0 +1,127 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{AE338060-3AF3-4BBB-9028-806A3CE681A3}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <NoStandardLibraries>false</NoStandardLibraries>
+    <AssemblyName>CatWalk</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;NET45</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>3</WarningLevel>
+    <DocumentationFile>bin\Release\CatWalk.xml</DocumentationFile>
+    <FileAlignment>8192</FileAlignment>
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace>CatWalk</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>CatWalk.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <PropertyGroup>
+    <DelaySign>false</DelaySign>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="AsyncLazy.cs" />
+    <Compile Include="Collections\CollectionExpressions.cs" />
+    <Compile Include="Collections\Extensions.cs" />
+    <Compile Include="Collections\WrappedReadOnlyObservableList.cs" />
+    <Compile Include="Collections\FilteredObservableCollection.cs" />
+    <Compile Include="Collections\ObservableCollectionSynchronizer.cs" />
+    <Compile Include="Collections\WrappedObservableCollection.cs" />
+    <Compile Include="IDisposableExtensions.cs" />
+    <Compile Include="ILazy.cs" />
+    <Compile Include="IO\UnixPathFormat.cs" />
+    <Compile Include="IO\WindowsPathFormat.cs" />
+    <Compile Include="IO\CommonPathFormat.cs" />
+    <Compile Include="IO\FilePathFormats.cs" />
+    <Compile Include="IO\IFilePathFormat.cs" />
+    <Compile Include="Utils\ApplicationProcess.cs" />
+    <Compile Include="Collections\ArrayDifference.cs" />
+    <Compile Include="Collections\Comparer.cs" />
+    <Compile Include="Collections\DoubleArrayDictionary.cs" />
+    <Compile Include="Collections\GapBuffer.cs" />
+    <Compile Include="Collections\Heap.cs" />
+    <Compile Include="Collections\HistoryStack.cs" />
+    <Compile Include="Collections\ObservableDictionary.cs" />
+    <Compile Include="Collections\ObservableHashSet.cs" />
+    <Compile Include="Collections\WrappedObservableList.cs" />
+    <Compile Include="Collections\ObservableSortedSkipList.cs" />
+    <Compile Include="Collections\PrefixDictionary.cs" />
+    <Compile Include="Collections\PriorityQueue.cs" />
+    <Compile Include="Collections\ReadOnlyDictionary.cs" />
+    <Compile Include="Collections\WrappedReadOnlyObservableCollection.cs" />
+    <Compile Include="Collections\SimpleMonitor.cs" />
+    <Compile Include="Collections\SkipList.cs" />
+    <Compile Include="Collections\SkipListDictionary.cs" />
+    <Compile Include="Collections\SortedSkipList.cs" />
+    <Compile Include="Collections\WeakLinkedList.cs" />
+    <Compile Include="Utils\CommandLineParser.cs" />
+    <Compile Include="ComponentModel\ICancellable.cs" />
+    <Compile Include="DisposableObject.cs" />
+    <Compile Include="Enumerable.cs" />
+    <Compile Include="Extensions.cs" />
+    <Compile Include="IO\FilePath.cs" />
+    <Compile Include="Int32Point.cs" />
+    <Compile Include="Int32Rect.cs" />
+    <Compile Include="Int32Size.cs" />
+    <Compile Include="Int32Vector.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Range.cs" />
+    <Compile Include="Reflection\PropertyAccessor.cs" />
+    <Compile Include="ResetLazy.cs" />
+    <Compile Include="IO\Seq.Directory.cs" />
+    <Compile Include="Text\Comparer.cs" />
+    <Compile Include="Text\Diff.cs" />
+    <Compile Include="Text\EditDistance.cs" />
+    <Compile Include="Text\EncodingDetector.cs" />
+    <Compile Include="Text\RomanToJapanese.cs" />
+    <Compile Include="Text\StringUtil.cs" />
+    <Compile Include="Threading\Extension.cs" />
+    <Compile Include="Threading\LeveledSemaphore.cs" />
+    <Compile Include="WeakDelegate.cs" />
+    <Compile Include="WeakMulticastDelegate.cs" />
+    <Compile Include="WeakReference.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CatWalk.public.snk" />
+    <None Include="CatWalk.snk" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System" />
+    <Reference Include="System.Runtime.Remoting" />
+    <Reference Include="System.Security" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSHARP.Targets" />
+  <ProjectExtensions>
+    <VisualStudio AllowExistingFolder="true" />
+  </ProjectExtensions>
+</Project>

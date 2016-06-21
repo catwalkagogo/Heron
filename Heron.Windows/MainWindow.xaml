@@ -1,0 +1,47 @@
+﻿<RibbonWindow x:Class="CatWalk.Heron.Windows.MainWindow"
+		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:v="clr-namespace:CatWalk.Heron.Windows"
+		xmlns:win="clr-namespace:CatWalk.Heron.Windows"
+		Title="{Binding Title}"
+		Width="{Binding Width}"
+		Height="{Binding Height}"
+		Top="{Binding Top}"
+		Left="{Binding Left}"
+		WindowState="{Binding WindowState}"
+		win:WindowUtility.RestoreWindowState="{Binding RestoreWindowState}"
+		Activated="RibbonWindow_Activated"
+		x:Name="_this"
+		win:MessageReceivers.IsCommunicateWindowMessages="True">
+	<Window.Resources>
+		<v:JobCountToProgressStateConverter x:Key="JobCountToProgressStateConverter" />
+	</Window.Resources>
+	
+	<Window.TaskbarItemInfo>
+		<TaskbarItemInfo
+			ProgressValue="{Binding JobManager.TotalProgress}"
+			ProgressState="{Binding Converter={StaticResource JobCountToProgressStateConverter}, Path=JobManager.RunningCount}">
+			
+		</TaskbarItemInfo>
+	</Window.TaskbarItemInfo>
+	
+	<Window.InputBindings>
+		<KeyBinding Key="Tab" Modifiers="Control" Command="{Binding ElementName=_this, Path=SwitchWindowCommand}"></KeyBinding>
+		<KeyBinding Key="Tab" Modifiers="Control+Shift" Command="{Binding ElementName=_this, Path=SwitchWindowCommand}"
+					CommandParameter="{x:Static win:Direction.Previous}"></KeyBinding>
+	</Window.InputBindings>
+	
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="auto" />
+			<RowDefinition Height="*" />
+		</Grid.RowDefinitions>
+		<Ribbon x:Name="_Ribbon">
+			<Ribbon.ApplicationMenu>
+				<RibbonApplicationMenu>
+					
+				</RibbonApplicationMenu>
+			</Ribbon.ApplicationMenu>
+		</Ribbon>
+	</Grid>
+</RibbonWindow>

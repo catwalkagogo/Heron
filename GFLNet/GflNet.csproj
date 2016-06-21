@@ -1,0 +1,91 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{BB486CB8-B1BA-4BB9-8990-327F41C75B07}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>GflNet</RootNamespace>
+    <AssemblyName>GflNet</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>GflNet.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <PropertyGroup>
+    <DelaySign>false</DelaySign>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\CatWalk.Win32\InteropObject.cs">
+      <Link>CatWalk\Win32\InteropObject.cs</Link>
+    </Compile>
+    <Compile Include="Callbacks.cs" />
+    <Compile Include="Color.cs" />
+    <Compile Include="ColorMap.cs" />
+    <Compile Include="Enums\BitmapType.cs" />
+    <Compile Include="Enums\ColorModel.cs" />
+    <Compile Include="Enums\Compression.cs" />
+    <Compile Include="Enums\ExifEntryTypes.cs" />
+    <Compile Include="Enums\LoadOptions.cs" />
+    <Compile Include="Enums\Origin.cs" />
+    <Compile Include="Enums\ResizeCanvasOrigin.cs" />
+    <Compile Include="Enums\ResizeMethod.cs" />
+    <Compile Include="Enums\SaveOptions.cs" />
+    <Compile Include="Enums\SeekOrigin.cs" />
+    <Compile Include="FileInformation.cs" />
+    <Compile Include="Gfl.NativeMethods.cs" />
+    <Compile Include="Gfl.Enums.cs" />
+    <Compile Include="Gfl.Structs.cs" />
+    <Compile Include="Bitmap.cs" />
+    <Compile Include="Exif.cs" />
+    <Compile Include="ExifEntry.cs" />
+    <Compile Include="Format.cs" />
+    <Compile Include="Gfl.cs" />
+    <Compile Include="GflExtended.cs" />
+    <Compile Include="GflExtended.NativeMethods.cs" />
+    <Compile Include="LoadParameters.cs" />
+    <Compile Include="MultiBitmap.cs" />
+    <Compile Include="NativeMethods.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="GflNet.public.snk" />
+    <None Include="GflNet.snk" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
