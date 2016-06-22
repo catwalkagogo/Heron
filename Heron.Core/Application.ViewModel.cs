@@ -34,7 +34,7 @@ namespace CatWalk.Heron {
 		public MainWindowViewModel CreateMainWindow() {
 			var vm = new MainWindowViewModel(this);
 			this.Children.Add(vm);
-			var v = this._ViewFactory.Create(vm);
+			var v = this.ViewFactory.Create(vm);
 			this._MainWindows.Add(vm);
 			return vm;
 		}

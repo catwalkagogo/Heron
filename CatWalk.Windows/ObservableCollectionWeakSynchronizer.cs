@@ -37,7 +37,7 @@ namespace CatWalk.Windows {
 		}
 	}
 
-	public class ObservableCollectionWeakSynchronizer : ObservableCollectionSynchronizer, IWeakEventListener{
+	public class ObservableCollectionWeakSynchronizer : CollectionSynchronizer, IWeakEventListener{
 		public ObservableCollectionWeakSynchronizer(IEnumerable source, IEnumerable dest, Func<object, bool> predicate, Func<object, object> selector)
 			: base(source, dest, predicate, selector){
 

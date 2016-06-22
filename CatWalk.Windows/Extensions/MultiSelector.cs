@@ -64,7 +64,7 @@ namespace CatWalk.Windows.Extensions {
 			private Selector _Selector;
 			private Lazy<Action<object>> _CollectionAdd;
 			private Lazy<Action<object>> _CollectionRemove;
-			private ObservableCollectionSynchronizer _Connector;
+			private CollectionSynchronizer _Connector;
 
 			public MultiSelectorSynchronizer(Selector selector, IEnumerable list) {
 				this._Selector = selector;

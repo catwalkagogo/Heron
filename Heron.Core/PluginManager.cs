@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Reflection;
+using CatWalk.IO;
+using System.IO;
 
 namespace CatWalk.Heron {
 	public class PluginManager {
@@ -15,6 +18,8 @@ namespace CatWalk.Heron {
 			app.ThrowIfNull("app");
 			this._App = app;
 
+			LoadBuiltinPluginAssemblies();
+
 			string[] enabledPlugins;
 			object v;
 			if(this._App.Configuration.TryGetValue(ENABLED_PLUGINS_KEY, out v)) {
@@ -25,6 +30,21 @@ namespace CatWalk.Heron {
 			}
 
 			this.RefreshPluginInstances(enabledPlugins);
+		}
+
+		private static void LoadBuiltinPluginAssemblies() {
+			var builtinPluginDir = new FilePath(Assembly.GetEntryAssembly().Location).Resolve("../plugins").FullPath;
+			var dlls = Directory.EnumerateFiles(builtinPluginDir, "*.dll", SearchOption.AllDirectories);
+			var asmNames = dlls.ToDictionary(dll => AssemblyName.GetAssemblyName(dll));
+
+			var loadedAsmNames = AppDomain.CurrentDomain.GetAssemblies()
+				.SelectMany(asm => asm.GetReferencedAssemblies().Concat(Seq.Make(asm.GetName())))
+				.Distinct(asmName => asmName.FullName)
+				.ToLookup(asmName => asmName.FullName);
+			var asmsToLoad = asmNames.Where(asmName => !loadedAsmNames.Contains(asmName.Key.FullName)).Distinct(pair => pair.Key.FullName).ToArray();
+			asmsToLoad.ForEach(asmName => {
+				Assembly.LoadFile(asmName.Value);
+			});
 		}
 
 		private void RefreshPluginInstances(string[] enabledPlugins) {
@@ -60,10 +80,23 @@ namespace CatWalk.Heron {
 			this.Load();
 		}
 
+		/// <summary>
+		/// AppDomainに読み込まれているプラグインクラスを全て取得する
+		/// </summary>
+		/// <returns></returns>
 		public IEnumerable<Type> GetPluginTypes() {
+			var asms = AppDomain.CurrentDomain.GetAssemblies().ToArray();
 			return AppDomain.CurrentDomain.GetAssemblies()
-				.SelectMany(asm => asm.GetTypes())
-				.Where(t => t.IsSubclassOf(typeof(IPlugin)) && !t.IsAbstract && !t.IsInterface);
+				.SelectMany(asm => GetTypesFromAssembly(asm))
+				.Where(t => typeof(IPlugin).IsAssignableFrom(t) && !t.IsAbstract && !t.IsInterface);
+		}
+
+		private static IEnumerable<Type> GetTypesFromAssembly(Assembly asm) {
+			try {
+				return asm.GetTypes();
+			}catch(ReflectionTypeLoadException ex) {
+				return ex.Types.Where(t => t != null);
+			}
 		}
 
 		public string[] GetEnabledPlugins(){

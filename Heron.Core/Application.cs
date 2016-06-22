@@ -106,20 +106,12 @@ namespace CatWalk.Heron {
 				});
 				var conf = this._Configuration.Value;
 			}).ContinueWith(task => {
-				this._ScriptingHosts = new Lazy<IList<IScriptingHost>>(() => {
-					/*return AppDomain.CurrentDomain.GetAssemblies()
-						.SelectMany(assm => assm.GetTypes()
-							.Where(t => typeof(IScriptingHost).IsAssignableFrom(t)))
-						.Select(t => Activator.CreateInstance(t) as IScriptingHost)
-						.ToList();*/
-					return Seq.Make<IScriptingHost>(new DlrHost()/*, new IronJSHost()*/).ToList();
-				});
-
 				var option = new CommandLineOption();
 				var parser = new CommandLineParser();
 				parser.Parse(option, e.Args);
 				this.StartUpOption = option;
 
+				this.InitializeScripting();
 				this.InitializeIOSystem();
 				this.InitializeViewModel();
 				this.InitializePlugin();

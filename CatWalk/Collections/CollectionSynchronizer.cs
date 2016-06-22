@@ -9,35 +9,35 @@ using System.Threading.Tasks;
 using System.Collections.Specialized;
 
 namespace CatWalk.Collections {
-	public static class ObservableCollectionUtility {
-		public static ObservableCollectionSynchronizer NotifyToCollection<T>(this IEnumerable<T> source, ICollection<T> dest) {
+	public static class CollectionUtility {
+		public static CollectionSynchronizer NotifyToCollection<T>(this IEnumerable<T> source, ICollection<T> dest) {
 			return source.NotifyToCollection(dest, v => true, v => v);
 		}
-		public static ObservableCollectionSynchronizer NotifyToCollection<T>(this IEnumerable<T> source, ICollection<T> dest, Func<T, bool> predicate) {
+		public static CollectionSynchronizer NotifyToCollection<T>(this IEnumerable<T> source, ICollection<T> dest, Func<T, bool> predicate) {
 			return source.NotifyToCollection(dest, predicate, v => v);
 		}
-		public static ObservableCollectionSynchronizer NotifyToCollection<TSource, TDest>(this IEnumerable<TSource> source, ICollection<TDest> dest, Func<TSource, TDest> selector) {
+		public static CollectionSynchronizer NotifyToCollection<TSource, TDest>(this IEnumerable<TSource> source, ICollection<TDest> dest, Func<TSource, TDest> selector) {
 			return source.NotifyToCollection(dest, v => true, selector);
 		}
-		public static ObservableCollectionSynchronizer NotifyToCollection<TSource, TDest>(this IEnumerable<TSource> source, ICollection<TDest> dest, Func<TSource, bool> predicate, Func<TSource, TDest> selector) {
-			return new ObservableCollectionSynchronizer(source, dest, v => predicate((TSource)v), v => selector((TSource)v));
+		public static CollectionSynchronizer NotifyToCollection<TSource, TDest>(this IEnumerable<TSource> source, ICollection<TDest> dest, Func<TSource, bool> predicate, Func<TSource, TDest> selector) {
+			return new CollectionSynchronizer(source, dest, v => predicate((TSource)v), v => selector((TSource)v));
 		}
 
-		public static ObservableCollectionSynchronizer NotifyToCollection(this IEnumerable source, IEnumerable dest) {
+		public static CollectionSynchronizer NotifyToCollection(this IEnumerable source, IEnumerable dest) {
 			return source.NotifyToCollection(dest, v => true, v => v);
 		}
-		public static ObservableCollectionSynchronizer NotifyToCollection(this IEnumerable source, IEnumerable dest, Func<object, bool> predicate) {
+		public static CollectionSynchronizer NotifyToCollection(this IEnumerable source, IEnumerable dest, Func<object, bool> predicate) {
 			return source.NotifyToCollection(dest, predicate, v => v);
 		}
-		public static ObservableCollectionSynchronizer NotifyToCollection(this IEnumerable source, IEnumerable dest, Func<object, object> selector) {
+		public static CollectionSynchronizer NotifyToCollection(this IEnumerable source, IEnumerable dest, Func<object, object> selector) {
 			return source.NotifyToCollection(dest, v => true, selector);
 		}
-		public static ObservableCollectionSynchronizer NotifyToCollection(this IEnumerable source, IEnumerable dest, Func<object, bool> predicate, Func<object, object> selector) {
-			return new ObservableCollectionSynchronizer(source, dest, predicate, selector);
+		public static CollectionSynchronizer NotifyToCollection(this IEnumerable source, IEnumerable dest, Func<object, bool> predicate, Func<object, object> selector) {
+			return new CollectionSynchronizer(source, dest, predicate, selector);
 		}
 	}
 
-	public class ObservableCollectionSynchronizer : DisposableObject {
+	public class CollectionSynchronizer : DisposableObject {
 		private Func<object, bool> _Predicate;
 		private Func<object, object> _Selector;
 
@@ -54,16 +54,16 @@ namespace CatWalk.Collections {
 		private Lazy<Action<object>> _DestRemove;
 		private Lazy<Action> _DestClear;
 
-		public ObservableCollectionSynchronizer(IEnumerable source, IEnumerable dest, Func<object, bool> predicate, Func<object, object> selector) {
+		public CollectionSynchronizer(IEnumerable source, IEnumerable dest, Func<object, bool> predicate, Func<object, object> selector) {
 			source.ThrowIfNull("source");
 			dest.ThrowIfNull("dest");
 			predicate.ThrowIfNull("predicate");
 			selector.ThrowIfNull("selector");
 
 			var ncc = source as INotifyCollectionChanged;
-			if(ncc == null) {
-				throw new ArgumentException("source collection does not implement INotifyCollectionChanged");
-			}
+			//if(ncc == null) {
+			//	throw new ArgumentException("source collection does not implement INotifyCollectionChanged");
+			//}
 
 			this.Source = source;
 			this.Dest = dest;
@@ -164,11 +164,15 @@ namespace CatWalk.Collections {
 
 		public virtual void Start() {
 			this.ThrowIfDisposed();
-			this._SourceNCC.CollectionChanged += this.ncc_CollectionChanged;
+			if (this._SourceNCC != null) {
+				this._SourceNCC.CollectionChanged += this.ncc_CollectionChanged;
+			}
 		}
 
 		public virtual void Stop() {
-			this._SourceNCC.CollectionChanged -= this.ncc_CollectionChanged;
+			if (this._SourceNCC != null) {
+				this._SourceNCC.CollectionChanged -= this.ncc_CollectionChanged;
+			}
 		}
 
 		protected override void Dispose(bool disposing) {

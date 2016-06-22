@@ -12,7 +12,6 @@ using System.IO;
 using Microsoft.Win32;
 
 namespace CatWalk.Win32.Shell {
-	[Obsolete]
 	public static class ShellIcon{
 		#region GetIcon
 		

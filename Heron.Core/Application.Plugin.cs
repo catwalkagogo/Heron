@@ -31,10 +31,10 @@ namespace CatWalk.Heron {
 
 		#region Plugin
 
-		private ViewFactory _ViewFactory = null;
+		private Lazy<ViewFactory> _ViewFactory = new Lazy<ViewFactory>(() => new ViewFactory());
 		public ViewFactory ViewFactory {
 			get {
-				return this._ViewFactory ?? (this._ViewFactory = new ViewFactory());
+				return this._ViewFactory.Value;
 			}
 		}
 

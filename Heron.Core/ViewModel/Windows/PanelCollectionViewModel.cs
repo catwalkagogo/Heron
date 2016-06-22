@@ -20,7 +20,7 @@ namespace CatWalk.Heron.ViewModel.Windows {
 		/// <summary>
 		/// _Panelsへの変更をChildrenに伝える
 		/// </summary>
-		private readonly ObservableCollectionSynchronizer _Synchronizer;
+		private readonly CollectionSynchronizer _Synchronizer;
 
 		public PanelCollectionViewModel(Application app) : base(app) {
 			this._Panels = new WrappedObservableList<PanelViewModel>(new SkipList<PanelViewModel>());

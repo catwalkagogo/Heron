@@ -1,4 +1,4 @@
-﻿using System;
+﻿/*using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +8,8 @@ using IronPython;
 using IronPython.Hosting;
 using IronRuby;
 using IronRuby.Builtins;
+using Microsoft.ClearScript;
+using Microsoft.ClearScript.V8;
 
 namespace CatWalk.Heron.Scripting {
 	using IO = System.IO;
@@ -61,9 +63,18 @@ namespace CatWalk.Heron.Scripting {
 		}
 
 		public bool IsSupportedFileExtension(string extension) {
-			return this._Extensions.Value.Contains(extension);
+			var exts = this._Extensions.Value;
+			return exts.Contains(extension);
+		}
+
+		public void AddHostType(string name, Type type) {
+			throw new NotImplementedException();
+		}
+
+		public void AddHostObject(string name, object obj) {
+			throw new NotImplementedException();
 		}
 
 		#endregion
 	}
-}
+}*/

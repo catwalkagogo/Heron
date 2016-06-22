@@ -17,6 +17,7 @@ namespace CatWalk.Heron.Windows {
 			app.ViewFactory.Register<MainWindowViewModel>((type, vm) => {
 				var window = new MainWindow(this);
 				window.DataContext = vm;
+				window.Show();
 				return window;
 			});
 		}

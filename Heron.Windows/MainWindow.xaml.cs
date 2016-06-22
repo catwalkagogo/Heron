@@ -16,12 +16,13 @@ using System.Windows.Controls.Ribbon;
 using System.Windows.Interop;
 using CatWalk.Win32;
 using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
 
 namespace CatWalk.Heron.Windows {
 	/// <summary>
 	/// Interaction logic for MainWindow.xaml
 	/// </summary>
-	public partial class MainWindow : RibbonWindow {
+	public partial class MainWindow : Window {
 		public WindowsPlugin Plugin { get; private set; }
 		private HotKeyManager _HotKeyManager;
 		private HwndSource _HwndSource;
@@ -43,19 +44,13 @@ namespace CatWalk.Heron.Windows {
 			return this._HotKeyManager.WndProc(hwnd, msg, wParam, lParam, ref handled);
 		}
 
-		public Ribbon Ribbon {
-			get {
-				return this._Ribbon;
-			}
-		}
-
 		public HotKeyManager HotKeyManager {
 			get {
 				return this._HotKeyManager;
 			}
 		}
 
-		private void RibbonWindow_Activated(object sender, EventArgs e) {
+		private void Window_Activated(object sender, EventArgs e) {
 			WindowUtility.LatestActiveWindow = this;
 		}
 

@@ -54,7 +54,7 @@
     <Compile Include="Collections\Extensions.cs" />
     <Compile Include="Collections\WrappedReadOnlyObservableList.cs" />
     <Compile Include="Collections\FilteredObservableCollection.cs" />
-    <Compile Include="Collections\ObservableCollectionSynchronizer.cs" />
+    <Compile Include="Collections\CollectionSynchronizer.cs" />
     <Compile Include="Collections\WrappedObservableCollection.cs" />
     <Compile Include="IDisposableExtensions.cs" />
     <Compile Include="ILazy.cs" />

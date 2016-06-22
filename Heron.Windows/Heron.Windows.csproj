@@ -34,18 +34,22 @@
     <Reference Include="Microsoft.Expression.Interactions, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Unofficial.Blend.Interactivity.1.0.0\lib\net45\Microsoft.Expression.Interactions.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="ReactiveProperty, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\ReactiveProperty.2.7.3.1\lib\net45\ReactiveProperty.dll</HintPath>
+      <HintPath>..\packages\ReactiveProperty.2.7.3.1\lib\net46\ReactiveProperty.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="ReactiveProperty.DataAnnotations, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\ReactiveProperty.2.7.3.1\lib\net45\ReactiveProperty.DataAnnotations.dll</HintPath>
+      <HintPath>..\packages\ReactiveProperty.2.7.3.1\lib\net46\ReactiveProperty.DataAnnotations.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="ReactiveProperty.NET45, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\ReactiveProperty.2.7.3.1\lib\net45\ReactiveProperty.NET45.dll</HintPath>
+    <Reference Include="ReactiveProperty.NET46, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\ReactiveProperty.2.7.3.1\lib\net46\ReactiveProperty.NET46.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -92,13 +96,17 @@
       <DependentUpon>PanelList.xaml</DependentUpon>
     </Compile>
     <Compile Include="Converters\Converters.cs" />
+    <Compile Include="FrameworkMessageReceiver.cs" />
+    <Compile Include="Input\IInputGestureInfo.cs" />
+    <Compile Include="Input\InputUtility.cs" />
+    <Compile Include="Input\KeyGestureInfo.cs" />
+    <Compile Include="Input\MouseGestureInfo.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="MessageReceivers.cs" />
-    <Compile Include="MessageReceivers.WindowMessages.cs" />
-    <Compile Include="MessageUtility.cs" />
+    <Compile Include="Messaging.WindowMessages.cs" />
+    <Compile Include="Messaging.cs" />
     <Compile Include="Dialogs\SelectWindowDialog.xaml.cs">
       <DependentUpon>SelectWindowDialog.xaml</DependentUpon>
     </Compile>

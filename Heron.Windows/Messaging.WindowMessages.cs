@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 using System.Windows;
 
 namespace CatWalk.Heron.Windows {
-	public static partial class MessageReceivers {
+	public static partial class Messaging {
 		#region IsReceiveWindowMessages
 
-		private static readonly DependencyProperty WindowMessageListenerProperty = DependencyProperty.RegisterAttached("WindowMessageListener", typeof(WindowMessageListener), typeof(MessageReceivers));
+		private static readonly DependencyProperty WindowMessageListenerProperty = DependencyProperty.RegisterAttached("WindowMessageListener", typeof(WindowMessageListener), typeof(Messaging));
 		public static readonly DependencyProperty IsCommunicateWindowMessagesProperty = DependencyProperty.RegisterAttached(
 			"IsCommunicateWindowMessages",
 			typeof(bool),
-			typeof(MessageReceivers),
+			typeof(Messaging),
 			new PropertyMetadata(
 				false,
 				(d, e) => {
@@ -48,13 +48,11 @@ namespace CatWalk.Heron.Windows {
 			AttachWindowListeners(window, window.DataContext);
 		}
 		private static void AttachWindowListeners(Window window, object vm) {
-			if(vm != null) {
-				var listener = new WindowMessageListener(window);
-				window.SetValue(WindowMessageListenerProperty, listener);
-				listener.Attach(vm, window);
+			var listener = new WindowMessageListener(window);
+			window.SetValue(WindowMessageListenerProperty, listener);
+			listener.Attach(vm, window);
 
-				window.DataContextChanged += window_DataContextChanged;
-			}
+			window.DataContextChanged += window_DataContextChanged;
 		}
 
 		private static void window_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e) {

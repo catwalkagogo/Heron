@@ -22,7 +22,9 @@ namespace CatWalk{
 		}
 
 		protected void ThrowIfDisposed(){
-			throw new ObjectDisposedException("this");
+			if (this.IsDisposed) {
+				throw new ObjectDisposedException("this");
+			}
 		}
 		
 		~DisposableObject(){
