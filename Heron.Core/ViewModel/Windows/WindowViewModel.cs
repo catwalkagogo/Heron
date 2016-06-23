@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Reactive;
+using System.Reactive.Linq;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 
@@ -14,6 +16,17 @@ namespace CatWalk.Heron.ViewModel.Windows {
 			var messenger = this.Messenger;
 			messenger.Register<WindowMessages.ActivatedMessage>(this.Activated, this);
 			messenger.Register<WindowMessages.DeactivatedMessage>(this.Deactivated, this);
+
+			// 最小化から復元時のウィンドウの状態を取得
+			/*
+			if(this.WindowState != WindowState.Minimized) {
+				this.RestoreWindowState = this.WindowState;
+			}
+			this.Disposables.Add(this.ObserveProperty(self => self.WindowState)
+				.Where(state => state != WindowState.Minimized)
+				.Subscribe(state => {
+					this.RestoreWindowState = state;
+				}));*/
 		}
 
 		private string _Title;

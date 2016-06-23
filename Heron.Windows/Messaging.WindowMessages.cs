@@ -57,9 +57,7 @@ namespace CatWalk.Heron.Windows {
 
 		private static void window_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e) {
 			var window = (Window)sender;
-			if(e.OldValue != null) {
-				DettachWindowListeners(window, e.OldValue);
-			}
+			DettachWindowListeners(window, e.OldValue);
 			if(e.NewValue != null) {
 				AttachWindowListeners(window, e.NewValue);
 			}
@@ -70,12 +68,10 @@ namespace CatWalk.Heron.Windows {
 		}
 
 		private static void DettachWindowListeners(Window window, object vm) {
-			if(vm != null) {
-				var listener = (WindowMessageListener)window.GetValue(WindowMessageListenerProperty);
-				if(listener != null) {
-					window.SetValue(WindowMessageListenerProperty, null);
-					listener.Dettach(vm, window);
-				}
+			var listener = (WindowMessageListener)window.GetValue(WindowMessageListenerProperty);
+			if(listener != null) {
+				window.SetValue(WindowMessageListenerProperty, null);
+				listener.Dettach(vm, window);
 			}
 		}
 

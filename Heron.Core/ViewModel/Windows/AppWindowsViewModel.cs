@@ -15,7 +15,7 @@ namespace CatWalk.Heron.ViewModel.Windows {
 	public abstract class AppWindowsViewModel : ControlViewModel{
 		public ReactiveProperty<MainWindowViewModel> MainWindow { get; private set; }
 		public Application Application { get; private set; }
-		private CompositeDisposable _Disposables = new CompositeDisposable();
+		protected CompositeDisposable Disposables { get; private set; }
 
 		public AppWindowsViewModel(Application app) : this(app, null, app.SynchronizeInvoke){}
 
@@ -25,6 +25,7 @@ namespace CatWalk.Heron.ViewModel.Windows {
 			: base(parent, invoke) {
 			app.ThrowIfNull();
 			this.Application = app;
+			this.Disposables = new CompositeDisposable();
 
 			this.MainWindow = this.ObserveProperty(_ => _.Ancestors)
 				.OfType<AppWindowsViewModel>()
@@ -34,7 +35,7 @@ namespace CatWalk.Heron.ViewModel.Windows {
 						.OfType<MainWindowViewModel>()
 				)
 				.ToReactiveProperty();
-			this._Disposables.Add(this.MainWindow);
+			this.Disposables.Add(this.MainWindow);
 		}
 
 		public Messenger Messenger {
@@ -45,7 +46,7 @@ namespace CatWalk.Heron.ViewModel.Windows {
 
 		protected override void Dispose(bool disposing) {
 			if (!this.IsDisposed) {
-				this._Disposables.Dispose();
+				this.Disposables.Dispose();
 			}
 			base.Dispose(disposing);
 		}

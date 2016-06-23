@@ -4,6 +4,10 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Heron", "Heron\Heron.csproj", "{52816E46-15D6-4D30-815C-0CBF4AC368BB}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BFE77C9C-7BA8-4678-8A7C-EDEF17BA6197} = {BFE77C9C-7BA8-4678-8A7C-EDEF17BA6197}
+		{3BF770BD-9764-4B33-B305-A22FEC0691FB} = {3BF770BD-9764-4B33-B305-A22FEC0691FB}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Heron.Core", "Heron.Core\Heron.Core.csproj", "{646B1D1D-E243-4D9E-8068-EB8303FFB121}"
 EndProject

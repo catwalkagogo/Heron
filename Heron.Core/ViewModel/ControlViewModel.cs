@@ -34,6 +34,7 @@ namespace CatWalk.Heron.ViewModel {
 					child.OnPropertyChanged("Ancestors");
 				}
 			}
+			base.OnPropertyChanged(e);
 		}
 
 		private Lazy<IDictionary<object, object>> _Values = new Lazy<IDictionary<object, object>>(() => new Dictionary<object, object>());

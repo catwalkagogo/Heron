@@ -29,7 +29,7 @@ namespace CatWalk.Heron.Windows {
 
 		public static void ArrangeMainWindows(ArrangeMode mode) {
 			Arranger arranger = null;
-			switch(mode) {
+			switch (mode) {
 				case ArrangeMode.Cascade:
 					arranger = new CascadeArranger();
 					break;
@@ -47,7 +47,7 @@ namespace CatWalk.Heron.Windows {
 					break;
 			}
 
-			foreach(var screen in Win32::Screen.GetMonitors()) {
+			foreach (var screen in Win32::Screen.GetMonitors()) {
 				var windows = MainWindows
 					.Where(w => w.WindowState != WindowState.Minimized)
 					.OrderWindowByZOrder()
@@ -60,7 +60,7 @@ namespace CatWalk.Heron.Windows {
 
 				var rects = arranger.Arrange(new Size(screen.WorkingArea.Width, screen.WorkingArea.Height), windows.Length);
 
-				for(var i = 0; i < rects.Length; i++) {
+				for (var i = 0; i < rects.Length; i++) {
 					var win = windows[i];
 					var rect = rects[i];
 					win.WindowState = WindowState.Normal;
@@ -75,7 +75,7 @@ namespace CatWalk.Heron.Windows {
 		public static IEnumerable<T> OrderWindowByZOrder<T>(this IEnumerable<T> windows) where T : Window {
 			var byHandle = windows.ToDictionary(win => {
 				var source = ((HwndSource)PresentationSource.FromVisual(win));
-				if(source == null) {
+				if (source == null) {
 					return IntPtr.Zero;
 				} else {
 					return source.Handle;
@@ -126,22 +126,17 @@ namespace CatWalk.Heron.Windows {
 				"RestoreWindowState",
 				typeof(WindowState),
 				typeof(WindowUtility),
-				new PropertyMetadata(
+				new FrameworkPropertyMetadata(
 					WindowState.Normal,
 					(s, e) => {
-						Window window;
-						window = e.OldValue as Window;
-						if (window != null) {
-							window.StateChanged -= Window_StateChanged;
-						}
-
-						window = e.NewValue as Window;
-						if (window != null) {
-							window.StateChanged += Window_StateChanged;
-							Window_StateChanged(window, EventArgs.Empty);
-						}
+						var window = (Window)s;
+						window.StateChanged -= Window_StateChanged;
+						window.StateChanged += Window_StateChanged;
+						Window_StateChanged(window, EventArgs.Empty);
 					}
-				)
+				) {
+					BindsTwoWayByDefault = true,
+				}
 			);
 
 		private static void Window_StateChanged(object sender, EventArgs e) {

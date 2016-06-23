@@ -273,7 +273,7 @@ namespace CatWalk.Mvvm {
 					while (node != null) {
 						var next = node.Next;
 						var entry = node.Value;
-						if (!entry.Action.IsAlive || !entry.Token.IsAlive) {
+						if (!entry.Action.IsAlive || (entry.Token != null && !entry.Token.IsAlive)) {
 							list.Remove(node);
 						} else
 							if (entry.IsMatchToken(token) &&
