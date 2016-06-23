@@ -15,6 +15,8 @@ using CatWalk.IOSystem;
 using CatWalk.Heron.IOSystem;
 
 namespace CatWalk.Heron.ViewModel.IOSystem {
+	using ColumnDictionaryKey = String;
+
 	public partial class SystemEntryViewModel : ViewModelBase, IHierarchicalViewModel<SystemEntryViewModel>{
 		private readonly ResetLazy<ColumnDictionary> _Columns;
 		public SystemEntryViewModel Parent { get; private set; }
@@ -114,14 +116,14 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 
 		#region ColumnDictionary
 
-		public class ColumnDictionary : IReadOnlyDictionary<string, ColumnViewModel> {
+		public class ColumnDictionary : IReadOnlyDictionary<ColumnDictionaryKey, ColumnViewModel> {
 			private SystemEntryViewModel _this;
-			private IDictionary<string, Tuple<IColumnDefinition, ColumnViewModel>> _columns = new Dictionary<string, Tuple<IColumnDefinition, ColumnViewModel>>();
+			private IDictionary<ColumnDictionaryKey, Tuple<IColumnDefinition, ColumnViewModel>> _columns = new Dictionary<ColumnDictionaryKey, Tuple<IColumnDefinition, ColumnViewModel>>();
 
 			public ColumnDictionary(SystemEntryViewModel vm){
 				this._this = vm;
 				foreach(var definition in vm.ColumnDefinitions) {
-					this._columns.Add(definition.Name, new Tuple<IColumnDefinition, ColumnViewModel>(definition, null));
+					this._columns.Add(definition.GetType().FullName, new Tuple<IColumnDefinition, ColumnViewModel>(definition, null));
 				}
 			}
 
@@ -131,9 +133,9 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 				}
 			}
 
-			public IEnumerator<KeyValuePair<string, ColumnViewModel>> GetEnumerator() {
+			public IEnumerator<KeyValuePair<ColumnDictionaryKey, ColumnViewModel>> GetEnumerator() {
 				this.CreateAll();
-				return this._columns.Select(pair => new KeyValuePair<string, ColumnViewModel>(pair.Key, pair.Value.Item2)).GetEnumerator();
+				return this._columns.Select(pair => new KeyValuePair<ColumnDictionaryKey, ColumnViewModel>(pair.Key, pair.Value.Item2)).GetEnumerator();
 			}
 
 			System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() {
@@ -141,7 +143,7 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 				return this._columns.GetEnumerator();
 			}
 
-			public IEnumerable<string> Keys {
+			public IEnumerable<ColumnDictionaryKey> Keys {
 				get{
 					return this._columns.Keys;
 				}
@@ -154,7 +156,7 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 				}
 			}
 
-			public ColumnViewModel this[string column] {
+			public ColumnViewModel this[ColumnDictionaryKey column] {
 				get{
 					ColumnViewModel vm;
 					if(this.TryGetValue(column, out vm)) {
@@ -165,18 +167,21 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 				}
 			}
 
-			public ColumnViewModel this[Type type] {
+			public ColumnViewModel this[IColumnDefinition column] {
 				get {
-					ColumnViewModel vm;
-					if(this.TryGetValue(type.FullName, out vm)) {
-						return vm;
-					} else {
-						throw new KeyNotFoundException();
-					}
+					column.ThrowIfNull("column");
+					return this[column.GetType().FullName];
 				}
 			}
 
-			public bool TryGetValue(string column, out ColumnViewModel vm) {
+			public ColumnViewModel this[Type type] {
+				get {
+					type.ThrowIfNull("type");
+					return this[type.FullName];
+				}
+			}
+
+			public bool TryGetValue(ColumnDictionaryKey column, out ColumnViewModel vm) {
 				Tuple<IColumnDefinition, ColumnViewModel> v;
 				if(this._columns.TryGetValue(column, out v)) {
 					vm = v.Item2;
@@ -191,13 +196,25 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 				}
 			}
 
-			public bool ContainsKey(string column) {
+			public bool TryGetValue(IColumnDefinition column, out ColumnViewModel vm) {
+				column.ThrowIfNull("column");
+				return this.TryGetValue(column.GetType().FullName, out vm);
+			}
+
+			public bool TryGetValue(Type type, out ColumnViewModel vm) {
+				type.ThrowIfNull("type");
+				return this.TryGetValue(type.GetType().FullName, out vm);
+			}
+
+			public bool ContainsKey(ColumnDictionaryKey column) {
 				return this._columns.ContainsKey(column);
 			}
 
 			private ColumnViewModel CreateViewModel(IColumnDefinition provider) {
+				provider.ThrowIfNull("provider");
+
 				var vm = new ColumnViewModel(provider, _this);
-				this._columns[provider.Name] = new Tuple<IColumnDefinition,ColumnViewModel>(provider, vm);
+				this._columns[provider.GetType().FullName] = new Tuple<IColumnDefinition,ColumnViewModel>(provider, vm);
 				vm.PropertyChanged += vm_PropertyChanged;
 				return vm;
 			}

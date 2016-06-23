@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CatWalk.IOSystem;
 using CatWalk.Collections;
+using System.ComponentModel;
 
 namespace CatWalk.Heron.IOSystem {
 	public abstract class OrderDefinition : IOrderDefinition {
@@ -12,15 +14,15 @@ namespace CatWalk.Heron.IOSystem {
 
 		public abstract string Name { get; }
 
-		public virtual IComparer<ISystemEntry> GetComparer(SortOrder order) {
+		public virtual IComparer GetComparer(ListSortDirection order) {
 			var comparer = this.GetAscendingComparer();
-			if(order == SortOrder.Descending) {
-				comparer = new ReversedComparer<ISystemEntry>(comparer);
+			if(order == ListSortDirection.Descending) {
+				comparer = new ReversedComparer(comparer);
 			}
 			return comparer;
 		}
 
-		protected abstract IComparer<ISystemEntry> GetAscendingComparer();
+		protected abstract IComparer GetAscendingComparer();
 
 		public static OrderDefinition FromColumnDefinition(IColumnDefinition definition) {
 			if (!definition.CanSort) {
@@ -29,7 +31,7 @@ namespace CatWalk.Heron.IOSystem {
 			return new ColumnDefinitionOrderDefinition(definition);
 		}
 
-		private class ColumnDefinitionOrderDefinition : OrderDefinition {
+		public class ColumnDefinitionOrderDefinition : OrderDefinition {
 			public IColumnDefinition ColumnDefinition { get; private set; }
 
 			public ColumnDefinitionOrderDefinition(IColumnDefinition definition) {
@@ -50,8 +52,8 @@ namespace CatWalk.Heron.IOSystem {
 				}
 			}
 
-			protected override IComparer<ISystemEntry> GetAscendingComparer() {
-				return this.ColumnDefinition.GetComparer(SortOrder.Ascending);
+			protected override IComparer GetAscendingComparer() {
+				return this.ColumnDefinition.GetComparer(ListSortDirection.Ascending);
 			}
 		}
 	}

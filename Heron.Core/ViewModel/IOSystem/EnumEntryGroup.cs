@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CatWalk.Heron.IOSystem;
 
 namespace CatWalk.Heron.ViewModel.IOSystem {
 	public class EnumEntryGroup<TID, TValue> : EntryGroup<TID>
@@ -14,17 +15,17 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 			}
 		}
 
-		private string _ColumnName;
+		private IColumnDefinition _Column;
 		private TValue _Value;
 
-		public EnumEntryGroup(string columnName, TValue _value, TID id, string name)
+		public EnumEntryGroup(IColumnDefinition column, TValue _value, TID id, string name)
 			: base(id, name) {
-			this._ColumnName = columnName;
+			this._Column = column;
 			this._Value = _value;
 		}
 
 		public override bool Filter(SystemEntryViewModel item) {
-			return this._Value.Equals(item.Columns[this._ColumnName].Value);
+			return this._Value.Equals(item.Columns[this._Column].Value);
 		}
 	}
 }

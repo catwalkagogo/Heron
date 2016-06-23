@@ -8,7 +8,7 @@ using CatWalk;
 using CatWalk.Heron.IOSystem;
 
 namespace CatWalk.Heron.ViewModel.IOSystem {
-	public struct ColumnOrderDefinition {
+	/*public struct ColumnOrderDefinition {
 		public IEnumerable<ColumnOrderSet> Orders { get; private set; }
 
 		public ColumnOrderDefinition(IEnumerable<ColumnOrderSet> orders) : this(){
@@ -16,13 +16,14 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 			this.Orders = orders;
 		}
 	}
-
+	*/
 	public struct ColumnOrderSet {
-		public ColumnDefinition Column { get; private set; }
+		public IColumnDefinition Column { get; private set; }
 		public ListSortDirection Direction { get; private set; }
 
-		public ColumnOrderSet(ColumnDefinition column, ListSortDirection order) : this() {
+		public ColumnOrderSet(IColumnDefinition column, ListSortDirection order) : this() {
 			column.ThrowIfNull("column");
+
 			this.Column = column;
 			this.Direction = order;
 		}

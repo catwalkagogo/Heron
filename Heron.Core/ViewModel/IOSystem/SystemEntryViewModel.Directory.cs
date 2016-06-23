@@ -233,7 +233,7 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 		private ChildrenCollectionView ChildrenViewFactory() {
 			var view = new ChildrenCollectionView(this, this._Children.Value);
 			using(view.DeferRefresh()) {
-				view.ColumnOrder = new ColumnOrderDefinition(Seq.Make(new ColumnOrderSet(ColumnDefinition.NameColumn, ListSortDirection.Ascending)));
+				view.ColumnOrder = Seq.Make(new ColumnOrderSet(ColumnDefinition.NameColumn, ListSortDirection.Ascending)).ToArray();
 			}
 			return view;
 		}
@@ -254,7 +254,7 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 				get;
 				private set;
 			}
-			private ColumnOrderDefinition _ColumnOrder;
+			private IEnumerable<ColumnOrderSet> _ColumnOrder;
 
 			internal ChildrenCollectionView(SystemEntryViewModel source, System.Collections.IList collection)
 				: base(collection) {
@@ -285,7 +285,7 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 				}
 			}
 
-			public ColumnOrderDefinition ColumnOrder {
+			public IEnumerable<ColumnOrderSet> ColumnOrder {
 				get {
 					return this._ColumnOrder;
 				}

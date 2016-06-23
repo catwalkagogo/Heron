@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Threading;
+using System.Collections;
 using System.Collections.Generic;
 using CatWalk.IOSystem;
+using System.ComponentModel;
 
 namespace CatWalk.Heron.IOSystem {
-	public interface IColumnDefinition {
+	public interface IColumnDefinition{
 		string DisplayName {
 			get;
 		}
@@ -16,13 +18,20 @@ namespace CatWalk.Heron.IOSystem {
 		}
 
 		bool CanSort { get; }
-		IComparer<ISystemEntry> GetComparer(SortOrder order);
+		/// <summary>
+		/// 取得した値に対するComaprerを取得する
+		/// </summary>
+		/// <param name="order"></param>
+		/// <returns></returns>
+		IComparer GetComparer(ListSortDirection order);
 		IOrderDefinition GetOrderDefinition();
 	}
 
-	public interface IColumnDefinition<out T> : IColumnDefinition{
+	public interface IColumnDefinition<T> : IColumnDefinition {
 		new T GetValue(ISystemEntry entry);
 		new T GetValue(ISystemEntry entry, bool noCache);
 		new T GetValue(ISystemEntry entry, bool noCache, CancellationToken token);
+
+		new IComparer<T> GetComparer(ListSortDirection order);
 	}
 }

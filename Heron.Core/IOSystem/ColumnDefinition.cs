@@ -45,7 +45,7 @@ namespace CatWalk.Heron.IOSystem {
 			}
 		}
 
-		public virtual IComparer<ISystemEntry> GetComparer(SortOrder order) {
+		public virtual IComparer GetComparer(ListSortDirection order) {
 			throw new InvalidOperationException();
 		}
 
@@ -55,6 +55,19 @@ namespace CatWalk.Heron.IOSystem {
 			}else {
 				throw new InvalidOperationException();
 			}
+		}
+
+		public override int GetHashCode() {
+			return this.GetType().GetHashCode();
+		}
+
+		public override bool Equals(object obj) {
+			if(obj == null) {
+				return base.Equals(obj);
+			} else {
+				return this.GetType().Equals(obj.GetType());
+			}
+			
 		}
 
 		/*
@@ -148,37 +161,33 @@ namespace CatWalk.Heron.IOSystem {
 			}
 		}
 
-		public override IComparer<ISystemEntry> GetComparer(SortOrder order) {
+		public new IComparer<T> GetComparer(ListSortDirection order) {
 			if (this.CanSort) {
-				return new DefaultSystemEntryComparer(this, order);
-			}else {
+				IComparer<T> comparer = Comparer<T>.Default;
+				if(order == ListSortDirection.Descending) {
+					comparer = new ReversedComparer<T>(comparer);
+				}
+
+				return comparer;
+			} else {
+				throw new InvalidOperationException();
+			}
+		}
+
+		IComparer IColumnDefinition.GetComparer(ListSortDirection order) {
+			if (this.CanSort) {
+				IComparer comparer = DefaultComparer.Default;
+				if (order == ListSortDirection.Descending) {
+					comparer = new ReversedComparer(comparer);
+				}
+
+				return comparer;
+			} else {
 				return base.GetComparer(order);
 			}
 		}
 
 		#endregion
-
-		protected class DefaultSystemEntryComparer : IComparer<ISystemEntry>{
-			public IColumnDefinition Definition { get; private set; }
-			private IComparer _Comparer;
-
-			public DefaultSystemEntryComparer(IColumnDefinition definition, SortOrder order) {
-				definition.ThrowIfNull("definition");
-
-				this.Definition = definition;
-				this._Comparer = DefaultComparer.Default;
-				if(order == SortOrder.Descending) {
-					this._Comparer = new ReversedComparer(this._Comparer);
-				}
-			}
-
-			public int Compare(ISystemEntry x, ISystemEntry y) {
-				var xv = this.Definition.GetValue(x);
-				var yv = this.Definition.GetValue(y);
-
-				return this._Comparer.Compare(xv, yv);
-			}
-		}
 
 	}
 }

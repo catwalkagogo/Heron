@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -8,19 +9,26 @@ using System.Threading.Tasks;
 using CatWalk;
 using CatWalk.Mvvm;
 using CatWalk.Heron.IOSystem;
+using CatWalk.IOSystem;
+using System.ComponentModel;
 
 namespace CatWalk.Heron.ViewModel.IOSystem {
-	public class ColumnViewModel : ViewModelBase, IComparable<ColumnViewModel> {
+	public class ColumnViewModel : ViewModelBase, IColumnDefinition/*, IComparer<ISystemEntry> */{
 		public SystemEntryViewModel SystemEntryViewModel { get; private set; }
 		public IColumnDefinition Definition { get; private set; }
 		private object _Value;
 		private IEnumerable<IEntryGroup> _Groups;
+	//	private Lazy<IComparer<ISystemEntry>> _ColumnComparer;
 
 		public ColumnViewModel(IColumnDefinition definition, SystemEntryViewModel vm) {
 			definition.ThrowIfNull("provider");
 			vm.ThrowIfNull("vm");
 			this.Definition = definition;
 			this.SystemEntryViewModel = vm;
+
+			/*this._ColumnComparer = new Lazy<IComparer<ISystemEntry>>(() => {
+				return this.Definition.GetComparer(ListSortDirection.Ascending);
+			});*/
 		}
 
 		public void Refresh() {
@@ -37,6 +45,55 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 			this.IsValueCreated = true;
 			this.OnPropertyChanged("Value");
 		}
+		/*
+		public int Compare(ISystemEntry x, ISystemEntry y) {
+			if (!this.CanSort) {
+				throw new InvalidOperationException("This column is not able to sort.");
+			}
+			return this._ColumnComparer.Value.Compare(x, y);
+		}
+		*/
+		#region IColumnDefinition
+
+		public object GetValue(ISystemEntry entry) {
+			return Definition.GetValue(entry);
+		}
+
+		public object GetValue(ISystemEntry entry, bool noCache) {
+			return Definition.GetValue(entry, noCache);
+		}
+
+		public object GetValue(ISystemEntry entry, bool noCache, CancellationToken token) {
+			return Definition.GetValue(entry, noCache, token);
+		}
+
+		public IComparer GetComparer(ListSortDirection order) {
+			return Definition.GetComparer(order);
+		}
+
+		public IOrderDefinition GetOrderDefinition() {
+			return Definition.GetOrderDefinition();
+		}
+
+		public string DisplayName {
+			get {
+				return Definition.DisplayName;
+			}
+		}
+
+		public string Name {
+			get {
+				return Definition.Name;
+			}
+		}
+
+		public bool CanSort {
+			get {
+				return Definition.CanSort;
+			}
+		}
+
+		#endregion
 
 		public object Value {
 			get{
@@ -65,7 +122,7 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 		}
 
 		#region IComparable<ColumnViewModel>
-
+		/*
 		public int CompareTo(object obj) {
 			var column = obj as ColumnViewModel;
 			if(column != null){
@@ -95,7 +152,7 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 			}
 		}
 
-
+	*/
 		#endregion
 	}
 }
