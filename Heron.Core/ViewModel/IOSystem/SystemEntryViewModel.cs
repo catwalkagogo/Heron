@@ -15,8 +15,7 @@ using CatWalk.IOSystem;
 using CatWalk.Heron.IOSystem;
 
 namespace CatWalk.Heron.ViewModel.IOSystem {
-	public partial class SystemEntryViewModel : ViewModelBase, IHierarchicalViewModel<SystemEntryViewModel>, IDisposable {
-		private bool _Disposed = false;
+	public partial class SystemEntryViewModel : ViewModelBase, IHierarchicalViewModel<SystemEntryViewModel>{
 		private readonly ResetLazy<ColumnDictionary> _Columns;
 		public SystemEntryViewModel Parent { get; private set; }
 		public ISystemEntry Entry { get; private set; }
@@ -43,23 +42,14 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 		#endregion
 
 		#region IDisposable
-		public void Dispose() {
-			this.Dispose(true);
 
-			GC.SuppressFinalize(this);
-		}
-
-		protected void Dispose(bool disposing) {
-			if(!this._Disposed) {
+		protected override void Dispose(bool disposing) {
+			if(!this.IsDisposed) {
 				if(this._CancellationTokenSource.IsValueCreated && !this._CancellationTokenSource.Value.IsCancellationRequested) {
 					this._CancellationTokenSource.Value.Cancel();
 				}
-				this._Disposed = true;
 			}
-		}
-
-		~SystemEntryViewModel() {
-			this.Dispose(false);
+			base.Dispose(disposing);
 		}
 
 		#endregion

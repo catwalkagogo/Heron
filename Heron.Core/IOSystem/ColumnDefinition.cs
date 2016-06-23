@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.ComponentModel;
 using CatWalk.IOSystem;
+using CatWalk.Collections;
 
 namespace CatWalk.Heron.IOSystem {
 	/// <summary>
@@ -36,6 +38,24 @@ namespace CatWalk.Heron.IOSystem {
 		}
 
 		protected abstract object GetValueImpl(ISystemEntry entry, bool noCache, CancellationToken token);
+
+		public virtual bool CanSort {
+			get {
+				return false;
+			}
+		}
+
+		public virtual IComparer<ISystemEntry> GetComparer(SortOrder order) {
+			throw new InvalidOperationException();
+		}
+
+		public virtual IOrderDefinition GetOrderDefinition() {
+			if (this.CanSort) {
+				return OrderDefinition.FromColumnDefinition(this);
+			}else {
+				throw new InvalidOperationException();
+			}
+		}
 
 		/*
 		#region Equals
@@ -122,6 +142,43 @@ namespace CatWalk.Heron.IOSystem {
 			return (T)base.GetValue(entry, noCache, token);
 		}
 
+		public override bool CanSort {
+			get {
+				return typeof(IComparable<T>).IsAssignableFrom(typeof(T));
+			}
+		}
+
+		public override IComparer<ISystemEntry> GetComparer(SortOrder order) {
+			if (this.CanSort) {
+				return new DefaultSystemEntryComparer(this, order);
+			}else {
+				return base.GetComparer(order);
+			}
+		}
+
 		#endregion
+
+		protected class DefaultSystemEntryComparer : IComparer<ISystemEntry>{
+			public IColumnDefinition Definition { get; private set; }
+			private IComparer _Comparer;
+
+			public DefaultSystemEntryComparer(IColumnDefinition definition, SortOrder order) {
+				definition.ThrowIfNull("definition");
+
+				this.Definition = definition;
+				this._Comparer = DefaultComparer.Default;
+				if(order == SortOrder.Descending) {
+					this._Comparer = new ReversedComparer(this._Comparer);
+				}
+			}
+
+			public int Compare(ISystemEntry x, ISystemEntry y) {
+				var xv = this.Definition.GetValue(x);
+				var yv = this.Definition.GetValue(y);
+
+				return this._Comparer.Compare(xv, yv);
+			}
+		}
+
 	}
 }

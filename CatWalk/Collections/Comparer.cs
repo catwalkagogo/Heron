@@ -24,7 +24,44 @@ namespace CatWalk.Collections{
 			return this.selector(obj).GetHashCode();
 		}
 	}
-	
+
+	public class DefaultComparer : IComparer {
+		private DefaultComparer() { }
+
+		public int Compare(object x, object y) {
+			var comparableX = (IComparable)x;
+			return comparableX.CompareTo(y);
+		}
+
+		private static DefaultComparer _Default;
+		public static DefaultComparer Default {
+			get {
+				return _Default ?? (_Default = new DefaultComparer());
+			}
+		}
+	}
+
+	public class ReversedComparer : IComparer {
+		private IComparer comparer;
+
+		public ReversedComparer(IComparer comparer) {
+			if (comparer == null) {
+				throw new ArgumentNullException("comparer");
+			}
+			this.comparer = comparer;
+		}
+
+		public int Compare(object x, object y) {
+			return -(this.comparer.Compare(x, y));
+		}
+
+		public IComparer BaseComparer {
+			get {
+				return this.comparer;
+			}
+		}
+	}
+
 	public class ReversedComparer<T> : IComparer<T>{
 		private IComparer<T> comparer;
 		

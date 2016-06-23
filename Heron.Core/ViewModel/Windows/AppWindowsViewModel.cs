@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using System.ComponentModel;
 using CatWalk.Mvvm;
 using System.Reactive;
-using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
@@ -15,7 +14,6 @@ namespace CatWalk.Heron.ViewModel.Windows {
 	public abstract class AppWindowsViewModel : ControlViewModel{
 		public ReactiveProperty<MainWindowViewModel> MainWindow { get; private set; }
 		public Application Application { get; private set; }
-		protected CompositeDisposable Disposables { get; private set; }
 
 		public AppWindowsViewModel(Application app) : this(app, null, app.SynchronizeInvoke){}
 
@@ -25,7 +23,6 @@ namespace CatWalk.Heron.ViewModel.Windows {
 			: base(parent, invoke) {
 			app.ThrowIfNull();
 			this.Application = app;
-			this.Disposables = new CompositeDisposable();
 
 			this.MainWindow = this.ObserveProperty(_ => _.Ancestors)
 				.OfType<AppWindowsViewModel>()

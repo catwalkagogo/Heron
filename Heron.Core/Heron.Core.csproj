@@ -98,6 +98,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration\GenericJsonConverter.cs" />
+    <Compile Include="IOSystem\IColumnValueSource.cs" />
+    <Compile Include="IOSystem\IOrderDefinition.cs" />
+    <Compile Include="IOSystem\OrderDefinition.cs" />
+    <Compile Include="IOSystem\ResetLazyColumnValueSource.cs" />
+    <Compile Include="IOSystem\SortOrder.cs" />
     <Compile Include="ProgressAggregator.cs" />
     <Compile Include="Application.cs" />
     <Compile Include="Application.IOSystem.cs" />

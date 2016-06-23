@@ -29,6 +29,7 @@ namespace CatWalk.Heron.Windows {
 
 		public MainWindow(WindowsPlugin plugin) {
 			plugin.ThrowIfNull("plugin");
+
 			InitializeComponent();
 
 			this.Plugin = plugin;
@@ -56,19 +57,23 @@ namespace CatWalk.Heron.Windows {
 
 		#region SwitchWindowCommand
 
-		private ReactiveCommand<Direction> _SwitchWindowCommand;
+		private ReactiveCommand<Direction?> _SwitchWindowCommand;
 
-		public ReactiveCommand<Direction> SwitchWindowCommand {
+		public ReactiveCommand<Direction?> SwitchWindowCommand {
 			get {
 				if(this._SwitchWindowCommand == null) {
-					this._SwitchWindowCommand = new ReactiveCommand<Direction>();
-					this._SwitchWindowCommand.Subscribe<Direction>(this.SwitchWindow);
+					this._SwitchWindowCommand = new ReactiveCommand<Direction?>();
+					this._SwitchWindowCommand.Subscribe<Direction?>(this.SwitchWindow);
 				}
 				return this._SwitchWindowCommand;
 			}
 		}
 
-		public void SwitchWindow(Direction mode) {
+		public void SwitchWindow(Direction? mode) {
+			if (!mode.HasValue) {
+				mode = Direction.Next;
+			}
+
 			var windows = WindowUtility.MainWindows.OrderWindowByZOrder().ToArray();
 			var screen = this.GetCurrentScreen();
 			var dlg = new Dialogs.SelectWindowDialog() {

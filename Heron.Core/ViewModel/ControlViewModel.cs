@@ -14,7 +14,7 @@ using System.Windows.Threading;
 using System.Collections.Specialized;
 
 namespace CatWalk.Heron.ViewModel {
-	public class ControlViewModel : ViewModelBase, IHierarchicalViewModel<ControlViewModel>, IDisposable{
+	public class ControlViewModel : ViewModelBase, IHierarchicalViewModel<ControlViewModel>{
 		public ControlViewModel() : this(null) {
 		}
 
@@ -206,33 +206,14 @@ namespace CatWalk.Heron.ViewModel {
 
 		#endregion
 
-		#region IDisposable Members
-
-		protected void ThrowIfDisposed() {
-			throw new ObjectDisposedException("this");
-		}
-
-		protected bool IsDisposed { get; private set; }
-
-		public void Dispose() {
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		protected virtual void Dispose(bool disposing) {
+		protected override void Dispose(bool disposing) {
 			if (!this.IsDisposed) {
 				if (this.Parent != null) {
 					this.Parent.Children.Remove(this);
 				}
 			}
-			this.IsDisposed = true;
+
+			base.Dispose(disposing);
 		}
-
-		~ControlViewModel() {
-			this.Dispose(false);
-		}
-
-		#endregion
-
 	}
 }

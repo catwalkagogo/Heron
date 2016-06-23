@@ -14,21 +14,36 @@ using CatWalk.Heron.ViewModel.Windows;
 using CatWalk.Mvvm;
 using CatWalk.Heron.ViewModel;
 using CatWalk.Collections;
+using System.Reactive;
+using System.Reactive.Linq;
+using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
+using System.Reactive.Disposables;
 
 namespace CatWalk.Heron {
 	public abstract partial class Application : ControlViewModel, IJobManagerSite {
 		private IJobManager _JobManager;
 		private IObservableList<MainWindowViewModel> _MainWindows = new WrappedObservableList<MainWindowViewModel>(new SkipList<MainWindowViewModel>());
 		private IReadOnlyObservableList<MainWindowViewModel> _ReadOnlyMainWindows;
+		private CompositeDisposable _MainWindowsActivatedSubscribers = new CompositeDisposable();
+		public MainWindowViewModel LastActiveMainWindow { get; private set; }
 
 		private void InitializeViewModel() {
 			this._JobManager = new JobManager();
-			this._MainWindows.CollectionChanged += (sender, e) => {
+			this.Disposables.Add(this._MainWindows.CollectionChangedAsObservable().Subscribe(e => {
+				this._MainWindowsActivatedSubscribers.Dispose();
+				this._MainWindowsActivatedSubscribers.Clear();
+
 				var index = 0;
 				foreach (var win in this._MainWindows) {
+					// インデックス貼り直し
 					win.Index = index++;
+
+					this._MainWindowsActivatedSubscribers.Add(win.ObserveProperty(_ => _.IsActive).Subscribe(isActive => {
+						this.LastActiveMainWindow = win;
+					}));
 				}
-			};
+			}));
 		}
 
 		public MainWindowViewModel CreateMainWindow() {

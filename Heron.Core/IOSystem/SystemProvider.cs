@@ -44,6 +44,12 @@ namespace CatWalk.Heron.IOSystem {
 			return new EntryGroupDescription[0];
 		}
 
+		public IEnumerable<OrderDefinition> GetOrderDefinitions(ISystemEntry entry) {
+			return this.GetColumnDefinitions(entry)
+				.Where(col => col.CanSort)
+				.Select(col => OrderDefinition.FromColumnDefinition(col));
+		}
+
 		#region NameGroup
 
 		private class NameEntryGroupDescription : EntryGroupDescription {

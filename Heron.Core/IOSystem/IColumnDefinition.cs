@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using System.Collections.Generic;
 using CatWalk.IOSystem;
 
 namespace CatWalk.Heron.IOSystem {
@@ -13,6 +14,10 @@ namespace CatWalk.Heron.IOSystem {
 		string Name {
 			get;
 		}
+
+		bool CanSort { get; }
+		IComparer<ISystemEntry> GetComparer(SortOrder order);
+		IOrderDefinition GetOrderDefinition();
 	}
 
 	public interface IColumnDefinition<out T> : IColumnDefinition{

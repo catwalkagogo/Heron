@@ -28,7 +28,7 @@
 	</Window.TaskbarItemInfo>
 	
 	<Window.InputBindings>
-		<KeyBinding Key="Tab" Modifiers="Control" Command="{Binding ElementName=_this, Path=SwitchWindowCommand}"></KeyBinding>
+		<KeyBinding Key="Tab" Modifiers="Control" Command="{Binding ElementName=_this, Path=SwitchWindowCommand}" CommandParameter="{x:Static win:Direction.Next}"></KeyBinding>
 		<KeyBinding Key="Tab" Modifiers="Control+Shift" Command="{Binding ElementName=_this, Path=SwitchWindowCommand}"
 					CommandParameter="{x:Static win:Direction.Previous}"></KeyBinding>
 	</Window.InputBindings>

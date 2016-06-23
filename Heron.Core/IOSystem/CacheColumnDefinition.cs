@@ -23,25 +23,4 @@ namespace CatWalk.Heron.IOSystem {
 
 		protected abstract TValue SelectValue(TSource value);
 	}
-
-	public interface IColumnValueSource<T> {
-		void Reset();
-		T GetValue(CancellationToken token);
-	}
-
-	public class ResetLazyColumnValueSource<T> : IColumnValueSource<T> {
-		private ResetLazy<T> _Source;
-
-		public ResetLazyColumnValueSource(Func<T> valueFactory) {
-			this._Source = new ResetLazy<T>(valueFactory);
-		}
-
-		public void Reset() {
-			this._Source.Reset();
-		}
-
-		public T GetValue(CancellationToken token) {
-			return this._Source.Value;
-		}
-	}
 }

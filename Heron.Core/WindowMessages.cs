@@ -119,6 +119,12 @@ namespace CatWalk.Heron {
 
 			public PromptMessage(object sender) : base(sender) { }
 		}
+
+		public class RequestHandleMessage : MessageBase {
+			public IntPtr Handle { get; set; }
+
+			public RequestHandleMessage(object sender) : base(sender) { }
+		}
 	}
 
 	public enum ArrangeMode {
