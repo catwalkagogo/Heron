@@ -23,11 +23,11 @@ namespace CatWalk.Heron.IOSystem {
 		IEnumerable<ISystemEntry> CanDelete(IEnumerable<ISystemEntry> entries);
 		Task<IEntryOperationResult> Delete(IEnumerable<ISystemEntry> entries, bool canUndo, CancellationToken token, IProgress<double> progress);
 		
-		IEnumerable<ISystemEntry> CanRename(ISystemEntry entry);
-		Task<IEntryOperationResult> Rename(ISystemEntry entry, string newName, CancellationToken token, IProgress<double> progress);
+		bool CanRename(ISystemEntry entry);
+		Task Rename(ISystemEntry entry, string newName, CancellationToken token, IProgress<double> progress);
 		
-		IEnumerable<ISystemEntry> CanCreate(ISystemEntry parent);
-		Task<IEntryOperationResult> Create(ISystemEntry parent, string newName, CancellationToken token, IProgress<double> progress);
+		bool CanCreate(ISystemEntry parent);
+		Task Create(ISystemEntry parent, string newName, CancellationToken token, IProgress<double> progress);
 
 		IEnumerable<ISystemEntry> CanOpen(IEnumerable<ISystemEntry> entries);
 		Task<IEntryOperationResult> Open(IEnumerable<ISystemEntry> entries, CancellationToken token, IProgress<double> progress);
@@ -38,8 +38,8 @@ namespace CatWalk.Heron.IOSystem {
 		IEnumerable<ISystemEntry> CanMoveToClipboard(IEnumerable<ISystemEntry> entries);
 		Task<IEntryOperationResult> MoveToClipboard(IEnumerable<ISystemEntry> entries, CancellationToken token, IProgress<double> progress);
 
-		IEnumerable<ISystemEntry> CanPasteTo(ISystemEntry dest);
-		Task<IEntryOperationResult> PasteTo(ISystemEntry dest, CancellationToken token, IProgress<double> progress);
+		bool CanPasteTo(ISystemEntry dest);
+		Task PasteTo(ISystemEntry dest, CancellationToken token, IProgress<double> progress);
 	}
 
 	public interface IEntryOperationResult {

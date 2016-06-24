@@ -98,11 +98,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration\GenericJsonConverter.cs" />
+    <Compile Include="Configuration\IOSystem\ConfigurationDirectory.cs" />
+    <Compile Include="Configuration\IOSystem\ConfigurationEntry.cs" />
+    <Compile Include="Configuration\IOSystem\ConfigurationEntryOperator.cs" />
+    <Compile Include="Configuration\IOSystem\ConfigurationProvider.cs" />
+    <Compile Include="Configuration\IOSystem\ConfigurationWatcher.cs" />
     <Compile Include="IOSystem\IColumnValueSource.cs" />
     <Compile Include="IOSystem\IOrderDefinition.cs" />
     <Compile Include="IOSystem\OrderDefinition.cs" />
     <Compile Include="IOSystem\ResetLazyColumnValueSource.cs" />
-    <Compile Include="IOSystem\SortOrder.cs" />
     <Compile Include="ProgressAggregator.cs" />
     <Compile Include="Application.cs" />
     <Compile Include="Application.IOSystem.cs" />
@@ -122,7 +126,7 @@
     <Compile Include="Scripting\ClearScriptHost.cs" />
     <Compile Include="ViewModel\ViewModelBase.cs" />
     <Compile Include="ViewModel\IOSystem\ColumnGroupDescription.cs" />
-    <Compile Include="ViewModel\IOSystem\EnumEntryGroupDescription.cs" />
+    <Compile Include="ViewModel\IOSystem\EnumEntryGroup.cs" />
     <Compile Include="ViewModel\IOSystem\MonthlyGroupDescription.cs" />
     <Compile Include="ViewModel\IOSystem\EntryGroupDescription.cs" />
     <Compile Include="IOSystem\EntryOperatorCollection.cs" />
@@ -161,7 +165,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Application.Scripting.cs" />
-    <None Include="ClassDiagram1.cd" />
     <None Include="Licenses\ClearScript.main.license" />
     <None Include="Licenses\v8.main.license" />
     <None Include="Licenses\v8.strongtalk.license" />
@@ -191,6 +194,7 @@
       <Name>CatWalk</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>

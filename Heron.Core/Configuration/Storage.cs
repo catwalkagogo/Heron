@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Data;
 using CatWalk.Mvvm;
+using System.Threading;
 
 namespace CatWalk.Heron.Configuration {
 	public abstract class Storage : ViewModelBase, IStorage{
@@ -131,17 +132,24 @@ namespace CatWalk.Heron.Configuration {
 		}
 
 		public virtual Task<T> GetAsync<T>(string key, T def) {
+			return this.GetAsync(key, def, CancellationToken.None);
+		}
+
+		public Task<T> GetAsync<T>(string key, T def, CancellationToken token) {
 			return Task.Run<T>(() => {
 				return this.Get(key, def);
-			});
+			}, token);
 		}
 
 		public virtual Task SetAsync<T>(string key, T value) {
-			return Task.Run(() => {
-				this[key] = value;
-			});
+			return this.SetAsync(key, value, CancellationToken.None);
 		}
 
+		public Task SetAsync<T>(string key, T value, CancellationToken token) {
+			return Task.Run(() => {
+				this[key] = value;
+			}, token);
+		}
 
 		#region IDisposable Members
 

@@ -13,6 +13,7 @@ using CatWalk.Heron.ViewModel.IOSystem;
 using CatWalk.Heron.ViewModel.Windows;
 using CatWalk.Mvvm;
 using CatWalk.Heron.ViewModel;
+using CatWalk.Heron.Configuration.IOSystem;
 
 namespace CatWalk.Heron {
 	public abstract partial class Application : ControlViewModel, IJobManagerSite {
@@ -22,6 +23,8 @@ namespace CatWalk.Heron {
 		private void InitializeIOSystem() {
 			this._RootProvider = new RootProvider(this);
 			this._RootEntry = new SystemEntryViewModel(null, this._RootProvider, new RootEntry(this));
+
+			this.RegisterSystemProvider(new ConfigurationProvider());
 		}
 
 		#region Property

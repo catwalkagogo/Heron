@@ -14,7 +14,7 @@ namespace CatWalk.Heron.FileSystem {
 
 		protected override void OnLoaded(PluginEventArgs e) {
 			this._Provider = new FileSystemProvider();
-			this._Operator = new FileSystemEntryOperator();
+			this._Operator = FileSystemEntryOperator.Default;
 			var app = e.Application;
 			app.RegisterSystemProvider(this._Provider);
 			app.RegisterEntryOperator(this._Operator);

@@ -82,6 +82,17 @@ namespace CatWalk.Heron.IOSystem {
 			});
 		}
 
+		private Task Call(Func<IEntryOperator, bool> pred, Func<IEntryOperator, Task> call, CancellationToken token) {
+			var op = this.Where(pred).FirstOrDefault();
+			if (op != null) {
+				return call(op);
+			} else {
+				return Task.Run<bool>(() => {
+					return false;
+				}, token);
+			}
+		}
+
 
 		#region IEntryOperator Members
 
@@ -109,22 +120,22 @@ namespace CatWalk.Heron.IOSystem {
 			return this.CallTask(entries, (op, set) => op.CanDelete(set), (op, set, prog) => op.Delete(set, canUndo, token, prog), token, progress);
 		}
 
-		public IEnumerable<ISystemEntry> CanRename(ISystemEntry entry) {
-			return this.Call(op => op.CanRename(entry));
+		public bool CanRename(ISystemEntry entry) {
+			return this.Any(op => op.CanRename(entry));
 		}
 
-		public Task<IEntryOperationResult> Rename(ISystemEntry entry, string newName, System.Threading.CancellationToken token, IProgress<double> progress) {
+		public Task Rename(ISystemEntry entry, string newName, System.Threading.CancellationToken token, IProgress<double> progress) {
 			// (op => op.CanRename(entry), op => op.Rename(entry, newName, token, progress), token);
-			return this.CallTask(op => op.CanRename(entry), op => op.Rename(entry, newName, token, progress), token);
+			return this.Call(op => op.CanRename(entry), op => Create(entry, newName, token, progress), token);
 			
 		}
 
-		public IEnumerable<ISystemEntry> CanCreate(ISystemEntry parent) {
-			return this.Call(op => op.CanCreate(parent));
+		public bool CanCreate(ISystemEntry parent) {
+			return this.Any(op => op.CanCreate(parent));
 		}
 
-		public Task<IEntryOperationResult> Create(ISystemEntry parent, string newName, CancellationToken token, IProgress<double> progress) {
-			return this.CallTask(op => op.CanCreate(parent), op => op.Create(parent, newName, token, progress), token);
+		public Task Create(ISystemEntry parent, string newName, CancellationToken token, IProgress<double> progress) {
+			return this.Call(op => op.CanCreate(parent), op => Create(parent, newName, token, progress), token);
 		}
 
 		public IEnumerable<ISystemEntry> CanOpen(IEnumerable<ISystemEntry> entries) {
@@ -151,12 +162,12 @@ namespace CatWalk.Heron.IOSystem {
 			return this.CallTask(entries, (op, set) => op.CanMoveToClipboard(entries), (op, set, prog) => op.MoveToClipboard(entries, token, prog), token, progress);
 		}
 
-		public IEnumerable<ISystemEntry> CanPasteTo(ISystemEntry dest) {
-			return this.Call(op => this.CanPasteTo(dest));
+		public bool CanPasteTo(ISystemEntry dest) {
+			return this.Any(op => this.CanPasteTo(dest));
 		}
 
-		public Task<IEntryOperationResult> PasteTo(ISystemEntry dest, CancellationToken token, IProgress<double> progress) {
-			return this.CallTask(op => this.CanPasteTo(dest), op => this.PasteTo(dest, token, progress), token);
+		public Task PasteTo(ISystemEntry dest, CancellationToken token, IProgress<double> progress) {
+			return this.Call(op => this.CanPasteTo(dest), op => this.PasteTo(dest, token, progress), token);
 		}
 
 		#endregion

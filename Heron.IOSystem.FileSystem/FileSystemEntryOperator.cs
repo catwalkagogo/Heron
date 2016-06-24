@@ -13,6 +13,17 @@ using CatWalk.Windows;
 
 namespace CatWalk.Heron.FileSystem {
 	public class FileSystemEntryOperator : IEntryOperator {
+		private FileSystemEntryOperator() {}
+
+		private static Lazy<FileSystemEntryOperator> _Default = new Lazy<FileSystemEntryOperator>(() => {
+			return new FileSystemEntryOperator();
+		});
+		public static FileSystemEntryOperator Default {
+			get {
+				return _Default.Value;
+			}
+		}
+
 		private static FileOperation GetFileOperation(CancellationToken token, IProgress<double> progress) {
 			var op = new FileOperation();
 			op.ProgressSink.ProgressChanged += (s, e) => {
@@ -56,8 +67,8 @@ namespace CatWalk.Heron.FileSystem {
 			return entries.Where(entry => entry is IFileSystemEntry);
 		}
 
-		public IEnumerable<ISystemEntry> CanCreate(ISystemEntry parent) {
-			return Seq.Make(parent).Where(entry => entry is IFileSystemEntry);
+		public bool CanCreate(ISystemEntry parent) {
+			return parent is IFileSystemEntry;
 		}
 
 		public IEnumerable<ISystemEntry> CanDelete(IEnumerable<ISystemEntry> entries) {
@@ -76,12 +87,12 @@ namespace CatWalk.Heron.FileSystem {
 			return entries.Where(entry => entry is IFileSystemEntry);
 		}
 
-		public IEnumerable<ISystemEntry> CanPasteTo(ISystemEntry dest) {
-			return Seq.Make(dest).Where(entry => entry is IFileSystemEntry && Clipboard.ContainsFileDropList());
+		public bool CanPasteTo(ISystemEntry dest) {
+			return dest is IFileSystemEntry && Clipboard.ContainsFileDropList();
 		}
 
-		public IEnumerable<ISystemEntry> CanRename(ISystemEntry entry) {
-			return Seq.Make(entry).Where(e => e is FileSystemEntry);
+		public bool CanRename(ISystemEntry entry) {
+			return entry is FileSystemEntry;
 		}
 
 		private Task<IEntryOperationResult> CreateFileOperationTask(IEnumerable<ISystemEntry> entries, CancellationToken token, IProgress<double> progress, Action<FileOperation> op) {
@@ -130,26 +141,27 @@ namespace CatWalk.Heron.FileSystem {
 			});
 		}
 
-		public Task<IEntryOperationResult> Rename(ISystemEntry entry, string newName, CancellationToken token, IProgress<double> progress) {
-			var entries = this.CanRename(entry).ToArray();
-			var files = entries.Cast<IFileSystemEntry>().Select(fse => fse.FileSystemPath.FullPath).ToArray();
+		public Task Rename(ISystemEntry entry, string newName, CancellationToken token, IProgress<double> progress) {
+			if (!this.CanRename(entry)) {
+				throw new ArgumentException("entry");
+			}
+			var files = Seq.Make(entry).Cast<IFileSystemEntry>().Select(fse => fse.FileSystemPath.FullPath).ToArray();
 
-			return this.CreateFileOperationTask(entries, token, progress, (ops) => {
+			return this.CreateFileOperationTask(Seq.Make(entry), token, progress, (ops) => {
 				ops.Rename(files[0], newName);
 			});
 		}
 
-		public Task<IEntryOperationResult> Create(ISystemEntry parent, string newName, CancellationToken token, IProgress<double> progress) {
-			var entries = this.CanCreate(parent).Cast<IFileSystemEntry>().ToArray();
-			var parentEntry = entries.FirstOrDefault();
-
-			if (parentEntry != null) {
-				return this.CreateFileOperationTask(entries, token, progress, (ops) => {
-					ops.Create(parentEntry.FileSystemPath.FullPath, newName, System.IO.FileAttributes.Normal);
-				});
-			} else {
+		public Task Create(ISystemEntry parent, string newName, CancellationToken token, IProgress<double> progress) {
+			if (!this.CanCreate(parent)) {
 				throw new ArgumentException("parent");
 			}
+			var entries = Seq.Make(parent).Cast<IFileSystemEntry>().ToArray();
+			var parentEntry = entries.First();
+
+			return this.CreateFileOperationTask(entries, token, progress, (ops) => {
+				ops.Create(parentEntry.FileSystemPath.FullPath, newName, System.IO.FileAttributes.Normal);
+			});
 		}
 
 		public Task<IEntryOperationResult> Open(IEnumerable<ISystemEntry> entries, CancellationToken token, IProgress<double> progress) {
@@ -160,7 +172,7 @@ namespace CatWalk.Heron.FileSystem {
 				FileOperations.ExecuteDefaultAction(IntPtr.Zero, files);
 
 				return new EntryOperationResult(entries);
-			});
+			}, token);
 		}
 
 		public Task<IEntryOperationResult> CopyToClipboard(IEnumerable<ISystemEntry> entries, CancellationToken token, IProgress<double> progress) {
@@ -171,7 +183,7 @@ namespace CatWalk.Heron.FileSystem {
 				ClipboardUtility.CopyFiles(files);
 
 				return new EntryOperationResult(entries);
-			});
+			}, token);
 		}
 
 		public Task<IEntryOperationResult> MoveToClipboard(IEnumerable<ISystemEntry> entries, CancellationToken token, IProgress<double> progress) {
@@ -182,17 +194,16 @@ namespace CatWalk.Heron.FileSystem {
 				ClipboardUtility.CutFiles(files);
 
 				return new EntryOperationResult(entries);
-			});
+			}, token);
 		}
 
-		public Task<IEntryOperationResult> PasteTo(ISystemEntry dest, CancellationToken token, IProgress<double> progress) {
-			var entries = this.CanPasteTo(dest).ToArray();
-			var files = entries.Cast<IFileSystemEntry>().Select(fse => fse.FileSystemPath.FullPath).ToArray();
-			var destPath = files.FirstOrDefault();
-
-			if (destPath == null) {
+		public Task PasteTo(ISystemEntry dest, CancellationToken token, IProgress<double> progress) {
+			if (!this.CanPasteTo(dest)) {
 				throw new ArgumentException("dest");
 			}
+
+			var entries = Seq.Make(dest);
+			var destPath = ((IFileSystemEntry)dest).FileSystemPath.FullPath;
 
 			return Task.Run<IEntryOperationResult>(() => {
 
@@ -214,7 +225,25 @@ namespace CatWalk.Heron.FileSystem {
 				}
 
 				return new EntryOperationResult(entries);
-			});
+			}, token);
+		}
+
+		public IEnumerable<ISystemEntry> CanCreateShortcut(IFileSystemEntry target) {
+			return Seq.Make(target);
+		}
+
+		public Task<IEntryOperationResult> CreateShortcut(IFileSystemEntry target, string shortcutFileDest, CancellationToken token, Action<ShellLink, IFileSystemEntry> linkInitializer = null) {
+			return Task.Run<IEntryOperationResult>(() => {
+				var link = new ShellLink();
+				link.TargetPath = target.FileSystemPath.FullPath;
+				if (linkInitializer != null) {
+					linkInitializer(link, target);
+				}
+
+				link.Save(shortcutFileDest);
+
+				return new EntryOperationResult(Seq.Make(target));
+			}, token);
 		}
 	}
 }
