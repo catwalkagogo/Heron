@@ -22,7 +22,7 @@ namespace CatWalk.Windows.Extensions{
 		public static void IsEnabled_Changed(DependencyObject dp, DependencyPropertyChangedEventArgs e){
 			var element = (FrameworkElement)dp;
 			if((bool)e.NewValue){
-				var point = element.PointToScreen(new Point(0, 0));
+				var point = element.PointToScreen(new System.Windows.Point(0, 0));
 				ClipCursor(point.X, point.Y, point.X + element.ActualWidth, point.Y + element.ActualHeight);
 			}else{
 				UnclipCursor();

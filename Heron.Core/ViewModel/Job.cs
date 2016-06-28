@@ -8,6 +8,7 @@ using System.Reactive;
 using System.Reactive.Linq;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
+using CatWalk.Threading;
 
 namespace CatWalk.Heron.ViewModel {
 	public class Job : ViewModelBase, IJob {
@@ -37,7 +38,8 @@ namespace CatWalk.Heron.ViewModel {
 		}
 
 		public void Start() {
-			this._Timer = new Timer(this.TimerCallback, null, 0, 1000);
+
+			this._Timer = new Timer(this.TimerCallback, null, 0, 1000, this._CancellationTokenSource.Token);
 			this.Status = JobStatus.Running;
 		}
 

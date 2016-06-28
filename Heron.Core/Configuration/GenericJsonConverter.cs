@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using System.Reflection;
 
 namespace CatWalk.Heron.Configuration {
 	public abstract class GenericJsonConverter<T> : Newtonsoft.Json.JsonConverter {
@@ -52,7 +53,7 @@ namespace CatWalk.Heron.Configuration {
 		///     <c>true</c> if this instance can convert the specified object type; otherwise, <c>false</c>.
 		/// </returns>
 		public override bool CanConvert(Type objectType) {
-			return typeof(T).IsAssignableFrom(objectType);
+			return typeof(T).GetTypeInfo().IsAssignableFrom(objectType.GetTypeInfo());
 		}
 
 		/// <summary>

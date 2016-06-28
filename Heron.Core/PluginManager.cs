@@ -12,39 +12,25 @@ namespace CatWalk.Heron {
 		private static readonly string SETTINGS_KEY = typeof(PluginManager).FullName;
 		private static readonly string ENABLED_PLUGINS_KEY = SETTINGS_KEY + ".EnabledPlugins";
 		private Application _App;
-		private IList<IPlugin> _Plugins = null;
+		private IList<IPlugin> _Plugins = new IPlugin[0];
+		private IList<Assembly> _Assemblies = new List<Assembly>();
 
 		internal PluginManager(Application app) {
 			app.ThrowIfNull("app");
 			this._App = app;
+		}
 
-			LoadBuiltinPluginAssemblies();
-
+		public void RestoreEnabledPluginsFromConfiguration() {
 			string[] enabledPlugins;
 			object v;
-			if(this._App.Configuration.TryGetValue(ENABLED_PLUGINS_KEY, out v)) {
+			if (this._App.Configuration.TryGetValue(ENABLED_PLUGINS_KEY, out v)) {
 				enabledPlugins = (string[])v;
 			} else {
 				enabledPlugins = this.GetPluginTypes().Select(t => t.FullName).ToArray();
 				this._App.Configuration[ENABLED_PLUGINS_KEY] = enabledPlugins;
 			}
 
-			this.RefreshPluginInstances(enabledPlugins);
-		}
-
-		private static void LoadBuiltinPluginAssemblies() {
-			var builtinPluginDir = new FilePath(Assembly.GetEntryAssembly().Location).Resolve("../plugins").FullPath;
-			var dlls = Directory.EnumerateFiles(builtinPluginDir, "*.dll", SearchOption.AllDirectories);
-			var asmNames = dlls.ToDictionary(dll => AssemblyName.GetAssemblyName(dll));
-
-			var loadedAsmNames = AppDomain.CurrentDomain.GetAssemblies()
-				.SelectMany(asm => asm.GetReferencedAssemblies().Concat(Seq.Make(asm.GetName())))
-				.Distinct(asmName => asmName.FullName)
-				.ToLookup(asmName => asmName.FullName);
-			var asmsToLoad = asmNames.Where(asmName => !loadedAsmNames.Contains(asmName.Key.FullName)).Distinct(pair => pair.Key.FullName).ToArray();
-			asmsToLoad.ForEach(asmName => {
-				Assembly.LoadFile(asmName.Value);
-			});
+			this.SetEnabledPlugins(enabledPlugins);
 		}
 
 		private void RefreshPluginInstances(string[] enabledPlugins) {
@@ -85,15 +71,15 @@ namespace CatWalk.Heron {
 		/// </summary>
 		/// <returns></returns>
 		public IEnumerable<Type> GetPluginTypes() {
-			var asms = AppDomain.CurrentDomain.GetAssemblies().ToArray();
-			return AppDomain.CurrentDomain.GetAssemblies()
+			var asms = this._Assemblies;
+			return asms
 				.SelectMany(asm => GetTypesFromAssembly(asm))
-				.Where(t => typeof(IPlugin).IsAssignableFrom(t) && !t.IsAbstract && !t.IsInterface);
+				.Where(t => typeof(IPlugin).GetTypeInfo().IsAssignableFrom(t.GetTypeInfo()) && !t.GetTypeInfo().IsAbstract && !t.GetTypeInfo().IsInterface);
 		}
 
 		private static IEnumerable<Type> GetTypesFromAssembly(Assembly asm) {
 			try {
-				return asm.GetTypes();
+				return asm.ExportedTypes;
 			}catch(ReflectionTypeLoadException ex) {
 				return ex.Types.Where(t => t != null);
 			}
@@ -107,10 +93,21 @@ namespace CatWalk.Heron {
 			enabledPlugins.ThrowIfNull("enabledPlugins");
 			enabledPlugins = (string[])enabledPlugins.Clone();
 			this._App.Configuration[ENABLED_PLUGINS_KEY] = enabledPlugins;
-			this.Unload();
+			if (this.Loaded) {
+				this.Unload();
+			}
 
 			this.RefreshPluginInstances(enabledPlugins);
 			this.Load();
+		}
+
+		public void RegisterAssembly(Assembly asm) {
+			asm.ThrowIfNull("asm");
+			this._Assemblies.Add(asm);
+		}
+
+		public bool UnregisterAssembly(Assembly asm) {
+			return this._Assemblies.Remove(asm);
 		}
 
 		public bool Loaded {

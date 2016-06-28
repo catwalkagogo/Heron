@@ -3,21 +3,19 @@ using System.ComponentModel;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using System.Threading;
 using System.Threading.Tasks;
 using System.IO;
 using CatWalk.Heron.Configuration;
 using CatWalk.Heron.Scripting;
 using CatWalk.Heron.ViewModel;
 using CatWalk.IO;
-using CatWalk.Utils;
-using Community.CsharpSqlite.SQLiteClient;
-using NLog;
 
 namespace CatWalk.Heron {
 	public abstract partial class Application : ControlViewModel, IJobManagerSite {
-		private Lazy<CachedStorage> _Configuration;
-		private FilePath _ConfigurationFilePath;
-		private Lazy<Logger> _Logger = new Lazy<Logger>(() => LogManager.GetCurrentClassLogger());
+		private Lazy<IStorage> _Configuration;
+		public abstract FilePath ConfigurationFilePath { get; }
+		//private Lazy<Logger> _Logger = new Lazy<Logger>(() => LogManager.GetCurrentClassLogger());
 
 		#region static
 
@@ -32,7 +30,7 @@ namespace CatWalk.Heron {
 
 		#endregion
 
-		public Application(ISynchronizeInvoke invoke) : base(null, invoke) {
+		public Application(SynchronizationContext context) : base(null, context) {
 
 		}
 
@@ -63,15 +61,16 @@ namespace CatWalk.Heron {
 			}
 		}
 
-		public CommandLineOption StartUpOption { get; private set; }
-
 		#endregion
 
 		#region StartUp
 
+		protected abstract bool IsFirst {
+			get;
+		}
+
 		protected virtual void OnStartup(ApplicationStartUpEventArgs e) {
-			if(ApplicationProcess.IsFirst) {
-				this.RegisterRemoteCommands();
+			if(this.IsFirst) {
 				this.OnFirstStartUp(e);
 			} else {
 				this.OnSecondStartUp(e);
@@ -83,45 +82,25 @@ namespace CatWalk.Heron {
 			}
 		}
 
+		protected abstract IStorage GetStorage();
+
 		protected virtual Task OnFirstStartUp(ApplicationStartUpEventArgs e) {
 			return Task.Run(() => {
 				// Configuration初期化
-				this._ConfigurationFilePath = new FilePath(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)).Resolve("Heron");
-				this._Configuration = new Lazy<CachedStorage>(() => {
-					var connBldr = new SqliteConnectionStringBuilder();
-					connBldr.DataSource = this._ConfigurationFilePath.Resolve("app.db").FullPath;
-					connBldr.Version = 3;
-
-					Directory.CreateDirectory(this._ConfigurationFilePath.FullPath);
-					using (File.AppendText(connBldr.DataSource)) {
-
-					}
-
-					return new CachedStorage(
-						256,
-						new DBStorage(
-							SqliteClientFactory.Instance,
-							connBldr.ConnectionString,
-							"configuration"));
+				this._Configuration = new Lazy<IStorage>(() => {
+					return this.GetStorage();
 				});
 				var conf = this._Configuration.Value;
 			}).ContinueWith(task => {
-				var option = new CommandLineOption();
-				var parser = new CommandLineParser();
-				parser.Parse(option, e.Args);
-				this.StartUpOption = option;
-
-				this.InitializeScripting();
-				this.InitializeIOSystem();
-				this.InitializeViewModel();
-				this.InitializePlugin();
-
-				this.ExecuteScripts();
+				Task.WaitAll(
+					this.InitializeScripting(),
+					this.InitializeIOSystem(),
+					this.InitializeViewModel(),
+					this.InitializePlugin());
 			});
 		}
 
 		protected virtual void OnSecondStartUp(ApplicationStartUpEventArgs e) {
-			ApplicationProcess.InvokeRemote(AP_CommandLine, e.Args);
 			this.Shutdown();
 		}
 
@@ -158,37 +137,26 @@ namespace CatWalk.Heron {
 
 		#region SessionEnding
 
-		protected virtual void OnSessionEnding(SessionEndingCancelEventArgs e) {
+		protected virtual void OnSessionEnding(CancelEventArgs e) {
 			var handler = this.SessionEnding;
 			if(handler != null) {
 				handler(this, e);
 			}
 		}
 
-		public event SessionEndingCancelEventHandler SessionEnding;
+		public event EventHandler<CancelEventArgs> SessionEnding;
 
 		#endregion
 
 		protected override void OnPropertyChanged(PropertyChangedEventArgs e) {
-			if(e.PropertyName == "SynchronizeInvoke") {
-				this._Messenger.SynchronizeInvoke = this.SynchronizeInvoke;
+			if(e.PropertyName == "SynchronizationContext") {
+				this._Messenger.SynchronizationContext = this.SynchronizationContext;
 			}
 			base.OnPropertyChanged(e);
 		}
 
 		private const string AP_CommandLine = "_CommandLine";
 
-		private void RegisterRemoteCommands() {
-			ApplicationProcess.Actions.Add(AP_CommandLine, new Action<string[]>(prms => {
-				var option = new CommandLineOption();
-				var parser = new CommandLineParser();
-				parser.Parse(option, prms);
-			}));
-		}
-
-		public class CommandLineOption : Dictionary<string, string> {
-
-		}
 	}
 
 	public class ViewFactory{

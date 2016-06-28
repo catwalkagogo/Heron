@@ -6,7 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using CatWalk.Heron.ViewModel.IOSystem;
 using CatWalk;
-using CatWalk.Windows.Input;
 using CatWalk.Threading;
 using CatWalk.Collections;
 using CatWalk.Heron.IOSystem;
@@ -24,9 +23,8 @@ namespace CatWalk.Heron.ViewModel.Windows {
 		private object _EntryViewModel;
 		private Job _NavigateJob;
 		private readonly IHistoryStack<HistoryItem> _History = new HistoryStack<HistoryItem>();
-		private readonly ReactiveProperty<SystemEntryViewModel> _FocusedItem;
+		//private readonly ReactiveProperty<SystemEntryViewModel> _FocusedItem;
 
-		private readonly CompositeDisposable _Resources = new CompositeDisposable();
 		private readonly Lazy<ReactiveCommand<string>> _OpenCommand;
 		private readonly Lazy<ReactiveCommand> _GoUpCommand;
 		private readonly Lazy<ReactiveCommand<ISystemEntry>> _CopyToCommand;
@@ -41,20 +39,20 @@ namespace CatWalk.Heron.ViewModel.Windows {
 			this._Current = entry;
 
 			this.SelectedItems = new ObservableHashSet<SystemEntryViewModel>();
-
+			/*
 			this._FocusedItem =
 				this.ObserveProperty(_ => _.CurrentEntry)
 					.SelectMany(current => current.ChildrenView.ObserveProperty(_ => _.CurrentItem))
 					.Cast<SystemEntryViewModel>()
 					.ToReactiveProperty();
-
+					*/
 			this._OpenCommand = new Lazy<ReactiveCommand<string>>(() => {
 				var cmd =
 					this.ObserveProperty(_ => _.FocusedItem)
 						.Select(_ => _ != null)
 						.ToReactiveCommand<string>();
-				this._Resources.Add((cmd.Subscribe(this.Open)));
-				this._Resources.Add(cmd);
+				this.Disposables.Add((cmd.Subscribe(this.Open)));
+				this.Disposables.Add(cmd);
 				return cmd;
 			});
 			this._GoUpCommand = new Lazy<ReactiveCommand>(() => {
@@ -62,8 +60,8 @@ namespace CatWalk.Heron.ViewModel.Windows {
 					this.ObserveProperty(_ => _.CurrentEntry)
 						.Select(_ => _ != null && _.Parent != null)
 						.ToReactiveCommand();
-				this._Resources.Add(cmd.Subscribe(_ => this.GoUp()));
-				this._Resources.Add(cmd);
+				this.Disposables.Add(cmd.Subscribe(_ => this.GoUp()));
+				this.Disposables.Add(cmd);
 				return cmd;
 			});
 			this._CopyToCommand = new Lazy<ReactiveCommand<ISystemEntry>>(() => {
@@ -72,8 +70,8 @@ namespace CatWalk.Heron.ViewModel.Windows {
 						this.SelectedItems.ObserveProperty(items => items.Count).Select(count => count > 0),
 						this.PanelsCollection.Select(_ => _.Count > 1)
 					).ToReactiveCommand<ISystemEntry>();
-				this._Resources.Add(cmd.Subscribe(this.CopyTo));
-				this._Resources.Add(cmd);
+				this.Disposables.Add(cmd.Subscribe(this.CopyTo));
+				this.Disposables.Add(cmd);
 				return cmd;
 			});
 			this._MoveToCommand = new Lazy<ReactiveCommand<ISystemEntry>>(() => {
@@ -82,8 +80,8 @@ namespace CatWalk.Heron.ViewModel.Windows {
 						this.SelectedItems.ObserveProperty(items => items.Count).Select(count => count > 0),
 						this.PanelsCollection.Select(_ => _.Count > 1)
 					).ToReactiveCommand<ISystemEntry>();
-				this._Resources.Add(cmd.Subscribe(this.MoveTo));
-				this._Resources.Add(cmd);
+				this.Disposables.Add(cmd.Subscribe(this.MoveTo));
+				this.Disposables.Add(cmd);
 				return cmd;
 			});
 			this._DeleteCommand = new Lazy<ReactiveCommand>(() => {
@@ -92,8 +90,8 @@ namespace CatWalk.Heron.ViewModel.Windows {
 						.ObserveProperty(items => items.Count)
 						.Select(count => count > 0)
 						.ToReactiveCommand();
-				this._Resources.Add(cmd.Subscribe(_ => this.Delete()));
-				this._Resources.Add(cmd);
+				this.Disposables.Add(cmd.Subscribe(_ => this.Delete()));
+				this.Disposables.Add(cmd);
 				return cmd;
 			});
 			this._RemoveCommand = new Lazy<ReactiveCommand>(() => {
@@ -102,8 +100,8 @@ namespace CatWalk.Heron.ViewModel.Windows {
 						.ObserveProperty(items => items.Count)
 						.Select(count => count > 0)
 						.ToReactiveCommand();
-				this._Resources.Add(cmd.Subscribe(_ => this.Remove()));
-				this._Resources.Add(cmd);
+				this.Disposables.Add(cmd.Subscribe(_ => this.Remove()));
+				this.Disposables.Add(cmd);
 				return cmd;
 			});
 			this._Panel = new Lazy<ReactiveProperty<PanelViewModel>>(() => {
@@ -111,8 +109,8 @@ namespace CatWalk.Heron.ViewModel.Windows {
 					this.ObserveProperty(_ => _.Ancestors)
 						.Select(_ => _.OfType<PanelViewModel>().FirstOrDefault())
 						.ToReactiveProperty();
-				this._Resources.Add(prop.Subscribe(_ => this.OnPropertyChanged("Panel")));
-				this._Resources.Add(prop);
+				this.Disposables.Add(prop.Subscribe(_ => this.OnPropertyChanged("Panel")));
+				this.Disposables.Add(prop);
 				return prop;
 			});
 			this._Panels = new Lazy<ReactiveProperty<PanelCollectionViewModel>>(() => {
@@ -120,8 +118,8 @@ namespace CatWalk.Heron.ViewModel.Windows {
 					this.ObserveProperty(_ => _.Ancestors)
 						.Select(_ => _.OfType<PanelCollectionViewModel>().FirstOrDefault())
 						.ToReactiveProperty();
-				this._Resources.Add(prop.Subscribe(_ => this.OnPropertyChanged("Panels")));
-				this._Resources.Add(prop);
+				this.Disposables.Add(prop.Subscribe(_ => this.OnPropertyChanged("Panels")));
+				this.Disposables.Add(prop);
 				return prop;
 			});
 			this._PanelsCollection = new Lazy<ReactiveProperty<IReadOnlyObservableList<PanelViewModel>>>(() => {
@@ -131,12 +129,9 @@ namespace CatWalk.Heron.ViewModel.Windows {
 						.SelectMany(_ => _.Panels.CollectionChangedAsObservable())
 						.Select(_ => this.Panels.Value.Panels)
 						.ToReactiveProperty();
-				this._Resources.Add(prop);
+				this.Disposables.Add(prop);
 				return prop;
 			});
-
-
-			this._Resources.Add(this._FocusedItem.Subscribe(_ => this.OnPropertyChanged("FocusedItem")));
 		}
 
 		/// <summary>
@@ -188,9 +183,14 @@ namespace CatWalk.Heron.ViewModel.Windows {
 
 		#region FocusedItem
 
+		private SystemEntryViewModel _FocusedItem;
 		public SystemEntryViewModel FocusedItem {
 			get {
-				return this._FocusedItem.Value;
+				return this._FocusedItem;
+			}
+			set {
+				this._FocusedItem = value;
+				this.OnPropertyChanged("FocusedItem");
 			}
 		}
 
@@ -428,17 +428,8 @@ namespace CatWalk.Heron.ViewModel.Windows {
 
 		#endregion
 
-		protected override void Dispose(bool disposing) {
-			new IDisposable[]{
-				this._Current,
-				this._FocusedItem,
-			}.Dispose();
-			this._Resources.Dispose();
-			base.Dispose(disposing);
-		}
-
 		public class NewItemPromptMessage : WindowMessages.PromptMessage {
-			public NewItemPromptMessage(object sender) : base(sender) { }
+			public NewItemPromptMessage(object sender) { }
 		}
 	}
 }

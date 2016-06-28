@@ -26,7 +26,7 @@ namespace CatWalk.IOSystem.FileSystem {
 		}
 
 		private void Initialize(ISystemEntry parent, string name, string path, Func<bool> isDirectory){
-			this.FileSystemPath = new FilePath(path, FilePathKind.Absolute);
+			this.FileSystemPath = new FilePath(path, FilePathKind.Absolute, FilePathFormats.Windows);
 			this._DisplayName = new Lazy<string>(() => this.FileSystemPath.FileName);
 			this._IsDirectory = new Lazy<bool>(isDirectory);
 		}

@@ -46,17 +46,17 @@ namespace CatWalk.Reflection {
 	public static class PropertyExtension {
 		public static IPropertyAccessor ToAccessor(this PropertyInfo pi) {
 			Delegate getter = null;
-			var getMethod = pi.GetGetMethod();
+			var getMethod = pi.GetMethod;
 			if(getMethod != null){
 				Type getterDelegateType = typeof(Func<,>).MakeGenericType(pi.DeclaringType, pi.PropertyType);
-				getter = Delegate.CreateDelegate(getterDelegateType, getMethod);
+				getter = getMethod.CreateDelegate(getterDelegateType);
 			}
 
 			Delegate setter = null;
-			var setMethod = pi.GetSetMethod();
+			var setMethod = pi.SetMethod;
 			if(setMethod != null){
 				Type setterDelegateType = typeof(Action<,>).MakeGenericType(pi.DeclaringType, pi.PropertyType);
-				setter = Delegate.CreateDelegate(setterDelegateType, setMethod);
+				setter = setMethod.CreateDelegate(setterDelegateType);
 			}
 
 			Type accessorType = typeof(PropertyAccessor<,>).MakeGenericType(pi.DeclaringType, pi.PropertyType);

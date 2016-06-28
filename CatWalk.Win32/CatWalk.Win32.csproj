@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>CatWalk.Win32</RootNamespace>
     <AssemblyName>CatWalk.Win32</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
@@ -45,9 +45,11 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Remoting" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApplicationAssociation.cs" />
+    <Compile Include="ApplicationProcess.cs" />
     <Compile Include="Atom.cs" />
     <Compile Include="CachedInteropObject.cs" />
     <Compile Include="ComObject.cs" />

@@ -21,7 +21,6 @@ namespace CatWalk.Collections{
 	/// </summary>
 	/// <remarks>追加順にアイテムを保持しないコレクションには使用不能</remarks>
 	/// <typeparam name="T"></typeparam>
-	[Serializable]
 	public class WrappedObservableCollection<T> : IObservableCollection<T>{
 		protected ICollection<T> Collection{get; private set;}
 		

@@ -7,95 +7,95 @@ using System.Windows;
 
 namespace CatWalk.Heron {
 	public static class WindowMessages {
-
+		/*
 		public abstract class RestoreBoundsMessage : MessageBase{
-			public Rect Bounds { get; set; }
+			public Rect<double> Bounds { get; set; }
 
-			public RestoreBoundsMessage(object sender) : base(sender) { }
+			public RestoreBoundsMessage() { }
 		}
 
 		public class RequestRestoreBoundsMessage : RestoreBoundsMessage {
-			public RequestRestoreBoundsMessage(object sender) : base(sender) { }
+			public RequestRestoreBoundsMessage() { }
 		}
 
 		public class SetRestoreBoundsMessage : RestoreBoundsMessage {
 
-			public SetRestoreBoundsMessage(object sender, Rect rect)
-				: base(sender) {
+			public SetRestoreBoundsMessage(Rect<double> rect)
+				{
 				this.Bounds = rect;
 			}
 		}
-
+		*/
 		public class ClosingMessage : Messages.CancelMessage {
-			public ClosingMessage(object sender) : base(sender) { }
+			public ClosingMessage() { }
 		}
 
 		public class CloseMessage : MessageBase {
-			public CloseMessage(object sender) : base(sender){}
+			public CloseMessage(){}
 		}
 		
 		public class MessageBoxMessage : MessageBase {
-			public MessageBoxResult Result { get; set; }
+			public bool? Result { get; set; }
 			public string Title { get; set; }
 			public string Message { get; set; }
-			public MessageBoxImage Image { get; set; }
+			/*public MessageBoxImage Image { get; set; }
 			public MessageBoxButton Button{get;set;}
 			public MessageBoxResult Default { get; set; }
-			public MessageBoxOptions Options { get; set; }
+			public MessageBoxOptions Options { get; set; }*/
 
-			public MessageBoxMessage(object sender) : base(sender){
+			public MessageBoxMessage(){
 			}
 		}
-		
+		/*
 		public abstract class DialogResultMessage : MessageBase {
 			public Nullable<bool> DialogResult { get; set; }
 
-			public DialogResultMessage(object sender) : base(sender) {
+			public DialogResultMessage() {
 			}
 		}
-
+		
 		public class RequestDialogResultMessage : DialogResultMessage {
-			public RequestDialogResultMessage(object sender)
-				: base(sender) {
+			public RequestDialogResultMessage()
+				{
 			}
 		}
 
 		public class SetDialogResultMessage : DialogResultMessage {
-			public SetDialogResultMessage(object sender, Nullable<bool> result)
-				: base(sender) {
+			public SetDialogResultMessage(Nullable<bool> result)
+				{
 					this.DialogResult = result;
 			}
 		}
-
+		*/
 		public class ArrangeWindowsMessage : MessageBase {
 			public ArrangeMode Mode {
 				get;
 				private set;
 			}
 
-			public ArrangeWindowsMessage(object sender, ArrangeMode mode)
-				: base(sender) {
+			public ArrangeWindowsMessage(ArrangeMode mode)
+				{
 				this.Mode = mode;
 			}
 		}
-
+		/*
 		public class ActivatedMessage : MessageBase{
-			public ActivatedMessage(object sender) : base(sender){}
+			public ActivatedMessage(){}
 		}
 
 		public class DeactivatedMessage : MessageBase {
-			public DeactivatedMessage(object sender) : base(sender) {
+			public DeactivatedMessage() {
 			}
 		}
-
+		
 		public class SetIsActiveMessage : MessageBase {
 			public bool IsActive {
 				get;
 				private set;
 			}
 
-			public SetIsActiveMessage(object sender, bool active)
-				: base(sender) {
+			public SetIsActiveMessage(bool active)
+				{
 					this.IsActive = active;
 			}
 		}
@@ -106,24 +106,24 @@ namespace CatWalk.Heron {
 				set;
 			}
 
-			public RequestIsActiveMessage(object sender)
-				: base(sender) {
+			public RequestIsActiveMessage()
+				{
 			}
 		}
-
+		*/
 		/// <summary>
 		/// 文字列入力を要求する
 		/// </summary>
 		public class PromptMessage : Messages.CancelMessage {
 			public string Message { get; set; }
 
-			public PromptMessage(object sender) : base(sender) { }
+			public PromptMessage() { }
 		}
 
 		public class RequestHandleMessage : MessageBase {
 			public IntPtr Handle { get; set; }
 
-			public RequestHandleMessage(object sender) : base(sender) { }
+			public RequestHandleMessage() { }
 		}
 	}
 

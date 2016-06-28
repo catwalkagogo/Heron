@@ -3,7 +3,7 @@ using System.Threading;
 using System.Collections;
 using System.Collections.Generic;
 using CatWalk.IOSystem;
-using System.ComponentModel;
+using CatWalk.ComponentModel;
 
 namespace CatWalk.Heron.IOSystem {
 	public interface IColumnDefinition{

@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Reflection;
 using CatWalk;
-using CatWalk.Windows.Input;
 using CatWalk.IOSystem;
 using CatWalk.Heron.IOSystem;
 using CatWalk.Heron.ViewModel.IOSystem;
@@ -16,9 +15,8 @@ using CatWalk.Heron.ViewModel;
 
 namespace CatWalk.Heron {
 	public abstract partial class Application : ControlViewModel, IJobManagerSite {
-		private void InitializePlugin() {
+		protected virtual async Task InitializePlugin() {
 			this.PluginManager = new PluginManager(this);
-			this.PluginManager.Load();
 		}
 
 		private EntryOperatorCollection _EntryOperators = new EntryOperatorCollection();

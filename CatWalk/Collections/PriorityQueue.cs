@@ -11,7 +11,6 @@ using System.Diagnostics;
 using System.Text;
 
 namespace CatWalk.Collections{
-	[Serializable]
 	public class PriorityQueue<T> : Heap<PriorityQueue<T>.PriorityItem>{
 		#region コンストラクタ
 		
@@ -43,7 +42,7 @@ namespace CatWalk.Collections{
 		
 		private class PriorityComparer : IComparer<PriorityItem>{
 			public int Compare(PriorityItem x, PriorityItem y){
-				return y.Priority.CompareTo(x);
+				return y.Priority.CompareTo(x.Priority);
 			}
 		}
 		

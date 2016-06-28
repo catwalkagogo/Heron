@@ -12,11 +12,11 @@ namespace CatWalk.Collections {
 		#region readonly
 
 		public static IReadOnlyObservableCollection<TValue> AsReadOnlyCollection<TValue>(this IReadOnlyCollection<TValue> source) {
-				return new WrappedReadOnlyObservableCollection<TValue>(source);
+			return new WrappedReadOnlyObservableCollection<TValue>(source);
 		}
 
 		public static IReadOnlyObservableList<TValue> AsReadOnlyList<TValue>(this IReadOnlyList<TValue> source) {
-				return new WrappedReadOnlyObservableList<TValue>((IReadOnlyList<TValue>)source);
+			return new WrappedReadOnlyObservableList<TValue>((IReadOnlyList<TValue>)source);
 		}
 
 

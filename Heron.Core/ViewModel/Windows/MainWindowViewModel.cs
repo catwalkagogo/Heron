@@ -28,19 +28,19 @@ namespace CatWalk.Heron.ViewModel.Windows {
 			this.Children.Add(this._Panels);
 
 			var messenger = this.Messenger;
-			messenger.Register<Messages.DataContextAttachedMessage>(m => {
+			messenger.Subscribe<Messages.DataContextAttachedMessage>(m => {
 				// 初期化処理
 
 				// 設定読み込み
-				var rect = this.Application.Configuration.Get<Rect>(this.GetConfigurationKey("RestoreBounds"), Rect.Empty);
-				if (rect != Rect.Empty) {
+				var rect = this.Application.Configuration.Get<Rect<double>>(this.GetConfigurationKey("RestoreBounds"), Rect<double>.Empty);
+				if (rect != Rect<double>.Empty) {
 					this.RestoreBounds = rect;
 				}
 				var windowState = this.Application.Configuration.Get<WindowState>(this.GetConfigurationKey("WindowState"), WindowState.Normal);
 				this.WindowState = windowState;
 			}, this);
 
-			messenger.Register<WindowMessages.ClosingMessage>(m => {
+			messenger.Subscribe<WindowMessages.ClosingMessage>(m => {
 				// 設定保存
 				var bounds = this.RestoreBounds;
 				this.Application.Configuration[this.GetConfigurationKey("RestoreBounds")] = this.RestoreBounds;

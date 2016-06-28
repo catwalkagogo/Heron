@@ -7,6 +7,8 @@ using System.Linq;
 using System.Text;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Reflection;
+using System.Reactive.Linq;
 
 namespace CatWalk.Mvvm{
 	public abstract class ViewModelBase : INotifyPropertyChanged/*, INotifyPropertyChanging*/{
@@ -77,7 +79,7 @@ namespace CatWalk.Mvvm{
 		[Conditional("DEBUG")]
 		private void CheckPropertyName(params string[] names){
 			if(this.PropertyNameDictionary == null) {
-				this.PropertyNameDictionary = this.GetType().GetProperties().ToDictionary(prop => {
+				this.PropertyNameDictionary = this.GetType().GetRuntimeProperties().ToDictionary(prop => {
 					var prms = prop.GetIndexParameters();
 					if (prms == null || prms.Length == 0) {
 						return prop.Name;

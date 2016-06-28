@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
-using System.Security.Cryptography;
 using System.Globalization;
 
 namespace CatWalk.Text{
@@ -14,11 +13,11 @@ namespace CatWalk.Text{
 		public static string[] ExpandSequentialNumbers(this string src){
 			List<string> retStrs = new List<string>();
 			string[] tmpStrArray;
-			Regex rexBracket = new Regex(@"(?<!\\)\[.*?(?<!\\)\]", RegexOptions.Compiled);
-			Regex rexNumbers = new Regex(@"^(\d+)-(\d+)", RegexOptions.Compiled);
-			Regex rexHexNumbers = new Regex(@"^0x([0-9a-f]+)-0x([0-9a-f]+)", RegexOptions.Compiled & RegexOptions.IgnoreCase);
-			Regex rexHexNumbersUpper = new Regex(@"^0x([0-9A-F]+)-0x([0-9A-F]+)", RegexOptions.Compiled & RegexOptions.IgnoreCase);
-			Regex rexChars = new Regex(@"^(.)-(.)", RegexOptions.Compiled);
+			Regex rexBracket = new Regex(@"(?<!\\)\[.*?(?<!\\)\]");
+			Regex rexNumbers = new Regex(@"^(\d+)-(\d+)");
+			Regex rexHexNumbers = new Regex(@"^0x([0-9a-f]+)-0x([0-9a-f]+)", RegexOptions.IgnoreCase);
+			Regex rexHexNumbersUpper = new Regex(@"^0x([0-9A-F]+)-0x([0-9A-F]+)", RegexOptions.IgnoreCase);
+			Regex rexChars = new Regex(@"^(.)-(.)");
 			Match match;
 			retStrs.Add(src);
 			while(rexBracket.IsMatch(retStrs[0])){
@@ -336,7 +335,7 @@ namespace CatWalk.Text{
 		public static string WidthSubstring(this string str, int startPos){
 			return WidthSubstring(str, startPos, CultureInfo.CurrentUICulture);
 		}
-		public unsafe static string WidthSubstring(this string str, int startPos, CultureInfo culture){
+		public static string WidthSubstring(this string str, int startPos, CultureInfo culture){
 			if(str == null){
 				throw new ArgumentNullException("str");
 			}
@@ -350,45 +349,44 @@ namespace CatWalk.Text{
 			UnicodeWidthClass cls;
 			char c;
 			char high = '\0';
-			fixed(char* fpc = str){
-				char* pc = fpc;
-				while((c = *pc) != '\0'){
-					if(0xD800 <= c && c <=0xDBFF){
-						if(high != '\0'){
-							cls = UnicodeWidthClass.Nutral;
-							high = c;
-						}else{
-							high = c;
-							goto inc;
-						}
+			var pc = 0;
+			while(pc < str.Length){
+				c = str[pc];
+				if(0xD800 <= c && c <=0xDBFF){
+					if(high != '\0'){
+						cls = UnicodeWidthClass.Nutral;
+						high = c;
 					}else{
-						if(high != '\0'){
-							cls = GetWidthClass(Char.ConvertToUtf32(high, c));
-							high = '\0';
-						}else{
-							cls = GetWidthClass(c);
-						}
+						high = c;
+						goto inc;
 					}
+				}else{
+					if(high != '\0'){
+						cls = GetWidthClass(Char.ConvertToUtf32(high, c));
+						high = '\0';
+					}else{
+						cls = GetWidthClass(c);
+					}
+				}
 
-					switch(cls){
-						case UnicodeWidthClass.Nutral:
-						case UnicodeWidthClass.Half:
-						case UnicodeWidthClass.Narrow:
-							outWidth++; break;
-						case UnicodeWidthClass.Wide:
-						case UnicodeWidthClass.Full:
-							outWidth += 2; break;
-						case UnicodeWidthClass.Ambiguous:
-							outWidth += 1; break;
-					}
-					if(outWidth > startPos){
-						return str.Substring(pos);
-					}
-				inc:
-					pos += clen;
-					pc++;
-				} // end while
-			} // end fixed
+				switch(cls){
+					case UnicodeWidthClass.Nutral:
+					case UnicodeWidthClass.Half:
+					case UnicodeWidthClass.Narrow:
+						outWidth++; break;
+					case UnicodeWidthClass.Wide:
+					case UnicodeWidthClass.Full:
+						outWidth += 2; break;
+					case UnicodeWidthClass.Ambiguous:
+						outWidth += 1; break;
+				}
+				if(outWidth > startPos){
+					return str.Substring(pos);
+				}
+			inc:
+				pos += clen;
+				pc++;
+			} // end while
 			return String.Empty;
 		}
 		public static string WidthSubstring(this string str, int startPos, int width){
@@ -404,7 +402,7 @@ namespace CatWalk.Text{
 		public static string WidthSubstring(this string str, int startPos, int width, CultureInfo culture, out int outwidth){
 			return WidthSubstringInternal(str, startPos, width, culture, out outwidth);
 		}
-		private unsafe static string WidthSubstringInternal(string str, int startPos, int width, CultureInfo culture, out int outWidth){
+		private static string WidthSubstringInternal(string str, int startPos, int width, CultureInfo culture, out int outWidth){
 			if(str == null){
 				throw new ArgumentNullException("str");
 			}
@@ -424,52 +422,51 @@ namespace CatWalk.Text{
 			UnicodeWidthClass cls;
 			char c;
 			char high = '\0';
-			fixed(char* fpc = str){
-				char* pc = fpc;
-				while((c = *pc) != '\0'){
-					if(0xD800 <= c && c <=0xDBFF){
-						if(high != '\0'){
-							cls = UnicodeWidthClass.Nutral;
-							high = c;
-						}else{
-							high = c;
-							goto inc;
-						}
+			var pc = 0;
+			while(pc < str.Length){
+				c = str[pc];
+				if(0xD800 <= c && c <=0xDBFF){
+					if(high != '\0'){
+						cls = UnicodeWidthClass.Nutral;
+						high = c;
 					}else{
-						if(high != '\0'){
-							cls = GetWidthClass(Char.ConvertToUtf32(high, c));
-							high = '\0';
-						}else{
-							cls = GetWidthClass(c);
-						}
+						high = c;
+						goto inc;
 					}
+				}else{
+					if(high != '\0'){
+						cls = GetWidthClass(Char.ConvertToUtf32(high, c));
+						high = '\0';
+					}else{
+						cls = GetWidthClass(c);
+					}
+				}
 
-					switch(cls){
-						case UnicodeWidthClass.Nutral:
-						case UnicodeWidthClass.Half:
-						case UnicodeWidthClass.Narrow:
-							outWidth++; break;
-						case UnicodeWidthClass.Wide:
-						case UnicodeWidthClass.Full:
-							outWidth += 2; break;
-						case UnicodeWidthClass.Ambiguous:
-							outWidth += lengthOfAmbiguous; break;
+				switch(cls){
+					case UnicodeWidthClass.Nutral:
+					case UnicodeWidthClass.Half:
+					case UnicodeWidthClass.Narrow:
+						outWidth++; break;
+					case UnicodeWidthClass.Wide:
+					case UnicodeWidthClass.Full:
+						outWidth += 2; break;
+					case UnicodeWidthClass.Ambiguous:
+						outWidth += lengthOfAmbiguous; break;
+				}
+				if(started){
+					if(outWidth == endPos){
+						return str.Substring(start, pos + clen - start);
+					}else if(outWidth > endPos){
+						return str.Substring(start, pos - start);
 					}
-					if(started){
-						if(outWidth == endPos){
-							return str.Substring(start, pos + clen - start);
-						}else if(outWidth > endPos){
-							return str.Substring(start, pos - start);
-						}
-					}else if(outWidth >= startPos){
-						start = pos;
-						started = true;
-					}
-				inc:
-					pos += clen;
-					pc++;
-				} // end while
-			} // end fixed
+				}else if(outWidth >= startPos){
+					start = pos;
+					started = true;
+				}
+			inc:
+				pos += clen;
+				pc++;
+			} // end for
 			if(started){
 				return str.Substring(start);
 			}else{
@@ -502,7 +499,7 @@ namespace CatWalk.Text{
 		public static int GetWidth(this string str){
 			return GetWidth(str, CultureInfo.CurrentUICulture);
 		}
-		public unsafe static int GetWidth(this string str, CultureInfo culture){
+		public static int GetWidth(this string str, CultureInfo culture){
 			if(str == null){
 				throw new ArgumentNullException("str");
 			}
@@ -511,41 +508,41 @@ namespace CatWalk.Text{
 			UnicodeWidthClass cls;
 			char c;
 			char high = '\0';
-			fixed(char* fpc = str){
-				char* pc = fpc;
-				while((c = *pc) != '\0'){
-					// サロゲートペア
-					if(0xD800 <= c && c <=0xDBFF){
-						if(high != '\0'){
-							cls = UnicodeWidthClass.Nutral;
-							high = c;
-						}else{
-							high = c;
-							goto inc;
-						}
-					}else{
-						if(high != '\0'){
-							cls = GetWidthClass(Char.ConvertToUtf32(high, c));
-							high = '\0';
-						}else{
-							cls = GetWidthClass(c);
-						}
-					}
+			var pc = 0;
+			while(pc < str.Length){
+				c = str[pc];
 
-					switch(cls){
-						case UnicodeWidthClass.Nutral:
-						case UnicodeWidthClass.Half:
-						case UnicodeWidthClass.Narrow:
-							length++; break;
-						case UnicodeWidthClass.Wide:
-						case UnicodeWidthClass.Full:
-							length += 2; break;
-						case UnicodeWidthClass.Ambiguous:
-							length += lengthOfAmbiguous; break;
+				// サロゲートペア
+				if(0xD800 <= c && c <=0xDBFF){
+					if(high != '\0'){
+						cls = UnicodeWidthClass.Nutral;
+						high = c;
+					}else{
+						high = c;
+						goto inc;
 					}
-				inc:
-					pc++;
+				}else{
+					if(high != '\0'){
+						cls = GetWidthClass(Char.ConvertToUtf32(high, c));
+						high = '\0';
+					}else{
+						cls = GetWidthClass(c);
+					}
 				}
+
+				switch(cls){
+					case UnicodeWidthClass.Nutral:
+					case UnicodeWidthClass.Half:
+					case UnicodeWidthClass.Narrow:
+						length++; break;
+					case UnicodeWidthClass.Wide:
+					case UnicodeWidthClass.Full:
+						length += 2; break;
+					case UnicodeWidthClass.Ambiguous:
+						length += lengthOfAmbiguous; break;
+				}
+			inc:
+				pc++;
 			}
 			return length;
 		}
@@ -658,7 +655,7 @@ namespace CatWalk.Text{
 		#endregion
 
 		#region Encrypt
-
+		/*
 		private static readonly byte[] optionalEntropy = new byte[]{0xff, 0x4f, 0xef, 0x54, 0x01};
 
 		public static string Protect(this string plain){
@@ -686,7 +683,7 @@ namespace CatWalk.Text{
 				}
 			}
 		}
-
+		*/
 		#endregion
 	}
 

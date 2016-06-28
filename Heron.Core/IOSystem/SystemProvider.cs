@@ -29,13 +29,13 @@ namespace CatWalk.Heron.IOSystem {
 		}
 		public abstract bool TryParsePath(ISystemEntry root, string path, out ISystemEntry entry);
 		public abstract IEnumerable<ISystemEntry> GetRootEntries(ISystemEntry parent);
-		public virtual object GetEntryIcon(ISystemEntry entry, Int32Size size, CancellationToken token) {
+		public virtual object GetEntryIcon(ISystemEntry entry, Size<int> size, CancellationToken token) {
 			return null;
 		}
 		public abstract object GetViewModel(object parent, SystemEntryViewModel entry, object previous);
-
-		private static readonly NameEntryGroupDescription _NameEntryGroupDescription = new NameEntryGroupDescription();
-
+		
+		//private static readonly NameEntryGroupDescription _NameEntryGroupDescription = new NameEntryGroupDescription();
+		/*
 		public IEnumerable<EntryGroupDescription> GetGroupings(ISystemEntry entry) {
 			return Seq.Make(_NameEntryGroupDescription).Concat(this.GetAdditionalGroupings(entry));
 		}
@@ -43,7 +43,7 @@ namespace CatWalk.Heron.IOSystem {
 		protected virtual IEnumerable<EntryGroupDescription> GetAdditionalGroupings(ISystemEntry entry) {
 			return new EntryGroupDescription[0];
 		}
-
+		*/
 		public IEnumerable<OrderDefinition> GetOrderDefinitions(ISystemEntry entry) {
 			return this.GetColumnDefinitions(entry)
 				.Where(col => col.CanSort)
@@ -51,21 +51,8 @@ namespace CatWalk.Heron.IOSystem {
 		}
 
 		#region NameGroup
-
+		/*
 		private class NameEntryGroupDescription : EntryGroupDescription {
-			/*private static readonly DelegateEntryGroup<int> AHGroup = new DelegateEntryGroup<int>(0, "A - H", name => {
-				var c = Char.ToUpper(name[0]);
-				return 'A' <= c && c <= 'H';
-			});
-			private static readonly DelegateEntryGroup<int> IPGroup = new DelegateEntryGroup<int>(0, "I - P", name => {
-				var c = Char.ToUpper(name[0]);
-				return 'I' <= c && c <= 'P';
-			});
-			private static readonly DelegateEntryGroup<int> QZGroup = new DelegateEntryGroup<int>(0, "Q - Z", name => {
-				var c = Char.ToUpper(name[0]);
-				return 'Q' <= c && c <= 'Z';
-			});*/
-
 			private static readonly DelegateEntryGroup<int>[] Candidates;
 
 			static NameEntryGroupDescription() {
@@ -95,7 +82,7 @@ namespace CatWalk.Heron.IOSystem {
 				return Candidates.FirstOrDefault(grp => grp.Filter(entry));
 			}
 		}
-
+		*/
 		#endregion
 	}
 }

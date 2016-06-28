@@ -20,7 +20,7 @@ namespace CatWalk.IO {
 			}
 		}
 
-
+		/*
 		public static IFilePathFormat PlatformPathFormat {
 			get {
 				switch(Environment.OSVersion.Platform) {
@@ -34,6 +34,6 @@ namespace CatWalk.IO {
 						return Unix;
 				}
 			}
-		}
+		}*/
 	}
 }

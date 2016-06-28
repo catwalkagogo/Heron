@@ -2,14 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using System.Windows.Threading;
 using System.Threading.Tasks;
 using CatWalk.Heron.Configuration;
 using CatWalk.Heron.Scripting;
 using CatWalk.Heron.ViewModel;
 using CatWalk.Heron.ViewModel.Windows;
-using CatWalk.Windows.Threading;
+using CatWalk.IO;
+using System.Reflection;
+using System.IO;
+using Community.CsharpSqlite;
+using Community.CsharpSqlite.SQLiteClient;
 
 namespace CatWalk.Heron {
+	using IO = System.IO;
 	public partial class Program : System.Windows.Application {
 		protected override void OnStartup(StartupEventArgs e) {
 			var app = new WindowsApplication(this);
@@ -22,11 +28,38 @@ namespace CatWalk.Heron {
 		private class WindowsApplication : Application {
 			private System.Windows.Application _App;
 
-			public WindowsApplication(System.Windows.Application app) : base(new DispatcherSynchronizeInvoke(app.Dispatcher)) {
+			protected override bool IsFirst {
+				get {
+					return CatWalk.Win32.ApplicationProcess.IsFirst;
+				}
+			}
+
+			public override FilePath ConfigurationFilePath {
+				get {
+					return new FilePath(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), FilePathFormats.Windows).Resolve("Heron");
+				}
+			}
+
+			public WindowsApplication(System.Windows.Application app) : base(new DispatcherSynchronizationContext(app.Dispatcher)) {
 				this._App = app;
 
 				this._App.Exit += _App_Exit;
 				this._App.SessionEnding += _App_SessionEnding;
+			}
+
+			private static void LoadBuiltinPluginAssemblies() {
+				var builtinPluginDir = new FilePath(Assembly.GetEntryAssembly().Location, FilePathFormats.Windows).Resolve("../plugins").FullPath;
+				var dlls = Directory.EnumerateFiles(builtinPluginDir, "*.dll", SearchOption.AllDirectories);
+				var asmNames = dlls.ToDictionary(dll => AssemblyName.GetAssemblyName(dll));
+
+				var loadedAsmNames = AppDomain.CurrentDomain.GetAssemblies()
+					.SelectMany(asm => asm.GetReferencedAssemblies().Concat(Seq.Make(asm.GetName())))
+					.Distinct(asmName => asmName)
+					.ToLookup(asmName => asmName);
+				var asmsToLoad = asmNames.Where(asmName => !loadedAsmNames.Contains(asmName.Key)).Distinct(pair => pair.Key.FullName).ToArray();
+				asmsToLoad.ForEach(asmName => {
+					Assembly.LoadFile(asmName.Value);
+				});
 			}
 
 			private void _App_SessionEnding(object sender, SessionEndingCancelEventArgs e) {
@@ -45,6 +78,75 @@ namespace CatWalk.Heron {
 
 			protected override void ExitApplication(ApplicationExitEventArgs e) {
 				this._App.Shutdown(e.ApplicationExitCode);
+			}
+
+			protected override IStorage GetStorage() {
+				var connBldr = new SqliteConnectionStringBuilder();
+				connBldr.DataSource = this.ConfigurationFilePath.Resolve("app.db").FullPath;
+				connBldr.Version = 3;
+
+				Directory.CreateDirectory(this.ConfigurationFilePath.FullPath);
+				using (File.AppendText(connBldr.DataSource)) {
+
+				}
+
+				return new CachedStorage(
+					256,
+					new DBStorage(
+						SqliteClientFactory.Instance,
+						connBldr.ConnectionString,
+						"configuration"));
+			}
+
+			protected override IScriptingHost GetScriptingHost() {
+				var host = new ClearScriptHost();
+				return host;
+			}
+
+			protected override async Task InitializePlugin() {
+				await base.InitializePlugin();
+
+				AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
+
+				LoadBuiltinPluginAssemblies();
+				AppDomain.CurrentDomain.GetAssemblies().ForEach(asm => this.PluginManager.RegisterAssembly(asm));
+				this.PluginManager.RestoreEnabledPluginsFromConfiguration();
+			}
+
+			private Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args) {
+				var asm1 = AppDomain.CurrentDomain.GetAssemblies().Where(_ => _.GetName().FullName == args.Name).FirstOrDefault();
+				if(asm1 != null) {
+					return asm1;
+				}
+
+				var location = args.RequestingAssembly.Location;
+				var dir = new FilePath(location, FilePathFormats.Windows).Resolve("..").FullPath;
+				var asm = System.IO.Directory.EnumerateFiles(dir, "*.dll")
+					.Select(file => Tuple.Create(file, AssemblyName.GetAssemblyName(file)))
+					.Where(name => name.Item2.FullName == args.Name)
+					.FirstOrDefault();
+
+				return asm != null ? Assembly.LoadFile(asm.Item1) : null;
+			}
+
+			private void ExecuteScripts() {
+				try {
+					var scriptPath = this.ConfigurationFilePath.Resolve("scripts");
+					IO::Directory.CreateDirectory(scriptPath.FullPath);
+					var host = this.ScriptingHost;
+
+					foreach (var file in IO::Directory.EnumerateFiles(scriptPath.FullPath, "*", IO::SearchOption.AllDirectories)) {
+						if (host.IsSupportedFileExtension(IO::Path.GetExtension(file))) {
+							try {
+								host.ExecuteFile(file);
+							} catch (Exception ex) {
+								//this._Logger.Value.Warn(ex, "Script Error");
+							}
+						}
+					}
+				} catch (IO::IOException ex) {
+					//this._Logger.Value.Warn(ex, "Script IO Error");
+				}
 			}
 		}
 	}

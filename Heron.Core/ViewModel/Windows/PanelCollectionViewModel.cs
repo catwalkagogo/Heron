@@ -10,7 +10,6 @@ using System.Reactive;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using CatWalk.Collections;
-using CatWalk.Windows;
 using CatWalk.Heron.ViewModel.IOSystem;
 
 namespace CatWalk.Heron.ViewModel.Windows {
@@ -25,7 +24,7 @@ namespace CatWalk.Heron.ViewModel.Windows {
 		public PanelCollectionViewModel(Application app) : base(app) {
 			this._Panels = new WrappedObservableList<PanelViewModel>(new SkipList<PanelViewModel>());
 
-			this._Synchronizer = this._Panels.NotifyToCollectionWeak(this.Children);
+			this._Synchronizer = this._Panels.NotifyToCollection(this.Children);
 
 			this.AddPanelCommand = new ReactiveCommand<string>();
 			this.AddPanelCommand.Subscribe(this.AddPanel);
@@ -71,7 +70,7 @@ namespace CatWalk.Heron.ViewModel.Windows {
 			} else if(others.Length == 1) {
 				return others[0];
 			} else {
-				var m = new Messages.SelectItemsMessage(this, this._Panels);
+				var m = new Messages.SelectItemsMessage(this._Panels);
 				await this.Messenger.Post(m, this);
 				return m.SelectedItems.Cast<PanelViewModel>().FirstOrDefault();
 			}

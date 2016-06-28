@@ -7,6 +7,7 @@ using System.ComponentModel;
 using CatWalk.Heron.IOSystem;
 
 namespace CatWalk.Heron.ViewModel.IOSystem {
+	/*
 	public abstract class EntryGroupDescription : GroupDescription{
 		public sealed override object GroupNameFromItem(object item, int level, System.Globalization.CultureInfo culture) {
 			return this.GroupNameFromItem((SystemEntryViewModel)item, level, culture);
@@ -84,5 +85,5 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 		public override bool Filter(SystemEntryViewModel item) {
 			return this._Predicate(item);
 		}
-	}
+	}*/
 }

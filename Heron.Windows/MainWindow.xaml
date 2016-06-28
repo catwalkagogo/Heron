@@ -3,22 +3,34 @@
 		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 		xmlns:v="clr-namespace:CatWalk.Heron.Windows"
 		xmlns:win="clr-namespace:CatWalk.Heron.Windows"
+		xmlns:conv="clr-namespace:CatWalk.Heron.Windows.Converters"
 		xmlns:input="clr-namespace:CatWalk.Heron.Windows.Input"
 		Title="{Binding Title}"
 		Width="{Binding Width}"
 		Height="{Binding Height}"
 		Top="{Binding Top}"
 		Left="{Binding Left}"
-		WindowState="{Binding WindowState}"
-		win:WindowUtility.RestoreWindowState="{Binding RestoreWindowState}"
+		win:WindowUtility.IsActive="{Binding IsActive}"
+		win:WindowUtility.DialogResult="{Binding DialogResult}"
 		win:Messaging.IsCommunicateViewModelMessages="True"
 		win:Messaging.IsCommunicateWindowMessages="True"
 		Activated="Window_Activated"
 		x:Name="_this">
 	<Window.Resources>
 		<v:JobCountToProgressStateConverter x:Key="JobCountToProgressStateConverter" />
+		<conv:RectToGenericRectConverter x:Key="RectToGenericRectConverter" />
+		<conv:WindowStateConverter x:Key="WindowStateConverter" />
 	</Window.Resources>
-	
+	<win:WindowUtility.RestoreBounds>
+		<Binding Path="RestoreBounds" Converter="{StaticResource RectToGenericRectConverter}" />
+	</win:WindowUtility.RestoreBounds>
+	<Window.WindowState>
+		<Binding Path="WindowState" Converter="{StaticResource WindowStateConverter}" />
+	</Window.WindowState>
+	<win:WindowUtility.RestoreWindowState>
+		<Binding Path="RestoreWindowState" Converter="{StaticResource WindowStateConverter}" />
+	</win:WindowUtility.RestoreWindowState>
+
 	<Window.TaskbarItemInfo>
 		<TaskbarItemInfo
 			ProgressValue="{Binding JobManager.TotalProgress}"

@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using CatWalk;
 using CatWalk.Collections;
 using CatWalk.Mvvm;
-using CatWalk.Windows.Threading;
 using System.ComponentModel;
 using System.Windows;
-using System.Windows.Threading;
 using System.Collections.Specialized;
 
 namespace CatWalk.Heron.ViewModel {
@@ -23,7 +22,7 @@ namespace CatWalk.Heron.ViewModel {
 			this.Parent = parent;
 		}
 
-		public ControlViewModel(ControlViewModel parent, ISynchronizeInvoke invoke) : base(invoke) {
+		public ControlViewModel(ControlViewModel parent, SynchronizationContext invoke) : base(invoke) {
 			this.Children = new ControlViewModelCollection(this);
 			this.Parent = parent;
 		}

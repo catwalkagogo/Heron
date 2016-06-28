@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using CatWalk.Heron.IOSystem;
 
 namespace CatWalk.Heron.ViewModel.IOSystem {
+	/*
 	public abstract class ColumnGroupDescription<TColumn> : EntryGroupDescription where TColumn : IColumnDefinition {
 		public override string ColumnName {
 			get {
@@ -25,4 +26,5 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 			return (TValue)vm.Columns[typeof(TColumn).FullName].Value;
 		}
 	}
+	*/
 }

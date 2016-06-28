@@ -51,7 +51,7 @@ namespace CatWalk.Heron.Scripting {
 		}
 
 		public bool IsSupportedFileExtension(string extension) {
-			return FilePathFormats.PlatformPathFormat.StringEqualityComparer.Equals(extension, ".js");
+			return FilePathFormats.Windows.StringEqualityComparer.Equals(extension, ".js");
 		}
 
 		protected override void Dispose(bool disposing) {

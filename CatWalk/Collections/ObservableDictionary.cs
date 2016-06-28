@@ -12,7 +12,6 @@ using System.Text;
 using System.Linq;
 
 namespace CatWalk.Collections{
-	[Serializable]
 	public class ObservableDictionary<TKey, TValue> : IDictionary<TKey, TValue>, INotifyCollectionChanged, INotifyPropertyChanged{
 		private IDictionary<TKey, TValue> dictionary;
 		

@@ -43,8 +43,8 @@ namespace CatWalk.IO {
 
 		public abstract IEnumerable<string> AltDirectorySeparators { get; }
 
-		private static readonly IReadOnlyCollection<char> _InvalidFileNameChars = Array.AsReadOnly<char>(
-			new char[] { '\"', '<', '>', '|', '\0', (Char)1, (Char)2, (Char)3, (Char)4, (Char)5, (Char)6, (Char)7, (Char)8, (Char)9, (Char)10, (Char)11, (Char)12, (Char)13, (Char)14, (Char)15, (Char)16, (Char)17, (Char)18, (Char)19, (Char)20, (Char)21, (Char)22, (Char)23, (Char)24, (Char)25, (Char)26, (Char)27, (Char)28, (Char)29, (Char)30, (Char)31, ':', '*', '?', '\\', '/' });
+		private static readonly IReadOnlyCollection<char> _InvalidFileNameChars = 
+			new char[] { '\"', '<', '>', '|', '\0', (Char)1, (Char)2, (Char)3, (Char)4, (Char)5, (Char)6, (Char)7, (Char)8, (Char)9, (Char)10, (Char)11, (Char)12, (Char)13, (Char)14, (Char)15, (Char)16, (Char)17, (Char)18, (Char)19, (Char)20, (Char)21, (Char)22, (Char)23, (Char)24, (Char)25, (Char)26, (Char)27, (Char)28, (Char)29, (Char)30, (Char)31, ':', '*', '?', '\\', '/' }.AsReadOnly();
 		public IReadOnlyCollection<char> InvalidFileNameChars {
 			get {
 				return _InvalidFileNameChars;
@@ -65,7 +65,7 @@ namespace CatWalk.IO {
 				throw new ArgumentException("relativePath");
 			}
 
-			return new FilePath(PackRelativePath(relativePath.Path));
+			return new FilePath(PackRelativePath(relativePath.Path), relativePath.Format);
 		}
 
 		public abstract IEqualityComparer<string> StringEqualityComparer {
@@ -78,7 +78,7 @@ namespace CatWalk.IO {
 
 		public virtual bool IsValid(IEnumerable<string> fragments) {
 			var nameInvChars = this.InvalidFileNameChars;
-			return !fragments.Any(name => name.Any(c => nameInvChars.Contains(c)));
+			return !fragments.Any(name => name.ToCharArray().Any(c => nameInvChars.Contains(c)));
 		}
 	}
 }

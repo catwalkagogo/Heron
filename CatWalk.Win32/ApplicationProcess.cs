@@ -13,7 +13,7 @@ using System.Runtime.Serialization.Formatters;
 using System.Threading;
 using System.Runtime.Serialization;
 
-namespace CatWalk.Utils{
+namespace CatWalk.Win32{
 	/// <summary>
 	/// 二重起動防止・プロセス間通信クラス
 	/// </summary>

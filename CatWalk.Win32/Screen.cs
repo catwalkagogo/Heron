@@ -36,7 +36,7 @@ namespace CatWalk.Win32 {
 			public string szMonitor;
 		}
 
-		public static ScreenInfo GetCurrentMonitor(Int32Rect rect){
+		public static ScreenInfo GetCurrentMonitor(Rect<int> rect){
 			return GetMonitors().Select(mon => new {Rect = mon.ScreenArea.Intersect(rect), Monitor = mon})
 				.OrderByDescending(x => x.Rect.Area)
 				.Select(x => x.Monitor)
@@ -45,13 +45,13 @@ namespace CatWalk.Win32 {
 	}
 
 	public class ScreenInfo : IEquatable<ScreenInfo>{
-		public Int32Rect ScreenArea{get; private set;}
-		public Int32Rect WorkingArea{get; private set;}
+		public Rect<int> ScreenArea{get; private set;}
+		public Rect<int> WorkingArea{get; private set;}
 		public string Name{get; private set;}
 
 		internal ScreenInfo(Screen.MonitorInfoEx info){
-			this.ScreenArea = new Int32Rect(info.rcMonitor.Left, info.rcMonitor.Top, info.rcMonitor.Right - info.rcMonitor.Left, info.rcMonitor.Bottom - info.rcMonitor.Top);
-			this.WorkingArea = new Int32Rect(info.rcWork.Left, info.rcWork.Top, info.rcWork.Right - info.rcWork.Left, info.rcWork.Bottom - info.rcWork.Top);
+			this.ScreenArea = new Rect<int>(info.rcMonitor.Left, info.rcMonitor.Top, info.rcMonitor.Right - info.rcMonitor.Left, info.rcMonitor.Bottom - info.rcMonitor.Top);
+			this.WorkingArea = new Rect<int>(info.rcWork.Left, info.rcWork.Top, info.rcWork.Right - info.rcWork.Left, info.rcWork.Bottom - info.rcWork.Top);
 			this.Name = info.szMonitor;
 		}
 

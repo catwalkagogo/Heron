@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Data;
 using CatWalk.Mvvm;
 using System.Threading;
 
@@ -33,7 +32,7 @@ namespace CatWalk.Heron.Configuration {
 
 		public void Add(string key, object value) {
 			this.AddItem(key, value);
-			this.OnPropertyChanged(Binding.IndexerName, "Count", "Values", "Keys");
+			this.OnPropertyChanged("Item[]", "Count", "Values", "Keys");
 		}
 
 		public bool ContainsKey(string key) {
@@ -48,7 +47,7 @@ namespace CatWalk.Heron.Configuration {
 
 		public bool Remove(string key) {
 			var r = this.RemoveItem(key);
-			this.OnPropertyChanged(Binding.IndexerName, "Count", "Values", "Keys");
+			this.OnPropertyChanged("Item[]", "Count", "Values", "Keys");
 			return r;
 		}
 
@@ -68,18 +67,18 @@ namespace CatWalk.Heron.Configuration {
 			}
 			set {
 				this.SetItem(key, value);
-				this.OnPropertyChanged(Binding.IndexerName, "Values", "Keys");
+				this.OnPropertyChanged("Item[]", "Values", "Keys");
 			}
 		}
 
 		public void Add(KeyValuePair<string, object> item) {
 			this.AddItem(item.Key, item.Value);
-			this.OnPropertyChanged(Binding.IndexerName, "Count", "Values", "Keys");
+			this.OnPropertyChanged("Item[]", "Count", "Values", "Keys");
 		}
 
 		public void Clear() {
 			this.ClearItems();
-			this.OnPropertyChanged(Binding.IndexerName, "Count", "Values", "Keys");
+			this.OnPropertyChanged("Item[]", "Count", "Values", "Keys");
 		}
 
 		public bool Contains(KeyValuePair<string, object> item) {

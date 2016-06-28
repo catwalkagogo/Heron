@@ -18,12 +18,10 @@ namespace CatWalk.Heron {
 			}
 		}
 
-		private void InitializeScripting() {
-			this._ScriptingHost = new Lazy<IScriptingHost>(() => {
-				var host = new ClearScriptHost();
+		protected abstract IScriptingHost GetScriptingHost();
 
-				return host;
-			});
+		protected virtual async Task InitializeScripting() {
+			this._ScriptingHost = new Lazy<IScriptingHost>(this.GetScriptingHost);
 
 			var v = this._ScriptingHost.Value;
 
@@ -33,26 +31,6 @@ namespace CatWalk.Heron {
 		private void Application_Scripting_Exit(object sender, ApplicationExitEventArgs e) {
 			if (this._ScriptingHost.IsValueCreated) {
 				this._ScriptingHost.Value.Dispose();
-			}
-		}
-
-		private void ExecuteScripts() {
-			try {
-				var scriptPath = this._ConfigurationFilePath.Resolve("scripts");
-				IO::Directory.CreateDirectory(scriptPath.FullPath);
-				var host = this.ScriptingHost;
-
-				foreach(var file in IO::Directory.EnumerateFiles(scriptPath.FullPath, "*", IO::SearchOption.AllDirectories)) {
-					if(host.IsSupportedFileExtension(IO::Path.GetExtension(file))) {
-						try {
-							host.ExecuteFile(file);
-						} catch(Exception ex) {
-							this._Logger.Value.Warn(ex, "Script Error");
-						}
-					}
-				}
-			} catch(IO::IOException ex) {
-				this._Logger.Value.Warn(ex, "Script IO Error");
 			}
 		}
 	}

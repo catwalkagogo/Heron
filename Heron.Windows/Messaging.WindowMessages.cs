@@ -5,7 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Interop;
+using System.Reactive.Linq;
+using System.Reactive.Disposables;
 using CatWalk.Mvvm;
+using Reactive.Bindings.Extensions;
 
 namespace CatWalk.Heron.Windows {
 	public static partial class Messaging {
@@ -47,28 +50,11 @@ namespace CatWalk.Heron.Windows {
 
 
 		private static void AttachWindowListeners(Window window) {
-			AttachWindowListeners(window, window.DataContext);
-		}
-		private static void AttachWindowListeners(Window window, object vm) {
-			var listener = new WindowMessageListener(window, Application.Current.Messenger, vm);
+			var listener = new WindowMessageListener(window, Application.Current.Messenger);
 			window.SetValue(WindowMessageListenerProperty, listener);
-
-			window.DataContextChanged += window_DataContextChanged;
-		}
-
-		private static void window_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e) {
-			var window = (Window)sender;
-			DettachWindowListeners(window, e.OldValue);
-			if(e.NewValue != null) {
-				AttachWindowListeners(window, e.NewValue);
-			}
 		}
 
 		private static void DettachWindowListeners(Window window) {
-			DettachWindowListeners(window, window.DataContext);
-		}
-
-		private static void DettachWindowListeners(Window window, object vm) {
 			var listener = (WindowMessageListener)window.GetValue(WindowMessageListenerProperty);
 			if(listener != null) {
 				window.SetValue(WindowMessageListenerProperty, null);
@@ -81,15 +67,15 @@ namespace CatWalk.Heron.Windows {
 		#region WindowMessageListener
 		private class WindowMessageListener : DisposableObject {
 			public Window Window { get; private set; }
-			public object DataContext { get; private set; }
 			public Messenger Messenger { get; private set; }
-			public WindowMessageListener(Window window, Messenger messenger, object dataContext) {
+			private CompositeDisposable _Disposables = new CompositeDisposable();
+
+			public WindowMessageListener(Window window, Messenger messenger) {
 				window.ThrowIfNull("window");
 				messenger.ThrowIfNull("messenger");
 
 				this.Window = window;
 				this.Messenger = messenger;
-				this.DataContext = dataContext;
 
 				this.Attach();
 			}
@@ -97,75 +83,36 @@ namespace CatWalk.Heron.Windows {
 			private void Attach() {
 				this.ThrowIfDisposed();
 
-				var vm = this.DataContext;
-
-				this.Messenger.Register<WindowMessages.RequestRestoreBoundsMessage>(this.WindowMessages_RequestRestoreBoundsMessage, vm);
-				this.Messenger.Register<WindowMessages.SetRestoreBoundsMessage>(this.WindowMessages_SetRestoreBoundsMessage, vm);
-				this.Messenger.Register<WindowMessages.CloseMessage>(this.WindowMessages_CloseMessage, vm);
-				this.Messenger.Register<WindowMessages.MessageBoxMessage>(this.WindowMessages_MessageBoxMessage, vm);
-				this.Messenger.Register<WindowMessages.RequestDialogResultMessage>(this.WindowMessages_RequestDialogResultMessage, vm);
-				this.Messenger.Register<WindowMessages.SetDialogResultMessage>(this.WindowMessages_SetDialogResultMessage, vm);
-				this.Messenger.Register<WindowMessages.RequestIsActiveMessage>(this.WindowMessages_RequestIsActiveMessage, vm);
-				this.Messenger.Register<WindowMessages.SetIsActiveMessage>(this.WindowMessages_SetIsActiveMessage, vm);
-				this.Messenger.Register<WindowMessages.RequestHandleMessage>(this.WindowMessages_RequestHandleMessage, vm);
+				this._Disposables.Add(
+					this.Messenger.ObserveDataContextMessage<WindowMessages.CloseMessage>(this.Window)
+						.ObserveOnUIDispatcher()
+						.Subscribe(this.WindowMessages_CloseMessage));
+				this._Disposables.Add(
+					this.Messenger.ObserveDataContextMessage<WindowMessages.MessageBoxMessage>(this.Window)
+						.ObserveOnUIDispatcher()
+						.Subscribe(this.WindowMessages_MessageBoxMessage));
+				this._Disposables.Add(
+					this.Messenger.ObserveDataContextMessage<WindowMessages.RequestHandleMessage>(this.Window)
+						.ObserveOnUIDispatcher()
+						.Subscribe(this.WindowMessages_RequestHandleMessage));
 
 				var window = this.Window;
-				window.Activated += window_Activated;
-				window.Deactivated += window_Deactivated;
 				window.Closing += Window_Closing;
 			}
 
 			private void Dettach() {
-				var vm = this.DataContext;
-
-				this.Messenger.Unregister<WindowMessages.RequestRestoreBoundsMessage>(this.WindowMessages_RequestRestoreBoundsMessage, vm);
-				this.Messenger.Unregister<WindowMessages.SetRestoreBoundsMessage>(this.WindowMessages_SetRestoreBoundsMessage, vm);
-				this.Messenger.Unregister<WindowMessages.CloseMessage>(this.WindowMessages_CloseMessage, vm);
-				this.Messenger.Unregister<WindowMessages.MessageBoxMessage>(this.WindowMessages_MessageBoxMessage, vm);
-				this.Messenger.Unregister<WindowMessages.RequestDialogResultMessage>(this.WindowMessages_RequestDialogResultMessage, vm);
-				this.Messenger.Unregister<WindowMessages.SetDialogResultMessage>(this.WindowMessages_SetDialogResultMessage, vm);
-				this.Messenger.Unregister<WindowMessages.RequestIsActiveMessage>(this.WindowMessages_RequestIsActiveMessage, vm);
-				this.Messenger.Unregister<WindowMessages.SetIsActiveMessage>(this.WindowMessages_SetIsActiveMessage, vm);
-				this.Messenger.Unregister<WindowMessages.RequestHandleMessage>(this.WindowMessages_RequestHandleMessage, vm);
+				this._Disposables.Dispose();
 
 				var window = this.Window;
-				window.Activated -= window_Activated;
-				window.Deactivated -= window_Deactivated;
 				window.Closing -= Window_Closing;
 
 			}
 
 			private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e) {
 				var win = (Window)sender;
-				var m = new WindowMessages.ClosingMessage(sender);
+				var m = new WindowMessages.ClosingMessage();
 				this.Messenger.Send(m, win.DataContext);
 				e.Cancel = m.Cancel;
-			}
-
-			private void window_Deactivated(object sender, EventArgs e) {
-				var win = (Window)sender;
-				this.Messenger.Send(new WindowMessages.DeactivatedMessage(sender), win.DataContext);
-			}
-
-			private void window_Activated(object sender, EventArgs e) {
-				var win = (Window)sender;
-				this.Messenger.Send(new WindowMessages.ActivatedMessage(sender), win.DataContext);
-			}
-
-
-
-			private void WindowMessages_RequestRestoreBoundsMessage(WindowMessages.RequestRestoreBoundsMessage m) {
-				m.Bounds = this.Window.RestoreBounds;
-			}
-
-			private void WindowMessages_SetRestoreBoundsMessage(WindowMessages.SetRestoreBoundsMessage m) {
-				var state = this.Window.WindowState;
-				this.Window.WindowState = WindowState.Normal;
-				this.Window.Top = m.Bounds.Top;
-				this.Window.Left = m.Bounds.Left;
-				this.Window.Width = m.Bounds.Width;
-				this.Window.Height = m.Bounds.Height;
-				this.Window.WindowState = state;
 			}
 
 			private void WindowMessages_CloseMessage(WindowMessages.CloseMessage m) {
@@ -173,26 +120,11 @@ namespace CatWalk.Heron.Windows {
 			}
 
 			private void WindowMessages_MessageBoxMessage(WindowMessages.MessageBoxMessage m) {
-				m.Result = MessageBox.Show(this.Window, m.Message, m.Title, m.Button, m.Image, m.Default, m.Options);
-			}
-
-			private void WindowMessages_RequestDialogResultMessage(WindowMessages.RequestDialogResultMessage m) {
-				m.DialogResult = this.Window.DialogResult;
-			}
-
-			private void WindowMessages_SetDialogResultMessage(WindowMessages.SetDialogResultMessage m) {
-				this.Window.DialogResult = m.DialogResult;
-			}
-
-			private void WindowMessages_RequestIsActiveMessage(WindowMessages.RequestIsActiveMessage m) {
-				m.IsActive = this.Window.IsActive;
-			}
-
-			private void WindowMessages_SetIsActiveMessage(WindowMessages.SetIsActiveMessage m) {
-				if(m.IsActive) {
-					this.Window.Activate();
-				} else {
-				}
+				var result = MessageBox.Show(this.Window, m.Message, m.Title, MessageBoxButton.OK, MessageBoxImage.Information, MessageBoxResult.OK, MessageBoxOptions.None);
+				m.Result =
+					(result == MessageBoxResult.OK || result == MessageBoxResult.Yes) ? new Nullable<bool>(true) :
+					(result == MessageBoxResult.No) ? new Nullable<bool>(false) :
+					new Nullable<bool>();
 			}
 
 			private void WindowMessages_RequestHandleMessage(WindowMessages.RequestHandleMessage m) {

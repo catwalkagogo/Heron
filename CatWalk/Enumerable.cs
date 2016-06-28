@@ -4,6 +4,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 
@@ -942,5 +943,13 @@ namespace CatWalk{
 
 		#endregion
 
+		#region AsReadOnly
+
+		public static ReadOnlyCollection<T> AsReadOnly<T>(this IEnumerable<T> list) {
+			list.ThrowIfNull("list");
+			return new ReadOnlyCollection<T>(list.ToList());
+		}
+
+		#endregion
 	}
 }

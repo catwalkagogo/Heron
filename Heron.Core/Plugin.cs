@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CatWalk.Heron.Configuration;
+using System.Reflection;
 
 namespace CatWalk.Heron {
 	public abstract class Plugin : IPlugin {
@@ -75,6 +76,13 @@ namespace CatWalk.Heron {
 		public PluginEventArgs(Application app) {
 			app.ThrowIfNull("app");
 			this.Application = app;
+		}
+	}
+
+	public static class PluginExtensions {
+		public static bool IsPluginAssembly(this Assembly asm) {
+			asm.ThrowIfNull("asm");
+			return asm.GetCustomAttributes<PluginAssemblyAttribute>().Count() > 0;
 		}
 	}
 

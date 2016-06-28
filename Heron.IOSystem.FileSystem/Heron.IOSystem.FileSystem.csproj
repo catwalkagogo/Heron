@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>CatWalk.Heron.IOSystem.FileSystem</RootNamespace>
     <AssemblyName>Heron.IOSystem.FileSystem</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -37,15 +37,15 @@
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="ReactiveProperty, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\ReactiveProperty.2.7.3.1\lib\net46\ReactiveProperty.dll</HintPath>
+      <HintPath>..\packages\ReactiveProperty.2.7.4\lib\net46\ReactiveProperty.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="ReactiveProperty.DataAnnotations, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\ReactiveProperty.2.7.3.1\lib\net46\ReactiveProperty.DataAnnotations.dll</HintPath>
+      <HintPath>..\packages\ReactiveProperty.2.7.4\lib\net46\ReactiveProperty.DataAnnotations.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="ReactiveProperty.NET46, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\ReactiveProperty.2.7.3.1\lib\net46\ReactiveProperty.NET46.dll</HintPath>
+      <HintPath>..\packages\ReactiveProperty.2.7.4\lib\net46\ReactiveProperty.NET46.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -94,7 +94,7 @@
       <Name>CatWalk.IOSystem.FileSystem</Name>
     </ProjectReference>
     <ProjectReference Include="..\CatWalk.IOSystem\CatWalk.IOSystem.csproj">
-      <Project>{fae8f115-587d-4d83-b609-7e0107ce68c5}</Project>
+      <Project>{dedb40e7-a386-4305-be85-5a1c263bd503}</Project>
       <Name>CatWalk.IOSystem</Name>
     </ProjectReference>
     <ProjectReference Include="..\CatWalk.Mvvm\CatWalk.Mvvm.csproj">
@@ -114,7 +114,7 @@
       <Name>CatWalk</Name>
     </ProjectReference>
     <ProjectReference Include="..\Heron.Core\Heron.Core.csproj">
-      <Project>{646b1d1d-e243-4d9e-8068-eb8303ffb121}</Project>
+      <Project>{996331ab-d837-42d5-970a-247822be6f29}</Project>
       <Name>Heron.Core</Name>
     </ProjectReference>
   </ItemGroup>
@@ -122,6 +122,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>xcopy /s /y "$(TargetDir)*.*" "$(SolutionDir)Heron\bin\$(ConfigurationName)\plugins\$(ProjectName)\"</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

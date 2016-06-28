@@ -11,9 +11,6 @@ using System.Diagnostics;
 using System.Text;
 
 namespace CatWalk.Collections{
-#if !SILVERLIGHT
-	[Serializable]
-#endif
 	public class SkipList<T> : IList<T>{
 		#region フィールド
 		
@@ -261,32 +258,6 @@ namespace CatWalk.Collections{
 			}
 		}
 		
-#if DEBUG
-		public void DebugPrint(string m){
-			Console.WriteLine(m);
-			int level = this.head.Links.Count - 1;
-			while(level >= 0){
-				SkipListNodeBase node = this.head;
-				while(node != null){
-					if(node == this.head){
-						Console.Write("head");
-					}else if(node == this.foot){
-						Console.Write("foot");
-					}else{
-						Console.Write("{0,4}", node.ToString());
-					}
-					if(node.Links[level].Distance > 1){
-						Console.Write("-{0,2}{1}", node.Links[level].Distance, new String(' ', (node.Links[level].Distance - 1) * 4 + node.Links[level].Distance - 3));
-					}else{
-						Console.Write(" ");
-					}
-					node = node.Links[level].Node;
-				}
-				Console.Write("\n");
-				level--;
-			}
-		}
-#endif
 		#endregion
 		
 		#region プロパティ
@@ -347,9 +318,6 @@ namespace CatWalk.Collections{
 		
 		#region クラス
 		
-#if !SILVERLIGHT
-		[Serializable]
-#endif
 		protected abstract class SkipListNodeBase{
 			public IList<SkipListNodeLink> Links{get; set;}
 
@@ -374,9 +342,6 @@ namespace CatWalk.Collections{
 			}
 		}
 		
-#if !SILVERLIGHT
-		[Serializable]
-#endif
 		protected class SkipListNodeLink{
 			public SkipListNodeBase Node{get; set;}
 			public int Distance{get; set;}

@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using CatWalk.IOSystem;
 using CatWalk.Collections;
-using System.ComponentModel;
+using CatWalk.ComponentModel;
 
 namespace CatWalk.Heron.IOSystem {
 	public abstract class OrderDefinition : IOrderDefinition {

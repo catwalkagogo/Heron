@@ -7,7 +7,10 @@ using System.Linq;
 using System.Text;
 using System.Diagnostics;
 using System.ComponentModel;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Reflection;
+using System.Reactive.Linq;
 using CatWalk;
 
 namespace CatWalk.Mvvm {
@@ -17,6 +20,8 @@ namespace CatWalk.Mvvm {
 	using TDictionary = Dictionary<Type, LinkedList<Messenger.Entry>>;
 
 	public class Messenger {
+		private readonly object _Sync = new object();
+
 		private static Messenger _Default;
 		public static Messenger Default {
 			get {
@@ -38,256 +43,96 @@ namespace CatWalk.Mvvm {
 			}
 		}
 
-		private ISynchronizeInvoke _SynchronizeInvoke;
-		public ISynchronizeInvoke SynchronizeInvoke {
+		private SynchronizationContext _SynchronizationContext;
+		public SynchronizationContext SynchronizationContext {
 			get {
-				return this._SynchronizeInvoke;
+				return this._SynchronizationContext;
 			}
 			set {
 				value.ThrowIfNull("value");
-				this._SynchronizeInvoke = value;
+				this._SynchronizationContext = value;
 			}
 		}
 
-		public Messenger() : this(new SynchronizeViewModel.DefaultSynchronizeInvoke()) {
+		public Messenger() : this(SynchronizeViewModel.DefaultSynchronizationContext.Default) {
 
 		}
 
-		public Messenger(ISynchronizeInvoke invoke) {
+		public Messenger(SynchronizationContext invoke) {
 			invoke.ThrowIfNull("invoke");
-			this._SynchronizeInvoke = invoke;
+			this._SynchronizationContext = invoke;
 		}
 
-		#region Register<TMessage>
+		#region Subscribe
 
-		public void RegisterTask<TMessage>(Func<TMessage, Task> action) {
-			this.RegisterTask(action, null, false);
+		public IDisposable Subscribe<TMessage>(Func<TMessage, Task> action) {
+			return this.Subscribe(action, null, false);
 		}
-		public void RegisterTask<TMessage>(Func<TMessage, Task> action, object token) {
-			this.RegisterTask(action, token, false);
+		public IDisposable Subscribe<TMessage>(Func<TMessage, Task> action, object token) {
+			return this.Subscribe(action, token, false);
 		}
-		public void RegisterTask<TMessage>(Func<TMessage, Task> action, bool isReceiveDerivedMessages) {
-			this.RegisterTask(action, null, isReceiveDerivedMessages);
+		public IDisposable Subscribe<TMessage>(Func<TMessage, Task> action, bool isReceiveDerivedMessages) {
+			return this.Subscribe(action, null, isReceiveDerivedMessages);
 		}
-		public void RegisterTask<TMessage>(Func<TMessage, Task> action, object token, bool isReceiveDerivedMessages) {
-			this.RegisterInternal<TMessage>(action, token, isReceiveDerivedMessages, true);
+		public IDisposable Subscribe<TMessage>(Func<TMessage, Task> action, object token, bool isReceiveDerivedMessages) {
+			return this.SubscribeInternal<TMessage>(action, token, isReceiveDerivedMessages, true, false);
 		}
-		private void RegisterInternal<TMessage>(Delegate action, object token, bool isReceiveDerivedMessages, bool isTask) {
+		private IDisposable SubscribeInternal<TMessage>(Delegate action, object token, bool isReceiveDerivedMessages, bool isTask, bool isPassToken) {
 			action.ThrowIfNull("action");
-
-			var messageType = typeof(TMessage);
-			var entry = new TEntryValue(new WeakDelegate(action), token, isTask);
-			// get list
-			var entries = (isReceiveDerivedMessages) ? this.DerivedEntries : this.StrictEntries;
-			TEntryList list;
-			var key = messageType;
-			if (!entries.TryGetValue(key, out list)) {
-				list = new TEntryList();
-				entries.Add(key, list);
-			}
-
-			list.AddLast(entry);
-		}
-
-		public void Register<TMessage>(Action<TMessage> action) {
-			this.Register(action, null, false);
-		}
-		public void Register<TMessage>(Action<TMessage> action, object token) {
-			this.Register(action, token, false);
-		}
-		public void Register<TMessage>(Action<TMessage> action, bool isReceiveDerivedMessages) {
-			this.Register(action, null, isReceiveDerivedMessages);
-		}
-		public void Register<TMessage>(Action<TMessage> action, object token, bool isReceiveDerivedMessages) {
-			this.RegisterInternal<TMessage>(action, token, isReceiveDerivedMessages, false);
-		}
-
-		#endregion
-
-		#region Register<TMessage, TState>
-		/*
-		public void Register<TMessage, TState>(Action<TMessage, TState> action, TState state) {
-			this.Register(action, state, null, false);
-		}
-		public void Register<TMessage, TState>(Action<TMessage, TState> action, TState state, object token) {
-			this.Register(action, state, token, false);
-		}
-		public void Register<TMessage, TState>(Action<TMessage, TState> action, TState state, bool isReceiveDerivedMessages) {
-			this.Register(action, state, null, isReceiveDerivedMessages);
-		}
-		public void Register<TMessage, TState>(Action<TMessage, TState> action, TState state, object token, bool isReceiveDerivedMessages) {
-			action.ThrowIfNull("action");
-
-			var messageType = typeof(TMessage);
-#if SILVERLIGHT
-			var entry = new TEntryValue(action, token, state);
-#else
-			var entry = new TEntryValue(new WeakDelegate(action), token, false, state);
-#endif
-			// get list
-			var entries = (isReceiveDerivedMessages) ? this.DerivedEntries : this.StrictEntries;
-			TEntryList list;
-			var key = messageType;
-			if(!entries.TryGetValue(key, out list)) {
-				list = new TEntryList();
-				entries.Add(key, list);
-			}
-
-			list.AddLast(entry);
-		}
-		*/
-		#endregion
-		/*
-	#region Register<TMessage> PassToken
-
-	public void Register<TMessage>(Action<TMessage, object> action, object token) {
-		this.Register(action, token, false);
-	}
-	public void Register<TMessage>(Action<TMessage, object> action, object token, bool isReceiveDerivedMessages) {
-		action.ThrowIfNull("action");
-
-		var messageType = typeof(TMessage);
-		var entry = new TEntryValue(new WeakDelegate(action), token, true);
-
-		// get list
-		var entries = (isReceiveDerivedMessages) ? this.DerivedEntries : this.StrictEntries;
-		TEntryList list;
-		var key = messageType;
-		if(!entries.TryGetValue(key, out list)) {
-			list = new TEntryList();
-			entries.Add(key, list);
-		}
-
-		list.AddLast(entry);
-	}
-
-	#endregion
-		*/
-		#region Register<TMessage, TState> PassToken
-		/*
-		public void Register<TMessage, TState>(Action<TMessage, object, TState> action, TState state, object token) {
-			this.Register(action, state, token, false);
-		}
-		public void Register<TMessage, TState>(Action<TMessage, object, TState> action, TState state, object token, bool isReceiveDerivedMessages) {
-			action.ThrowIfNull("action");
-
-			var messageType = typeof(TMessage);
-#if SILVERLIGHT
-			var entry = new TEntryValue(action, token, state);
-#else
-			var entry = new TEntryValue(new WeakDelegate(action), token, true, state);
-#endif
-			// get list
-			var entries = (isReceiveDerivedMessages) ? this.DerivedEntries : this.StrictEntries;
-			TEntryList list;
-			var key = messageType;
-			if(!entries.TryGetValue(key, out list)) {
-				list = new TEntryList();
-				entries.Add(key, list);
-			}
-
-			list.AddLast(entry);
-		}
-		*/
-		#endregion
-
-		#region Unregister
-
-		public void Unregister<TMessage>(Action<TMessage> action) {
-			this.UnregisterInternal<TMessage>(action, null, false);
-		}
-		public void Unregister<TMessage>(Action<TMessage> action, object token) {
-			this.UnregisterInternal<TMessage>(action, token, false);
-		}
-		public void Unregister<TMessage>(Action<TMessage> action, bool isReceiveDerivedMessages) {
-			this.UnregisterInternal<TMessage>(action, null, isReceiveDerivedMessages);
-		}
-		public void Unregister<TMessage>(Action<TMessage> action, object token, bool isReceiveDerivedMessages) {
-			this.UnregisterInternal<TMessage>(action, token, isReceiveDerivedMessages);
-		}
-		public void UnregisterTask<TMessage>(Func<TMessage, Task> action) {
-			this.UnregisterInternal<TMessage>(action, null, false);
-		}
-		public void UnregisterTask<TMessage>(Func<TMessage, Task> action, object token) {
-			this.UnregisterInternal<TMessage>(action, token, false);
-		}
-		public void UnregisterTask<TMessage>(Func<TMessage, Task> action, bool isReceiveDerivedMessages) {
-			this.UnregisterInternal<TMessage>(action, null, isReceiveDerivedMessages);
-		}
-		public void UnregisterTask<TMessage>(Func<TMessage, Task> action, object token, bool isReceiveDerivedMessages) {
-			this.UnregisterInternal<TMessage>(action, token, isReceiveDerivedMessages);
-		}
-		/*
-		public void Unregister<TMessage, TState>(Action<TMessage, TState> action) {
-			this.UnregisterInternal<TMessage>(action, null, false);
-		}
-		public void Unregister<TMessage, TState>(Action<TMessage, TState> action, object token) {
-			this.UnregisterInternal<TMessage>(action, token, false);
-		}
-		public void Unregister<TMessage, TState>(Action<TMessage, TState> action, bool isReceiveDerivedMessages) {
-			this.UnregisterInternal<TMessage>(action, null, isReceiveDerivedMessages);
-		}
-		public void Unregister<TMessage, TState>(Action<TMessage, TState> action, object token, bool isReceiveDerivedMessages) {
-			this.UnregisterInternal<TMessage>(action, token, isReceiveDerivedMessages);
-		}
-		*/
-		/*
-		public void Unregister<TMessage>(Action<TMessage, object> action) {
-			this.UnregisterInternal<TMessage>(action, null, false);
-		}
-		public void Unregister<TMessage>(Action<TMessage, object> action, object token) {
-			this.UnregisterInternal<TMessage>(action, token, false);
-		}
-		public void Unregister<TMessage>(Action<TMessage, object> action, bool isReceiveDerivedMessages) {
-			this.UnregisterInternal<TMessage>(action, null, isReceiveDerivedMessages);
-		}
-		public void Unregister<TMessage>(Action<TMessage, object> action, object token, bool isReceiveDerivedMessages) {
-			this.UnregisterInternal<TMessage>(action, token, isReceiveDerivedMessages);
-		}
-		
-		public void Unregister<TMessage, TState>(Action<TMessage, object, TState> action) {
-			this.UnregisterInternal<TMessage>(action, null, false);
-		}
-		public void Unregister<TMessage, TState>(Action<TMessage, object, TState> action, object token) {
-			this.UnregisterInternal<TMessage>(action, token, false);
-		}
-		public void Unregister<TMessage, TState>(Action<TMessage, object, TState> action, bool isReceiveDerivedMessages) {
-			this.UnregisterInternal<TMessage>(action, null, isReceiveDerivedMessages);
-		}
-		public void Unregister<TMessage, TState>(Action<TMessage, object, TState> action, object token, bool isReceiveDerivedMessages) {
-			this.UnregisterInternal<TMessage>(action, token, isReceiveDerivedMessages);
-		}
-		*/
-		private void UnregisterInternal<TMessage>(Delegate action, object token, bool isReceiveDerivedMessages) {
-			action.ThrowIfNull("action");
-
-			var messageType = typeof(TMessage);
-			var key = messageType;
-
-			var entries = (isReceiveDerivedMessages) ? this._DerivedEntries : this._StrictEntries;
-
-			TEntryList list;
-			lock (entries) {
-				if (entries != null && entries.TryGetValue(key, out list)) {
-					var node = list.First;
-					while (node != null) {
-						var next = node.Next;
-						var entry = node.Value;
-						if (!entry.Action.IsAlive || (entry.Token != null && !entry.Token.IsAlive)) {
-							list.Remove(node);
-						} else
-							if (entry.IsMatchToken(token) &&
-								entry.Action.Method.Equals(action.Method) &&
-								entry.Action.Target == action.Target) {
-							list.Remove(node);
-						}
-						node = next;
-					}
-					if (list.Count == 0) {
-						entries.Remove(key);
-					}
+			lock (this._Sync) {
+				var messageType = typeof(TMessage);
+				var entry = new TEntryValue(this, new WeakDelegate(action), token, isTask, isReceiveDerivedMessages, messageType, isPassToken);
+				// get list
+				var entries = (isReceiveDerivedMessages) ? this.DerivedEntries : this.StrictEntries;
+				TEntryList list;
+				var key = messageType;
+				if (!entries.TryGetValue(key, out list)) {
+					list = new TEntryList();
+					entries.Add(key, list);
 				}
+
+				list.AddLast(entry);
+				return entry;
 			}
+		}
+
+		public IDisposable Subscribe<TMessage>(Action<TMessage> action) {
+			return this.Subscribe(action, null, false);
+		}
+		public IDisposable Subscribe<TMessage>(Action<TMessage> action, object token) {
+			return this.Subscribe(action, token, false);
+		}
+		public IDisposable Subscribe<TMessage>(Action<TMessage> action, bool isReceiveDerivedMessages) {
+			return this.Subscribe(action, null, isReceiveDerivedMessages);
+		}
+		public IDisposable Subscribe<TMessage>(Action<TMessage> action, object token, bool isReceiveDerivedMessages) {
+			return this.SubscribeInternal<TMessage>(action, token, isReceiveDerivedMessages, false, false);
+		}
+
+		public IDisposable Subscribe<TMessage>(Action<TMessage, object> action) {
+			return this.Subscribe(action, null, false);
+		}
+		public IDisposable Subscribe<TMessage>(Action<TMessage, object> action, object token) {
+			return this.Subscribe(action, token, false);
+		}
+		public IDisposable Subscribe<TMessage>(Action<TMessage, object> action, bool isReceiveDerivedMessages) {
+			return this.Subscribe(action, null, isReceiveDerivedMessages);
+		}
+		public IDisposable Subscribe<TMessage>(Action<TMessage, object> action, object token, bool isReceiveDerivedMessages) {
+			return this.SubscribeInternal<TMessage>(action, token, isReceiveDerivedMessages, false, true);
+		}
+
+		public IDisposable Subscribe<TMessage>(Func<TMessage, object, Task> action) {
+			return this.Subscribe(action, null, false);
+		}
+		public IDisposable Subscribe<TMessage>(Func<TMessage, object, Task> action, object token) {
+			return this.Subscribe(action, token, false);
+		}
+		public IDisposable Subscribe<TMessage>(Func<TMessage, object, Task> action, bool isReceiveDerivedMessages) {
+			return this.Subscribe(action, null, isReceiveDerivedMessages);
+		}
+		public IDisposable Subscribe<TMessage>(Func<TMessage, object, Task> action, object token, bool isReceiveDerivedMessages) {
+			return this.SubscribeInternal<TMessage>(action, token, isReceiveDerivedMessages, true, true);
 		}
 
 		#endregion
@@ -301,11 +146,9 @@ namespace CatWalk.Mvvm {
 		public void Send<TMessage>(TMessage message, object token) {
 			foreach (var list in this.FindEntries(typeof(TMessage))) {
 				this.ProcessEntryList(list, token, (entry, d) => {
-					if (this._SynchronizeInvoke.InvokeRequired) {
-						this._SynchronizeInvoke.Invoke(d, entry.GetParameters(message));
-					} else {
-						d.DynamicInvoke(entry.GetParameters(message));
-					}
+					this._SynchronizationContext.Send(new SendOrPostCallback(state => {
+						d.DynamicInvoke(entry.GetParameters(message, token));
+					}), null);
 				});
 			}
 		}
@@ -315,7 +158,7 @@ namespace CatWalk.Mvvm {
 			if (this._DerivedEntries != null) {
 				var keysToDelete = new List<TEntryKey>();
 				foreach (var pair in this._DerivedEntries
-					.Where(pair => messageType.IsSubclassOf(pair.Key))) {
+					.Where(pair => messageType.GetTypeInfo().IsSubclassOf(pair.Key))) {
 					var list = pair.Value;
 					yield return list;
 					if (list.Count == 0) {
@@ -371,22 +214,21 @@ namespace CatWalk.Mvvm {
 				var tasks = new List<Task>();
 				foreach (var list in this.FindEntries(typeof(TMessage))) {
 					this.ProcessEntryList(list, token, (entry, d) => {
-						Task task;
+						Task task = null;
 						if (entry.IsTask) {
-							task = (this._SynchronizeInvoke.InvokeRequired) ?
-								(Task)this._SynchronizeInvoke.Invoke(d, entry.GetParameters(message)) :
-								(Task)d.DynamicInvoke(entry.GetParameters(message));
+							this._SynchronizationContext.Send(state => {
+								task = (Task)d.DynamicInvoke(entry.GetParameters(message, token));
+							}, null);
 						} else {
 							task = Task.Run(() => {
-								if (this._SynchronizeInvoke.InvokeRequired) {
-									this._SynchronizeInvoke.Invoke(d, entry.GetParameters(message));
-								} else {
-									d.DynamicInvoke(entry.GetParameters(message));
-								}
+								this._SynchronizationContext.Send(state => {
+									d.DynamicInvoke(entry.GetParameters(message, token));
+								}, null);
 							});
 						}
-
-						tasks.Add(task);
+						if(task != null) {
+							tasks.Add(task);
+						}
 					});
 				}
 
@@ -398,23 +240,41 @@ namespace CatWalk.Mvvm {
 
 		#region Entry
 
-		internal struct Entry {
+		internal class Entry : IDisposable {
+			public Messenger Messenger { get; private set; }
 			public WeakDelegate Action { get; private set; }
 			public WeakReference Token { get; private set; }
 			public bool IsTask { get; private set; }
+			public bool IsReceiveDerivedMessages{ get; private set; }
+			public Type MessageType { get; private set; }
+			public bool IsPassToken { get; private set; }
 
-			public Entry(WeakDelegate action, object token, bool isTask) : this() {
+			public Entry(Messenger messenger, WeakDelegate action, object token, bool isTask, bool isReceiveDerivedMessages, Type messageType, bool isPassToken) {
+				this.Messenger = messenger;
 				this.Action = action;
 				this.Token = (token != null) ? new WeakReference(token) : null;
 				this.IsTask = isTask;
+				this.IsReceiveDerivedMessages = isReceiveDerivedMessages;
+				this.MessageType = messageType;
+				this.IsPassToken = isPassToken;
 			}
 
-			public object[] GetParameters(object message) {
-				return new object[] { message };
+			public object[] GetParameters(object message, object token) {
+				return this.IsPassToken ? new object[] { message, token} : new object[] { message };
 			}
 
 			public bool IsMatchToken(object token) {
 				return token == null || this.Token == null || (this.Token.IsAlive && this.Token.Target == token);
+			}
+
+			public void Dispose() {
+				lock (this.Messenger._Sync) {
+					var dict = this.IsReceiveDerivedMessages ? this.Messenger._DerivedEntries : this.Messenger._StrictEntries;
+					TEntryList list;
+					if(dict.TryGetValue(MessageType, out list)) {
+						list.Remove(this);
+					}
+				}
 			}
 		}
 
@@ -422,31 +282,36 @@ namespace CatWalk.Mvvm {
 
 	}
 
-	[Obsolete]
-	public abstract class MessageBase {
-		public object Sender { get; private set; }
-		public MessageBase(object sender) {
-			this.Sender = sender;
+	public static class MessengerExtensions {
+		public static IObservable<T> ToObservable<T>(this Messenger messenger, object token = null, bool isReceiveDerivedMessages = false) {
+			return Observable.Create<T>(observer => {
+				var sync = new object();
+				return messenger.Subscribe<T>(m => {
+					lock (sync) {
+						observer.OnNext(m);
+					}
+				}, token, isReceiveDerivedMessages);
+			});
+		}
+
+		public static IObservable<MessageTokenSet<T>> ToObservableWithToken<T>(this Messenger messenger, object token = null, bool isReceiveDerivedMessages = false) {
+			return Observable.Create<MessageTokenSet<T>>(observer => {
+				var sync = new object();
+				return messenger.Subscribe<T>((m, t) => {
+					lock (sync) {
+						observer.OnNext(new MessageTokenSet<T>(m, t));
+					}
+				}, token, isReceiveDerivedMessages);
+			});
 		}
 	}
 
-	[Obsolete]
-	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = true)]
-	public class ReceiveMessageAttribute : Attribute {
-		public Type MessageType { get; private set; }
-
-		public ReceiveMessageAttribute(Type messageType) {
-			this.MessageType = messageType;
-		}
-	}
-
-	[Obsolete]
-	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = true)]
-	public class SendMessageAttribute : Attribute {
-		public Type MessageType { get; private set; }
-
-		public SendMessageAttribute(Type messageType) {
-			this.MessageType = messageType;
+	public struct MessageTokenSet<T> {
+		public T Message { get; private set; }
+		public object Token { get; private set; }
+		public MessageTokenSet(T message, object token) {
+			this.Message = message;
+			this.Token = token;
 		}
 	}
 }

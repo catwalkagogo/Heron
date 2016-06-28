@@ -12,7 +12,7 @@ namespace CatWalk.Heron.Windows {
 
 			var app = e.Application;
 
-			app.Messenger.Register<WindowMessages.ArrangeWindowsMessage>(OnArrangeWindowsMessage, app);
+			app.Messenger.Subscribe<WindowMessages.ArrangeWindowsMessage>((Action<WindowMessages.ArrangeWindowsMessage>)OnArrangeWindowsMessage, app);
 
 			app.ViewFactory.Register<MainWindowViewModel>((type, vm) => {
 				var window = new MainWindow(this);

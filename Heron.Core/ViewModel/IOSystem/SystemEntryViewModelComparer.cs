@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using CatWalk.Heron.IOSystem;
 
 namespace CatWalk.Heron.ViewModel.IOSystem {
+	using ComponentModel;
 	using ColumnOrderDefinition = IEnumerable<ColumnOrderSet>;
 
 	public class SystemEntryViewModelComparer : IComparer<SystemEntryViewModel>, System.Collections.IComparer{

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.ComponentModel;
 using CatWalk;
@@ -16,7 +17,7 @@ namespace CatWalk.Heron.ViewModel {
 			this.Disposables = new CompositeDisposable();
 		}
 
-		public ViewModelBase(ISynchronizeInvoke invoker) : base(invoker) {
+		public ViewModelBase(SynchronizationContext invoker) : base(invoker) {
 			this.Disposables = new CompositeDisposable();
 		}
 

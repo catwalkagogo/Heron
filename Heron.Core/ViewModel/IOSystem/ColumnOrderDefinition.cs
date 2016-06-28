@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.ComponentModel;
 using CatWalk;
 using CatWalk.Heron.IOSystem;
+using CatWalk.ComponentModel;
 
 namespace CatWalk.Heron.ViewModel.IOSystem {
 	/*public struct ColumnOrderDefinition {

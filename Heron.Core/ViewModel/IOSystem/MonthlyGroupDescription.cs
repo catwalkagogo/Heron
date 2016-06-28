@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using CatWalk.Heron.IOSystem;
 
 namespace CatWalk.Heron.ViewModel.IOSystem {
-
+	/*
 	public class MonthlyGroupDescription<TColumn> : ColumnGroupDescription<TColumn, DateTime> where TColumn : IColumnDefinition<DateTime> {
 		private static IDictionary<string, WeakReference<DateTimeGroup>> _Cache = new Dictionary<string, WeakReference<DateTimeGroup>>();
 
@@ -44,5 +44,5 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 				return this.Year == dt.Year && this.Month == dt.Month;
 			}
 		}
-	}
+	}*/
 }

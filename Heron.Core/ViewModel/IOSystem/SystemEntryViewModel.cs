@@ -7,7 +7,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Specialized;
-using System.Windows.Data;
 using CatWalk;
 using CatWalk.Collections;
 using CatWalk.Mvvm;
@@ -22,7 +21,7 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 		public SystemEntryViewModel Parent { get; private set; }
 		public ISystemEntry Entry { get; private set; }
 		public ISystemProvider Provider { get; private set; }
-		private readonly IDictionary<string, ISet<IEntryGroup>> _ChildrenGroups = new ObservableDictionary<string, ISet<IEntryGroup>>();
+		//private readonly IDictionary<string, ISet<IEntryGroup>> _ChildrenGroups = new ObservableDictionary<string, ISet<IEntryGroup>>();
 
 		#region Constructor
 
@@ -215,10 +214,10 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 
 				var vm = new ColumnViewModel(provider, _this);
 				this._columns[provider.GetType().FullName] = new Tuple<IColumnDefinition,ColumnViewModel>(provider, vm);
-				vm.PropertyChanged += vm_PropertyChanged;
+				//vm.PropertyChanged += vm_PropertyChanged;
 				return vm;
 			}
-
+			/*
 			private void vm_PropertyChanged(object sender, PropertyChangedEventArgs e) {
 				var column = (ColumnViewModel)sender;
 				if(e.PropertyName == "Value") {
@@ -238,7 +237,7 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 					}
 				}
 			}
-
+			*/
 			private void CreateAll(){
 				foreach(var entry in this.Keys) {
 					var v = this._columns[entry];

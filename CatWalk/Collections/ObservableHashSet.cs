@@ -13,7 +13,7 @@ using System.Runtime.Serialization;
 using System.Linq;
 
 namespace CatWalk.Collections {
-	public class ObservableHashSet<T> : ISerializable, IDeserializationCallback, ISet<T>, IObservableCollection<T>{
+	public class ObservableHashSet<T> : ISet<T>, IObservableCollection<T>{
 		private readonly HashSet<T> _Items;
 
 		public ObservableHashSet(){
@@ -30,11 +30,11 @@ namespace CatWalk.Collections {
 		}
 
 		#region ISerializable Members
-
+		/*
 		public void GetObjectData(SerializationInfo info, StreamingContext context){
 			this._Items.GetObjectData(info, context);
 		}
-
+		*/
 		#endregion
 	
 		#region Reentrancy
@@ -55,11 +55,11 @@ namespace CatWalk.Collections {
 		#endregion
 
 		#region IDeserializationCallback Members
-
+		/*
 		public void OnDeserialization(object sender){
 			this._Items.OnDeserialization(sender);
 		}
-
+		*/
 		#endregion
 
 		#region ISet<T> Members

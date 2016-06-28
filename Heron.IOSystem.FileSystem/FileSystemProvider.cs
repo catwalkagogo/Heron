@@ -91,7 +91,7 @@ namespace CatWalk.Heron.FileSystem {
 		public override bool TryParsePath(ISystemEntry root, string path, out ISystemEntry entry) {
 			root.ThrowIfNull("root");
 			path.ThrowIfNull("path");
-			var filePath = new FilePath(path, FilePathKind.Absolute);
+			var filePath = new FilePath(path, FilePathKind.Absolute, FilePathFormats.Windows);
 			if(filePath.IsValid && filePath.PathKind == FilePathKind.Absolute) {
 				var drives = new FileSystemDriveDirectory(root, "Drives");
 				var drive = drives.GetChildDirectory(filePath.Fragments[0]);
@@ -119,7 +119,7 @@ namespace CatWalk.Heron.FileSystem {
 
 		#region GetEntryIcon
 
-		public override object GetEntryIcon(ISystemEntry entry, Int32Size size, CancellationToken token) {
+		public override object GetEntryIcon(ISystemEntry entry, Size<int> size, CancellationToken token) {
 			entry.ThrowIfNull("entry");
 			var ife = entry as IFileSystemEntry;
 			if(ife != null) {
@@ -160,7 +160,7 @@ namespace CatWalk.Heron.FileSystem {
 			}
 		}
 
-		private ImageList GetImageList(Int32Size size) {
+		private ImageList GetImageList(Size<int> size) {
 			lock(this._ImageLists) {
 				var ilsize = GetImageListSize(size);
 				ImageList list;
@@ -174,7 +174,7 @@ namespace CatWalk.Heron.FileSystem {
 			}
 		}
 
-		private static ImageListSize GetImageListSize(Int32Size size) {
+		private static ImageListSize GetImageListSize(Size<int> size) {
 			if(size.Width <= 16 && size.Height <= 16) {
 				return ImageListSize.Small;
 			} else if(size.Width <= 32 && size.Height <= 32) {
@@ -390,7 +390,7 @@ namespace CatWalk.Heron.FileSystem {
 		#endregion
 
 		#region Grouping
-
+		/*
 		private static readonly EntryGroupDescription _FileSizeGroup = new FileSizeEntryGroupDescription();
 		private static readonly EntryGroupDescription _CreationTimeGroup = new MonthlyGroupDescription<CreationTimeColumn>();
 		private static readonly EntryGroupDescription _LastWriteTimeGroup = new MonthlyGroupDescription<LastWriteTimeColumn>();
@@ -408,11 +408,11 @@ namespace CatWalk.Heron.FileSystem {
 				return base.GetAdditionalGroupings(entry);
 			}
 		}
-
+		*/
 		#endregion
 
 		#region FileSizeGroup
-
+		/*
 		private class FileSizeEntryGroupDescription : EntryGroupDescription {
 			private static readonly DelegateEntryGroup<int>[] _Candidates;
 			private static readonly string COLUMN = typeof(FileSizeColumn).FullName;
@@ -450,7 +450,7 @@ namespace CatWalk.Heron.FileSystem {
 				return _Candidates.FirstOrDefault(grp => grp.Filter(entry));
 			}
 		}
-
+		*/
 		#endregion
 
 	}

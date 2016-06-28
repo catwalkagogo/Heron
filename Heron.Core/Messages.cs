@@ -9,26 +9,19 @@ using System.Linq.Expressions;
 
 namespace CatWalk.Heron {
 	public abstract class MessageBase {
-		public object Sender {
-			get;
-			private set;
-		}
-		public MessageBase(object sender) {
-			this.Sender = sender;
-		}
 	}
 
 	public static class Messages {
 		public class CancelMessage : MessageBase {
 			public bool Cancel { get; set; }
 
-			public CancelMessage(object sender) : base(sender) { }
+			public CancelMessage() { }
 		}
 
 		public class RequestViewMessage : MessageBase {
 			public object View { get; set; }
 
-			public RequestViewMessage(object sender) : base(sender){
+			public RequestViewMessage(){
 			}
 		}
 
@@ -38,7 +31,7 @@ namespace CatWalk.Heron {
 			public T Value{get; set;}
 			public string PropertyName{get; private set;}
 
-			public RequestPropertyMessage(object sender, string propName) : base(sender){
+			public RequestPropertyMessage(string propName){
 				propName.ThrowIfNullOrEmpty("propName");
 			}
 
@@ -76,8 +69,7 @@ namespace CatWalk.Heron {
 				private set;
 			}
 
-			public SetPropertyMessage(object sender, string propName)
-				: base(sender) {
+			public SetPropertyMessage(string propName){
 				propName.ThrowIfNullOrEmpty("propName");
 			}
 
@@ -105,14 +97,14 @@ namespace CatWalk.Heron {
 			public IEnumerable Items { get; private set; }
 			public IEnumerable SelectedItems { get; set; }
 
-			public SelectItemsMessage(object sender, IEnumerable items) : base(sender) {
+			public SelectItemsMessage(IEnumerable items) {
 				items.ThrowIfNull("items");
 				this.Items = items;
 			}
 		}
 
 		public class DataContextAttachedMessage : MessageBase {
-			public DataContextAttachedMessage(object sender) : base(sender) {
+			public DataContextAttachedMessage() {
 
 			}
 		}

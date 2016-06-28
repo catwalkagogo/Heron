@@ -5,9 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.ComponentModel;
+using CatWalk.ComponentModel;
 using CatWalk.IOSystem;
 using CatWalk.Collections;
+using System.Reflection;
 
 namespace CatWalk.Heron.IOSystem {
 	/// <summary>
@@ -157,7 +158,7 @@ namespace CatWalk.Heron.IOSystem {
 
 		public override bool CanSort {
 			get {
-				return typeof(IComparable<T>).IsAssignableFrom(typeof(T));
+				return typeof(IComparable<T>).GetTypeInfo().IsAssignableFrom(typeof(T).GetTypeInfo());
 			}
 		}
 

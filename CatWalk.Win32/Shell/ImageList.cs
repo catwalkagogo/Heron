@@ -22,7 +22,7 @@ namespace CatWalk.Win32.Shell {
 
 		public ImageList(ImageListSize size) : base(Initialize(size)){
 			this._Size = size;
-			this._SizePixels = new Lazy<Int32Size>(this.GetSizePixels);
+			this._SizePixels = new Lazy<Size>(this.GetSizePixels);
 		}
 
 		private static IImageList Initialize(ImageListSize size) {
@@ -101,12 +101,12 @@ namespace CatWalk.Win32.Shell {
 			return this.GetIcon(this.GetIconIndex(path), options);
 		}
 
-		private Int32Size GetSizePixels(){
+		private Size GetSizePixels(){
 			int x;
 			int y;
 			var hresult = this.Interface.GetIconSize(out x, out y);
 			Marshal.ThrowExceptionForHR(hresult);
-			return new Int32Size(x, y);
+			return new Size(x, y);
 		}
 
 		public Bitmap Draw(int index, int overlayIndex, ImageListDrawOptions options){
@@ -148,7 +148,7 @@ namespace CatWalk.Win32.Shell {
 			}
 		}
 
-		private Lazy<Int32Size> _SizePixels;
+		private Lazy<Size> _SizePixels;
 		public int Width{
 			get{
 				return this._SizePixels.Value.Width;

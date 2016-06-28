@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace CatWalk.Collections{
-	[Serializable]
 	public struct ArrayDifference<T>{
 		//public T[] Source{get; private set;}
 		//public T[] Destination{get; private set;}

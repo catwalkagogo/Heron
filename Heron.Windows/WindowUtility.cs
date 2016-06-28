@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Interop;
+using Reactive.Bindings.Extensions;
+using System.Reactive.Linq;
 using CatWalk.Windows;
 
 namespace CatWalk.Heron.Windows {
@@ -52,13 +54,13 @@ namespace CatWalk.Heron.Windows {
 					.Where(w => w.WindowState != WindowState.Minimized)
 					.OrderWindowByZOrder()
 					.Where(w => {
-						var rect = new Int32Rect((int)w.Left, (int)w.Top, (int)w.Width, (int)w.Height);
+						var rect = new Rect<int>((int)w.Left, (int)w.Top, (int)w.Width, (int)w.Height);
 						var inter = rect.Intersect(screen.ScreenArea);
 						var area = inter.Area;
 						return area >= rect.Area - area;
 					}).ToArray();
 
-				var rects = arranger.Arrange(new Size(screen.WorkingArea.Width, screen.WorkingArea.Height), windows.Length);
+				var rects = arranger.Arrange(new Win.Size(screen.WorkingArea.Width, screen.WorkingArea.Height), windows.Length);
 
 				for (var i = 0; i < rects.Length; i++) {
 					var win = windows[i];
@@ -103,12 +105,14 @@ namespace CatWalk.Heron.Windows {
 
 		public static Win32::ScreenInfo GetCurrentScreen(this Window win) {
 			return Win32::Screen.GetCurrentMonitor(
-				new CatWalk.Int32Rect(
+				new Rect<int>(
 					(int)(Double.IsNaN(win.RestoreBounds.Left) ? 0 : win.RestoreBounds.Left),
 					(int)(Double.IsNaN(win.RestoreBounds.Top) ? 0 : win.RestoreBounds.Top),
 					(int)(Double.IsNaN(win.RestoreBounds.Width) || win.RestoreBounds.Width < 0 ? 640 : win.RestoreBounds.Width),
 					(int)(Double.IsNaN(win.RestoreBounds.Height) || win.RestoreBounds.Height < 0 ? 480 : win.RestoreBounds.Height)));
 		}
+
+		#region RestoreWindowState
 
 		[AttachedPropertyBrowsableForType(typeof(Window))]
 		public static WindowState GetRestoreWindowState(DependencyObject obj) {
@@ -130,9 +134,14 @@ namespace CatWalk.Heron.Windows {
 					WindowState.Normal,
 					(s, e) => {
 						var window = (Window)s;
+						Window_StateChanged(window, EventArgs.Empty);
+					},
+					(s, value) => {
+						var window = (Window)s;
 						window.StateChanged -= Window_StateChanged;
 						window.StateChanged += Window_StateChanged;
-						Window_StateChanged(window, EventArgs.Empty);
+
+						return value;
 					}
 				) {
 					BindsTwoWayByDefault = true,
@@ -145,5 +154,172 @@ namespace CatWalk.Heron.Windows {
 				SetRestoreWindowState(window, window.WindowState);
 			}
 		}
+
+		#endregion
+
+		#region RestoreBounds
+
+		[AttachedPropertyBrowsableForType(typeof(Window))]
+		public static Rect GetRestoreBounds(DependencyObject obj) {
+			return (Rect)obj.GetValue(RestoreBoundsProperty);
+		}
+
+		[AttachedPropertyBrowsableForType(typeof(Window))]
+		public static void SetRestoreBounds(DependencyObject obj, Rect value) {
+			obj.SetValue(RestoreBoundsProperty, value);
+		}
+
+		// Using a DependencyProperty as the backing store for RestoreBounds.  This enables animation, styling, binding, etc...
+		public static readonly DependencyProperty RestoreBoundsProperty =
+			DependencyProperty.RegisterAttached(
+				"RestoreBounds",
+				typeof(Rect),
+				typeof(WindowUtility),
+				new FrameworkPropertyMetadata(
+					Rect.Empty,
+					(s, e) => {
+						var window = (Window)s;
+
+						window.SizeChanged -= Window_SizeChanged;
+						window.LocationChanged -= Window_LocationChanged;
+
+						var bounds = (Rect)e.NewValue;
+						var state = window.WindowState;
+						window.WindowState = WindowState.Normal;
+						window.Top = bounds.Top;
+						window.Left = bounds.Left;
+						window.Width = bounds.Width;
+						window.Height = bounds.Height;
+						window.WindowState = state;
+
+						window.SizeChanged += Window_SizeChanged;
+						window.LocationChanged += Window_LocationChanged;
+					},
+					(s, v) => {
+						var window = (Window)s;
+
+						window.SizeChanged -= Window_SizeChanged;
+						window.LocationChanged -= Window_LocationChanged;
+						window.SizeChanged += Window_SizeChanged;
+						window.LocationChanged += Window_LocationChanged;
+
+						return v;
+					}) {
+						BindsTwoWayByDefault = true,
+					});
+
+		private static void Window_LocationChanged(object sender, EventArgs e) {
+			var window = (Window)sender;
+			SetRestoreBounds(window, window.RestoreBounds);
+		}
+
+		private static void Window_SizeChanged(object sender, SizeChangedEventArgs e) {
+			var window = (Window)sender;
+			SetRestoreBounds(window, window.RestoreBounds);
+		}
+
+		#endregion
+
+		#region DialogResult
+
+		[AttachedPropertyBrowsableForType(typeof(Window))]
+		public static bool? GetDialogResult(DependencyObject obj) {
+			return (bool?)obj.GetValue(DialogResultProperty);
+		}
+
+		[AttachedPropertyBrowsableForType(typeof(Window))]
+		public static void SetDialogResult(DependencyObject obj, bool? value) {
+			obj.SetValue(DialogResultProperty, value);
+		}
+
+		// Using a DependencyProperty as the backing store for MyProperty.  This enables animation, styling, binding, etc...
+		public static readonly DependencyProperty DialogResultProperty =
+			DependencyProperty.RegisterAttached("DialogResult", typeof(bool?), typeof(WindowUtility), new FrameworkPropertyMetadata(null,
+				(s, e) => {
+					var window = (Window)s;
+					if (window.DialogResult != (bool?)e.NewValue) {
+						var sub = GetDialogResultSubscriber(window);
+						if (sub != null) {
+							sub.Dispose();
+						}
+
+						window.DialogResult = (bool?)e.NewValue;
+
+						var d = SubscriveDialogResultChange(window, (bool?)e.NewValue);
+						SetDialogResultSubscriber(window, d);
+					}
+				},
+				(s, v) => {
+					var window = (Window)s;
+					var sub = GetDialogResultSubscriber(window);
+					if (sub != null) {
+						sub.Dispose();
+					}
+
+					var d = SubscriveDialogResultChange(window, (bool?)v);
+					SetDialogResultSubscriber(window, d);
+
+					return v;
+				}) {
+					BindsTwoWayByDefault = true
+				});
+
+		private static IDisposable SubscriveDialogResultChange(Window window, bool? now) {
+			return window.ObserveEveryValueChanged(_ => _.DialogResult)
+				.Where(_ => _ != now)
+				.Subscribe(result => {
+					SetDialogResult(window, result);
+				});
+		}
+
+		private static IDisposable GetDialogResultSubscriber(DependencyObject obj) {
+			return (IDisposable)obj.GetValue(DialogResultSubscriberProperty);
+		}
+
+		private static void SetDialogResultSubscriber(DependencyObject obj, IDisposable value) {
+			obj.SetValue(DialogResultSubscriberProperty, value);
+		}
+
+		// Using a DependencyProperty as the backing store for DialogResultSubscriber.  This enables animation, styling, binding, etc...
+		private static readonly DependencyProperty DialogResultSubscriberProperty =
+			DependencyProperty.RegisterAttached("DialogResultSubscriber", typeof(IDisposable), typeof(WindowUtility), new PropertyMetadata(null));
+
+		#endregion
+
+		#region IsActive
+
+		[AttachedPropertyBrowsableForType(typeof(Window))]
+		public static bool GetIsActive(DependencyObject obj) {
+			return (bool)obj.GetValue(IsActiveProperty);
+		}
+
+		[AttachedPropertyBrowsableForType(typeof(Window))]
+		public static void SetIsActive(DependencyObject obj, bool value) {
+			obj.SetValue(IsActiveProperty, value);
+		}
+
+		// Using a DependencyProperty as the backing store for IsActive.  This enables animation, styling, binding, etc...
+		public static readonly DependencyProperty IsActiveProperty =
+			DependencyProperty.RegisterAttached("IsActive", typeof(bool), typeof(WindowUtility), new FrameworkPropertyMetadata(false, (s, e) => {
+				var win = (Window)s;
+
+				if ((bool)e.NewValue) {
+					win.Activate();
+				}
+
+				win.Activated -= Win_Activated;
+				win.Deactivated -= Win_Activated;
+				win.Activated += Win_Activated;
+				win.Deactivated += Win_Activated;
+			}) {
+				BindsTwoWayByDefault = true
+			});
+
+		private static void Win_Activated(object sender, EventArgs e) {
+			var win = (Window)sender;
+			SetIsActive(win, win.IsActive);
+		}
+
+		#endregion
 	}
 }

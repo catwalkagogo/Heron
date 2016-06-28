@@ -20,6 +20,8 @@ using CatWalk.Win32.Shell;
 using System.Reflection;
 
 namespace CatWalk.Heron.Windows.Converters{
+	using System.Globalization;
+	using System.Windows.Markup;
 	using Gdi = System.Drawing;
 	using GdiImaging = System.Drawing.Imaging;
 	using IO = System.IO;
@@ -292,6 +294,100 @@ namespace CatWalk.Heron.Windows.Converters{
 		}
 
 		#endregion
+	}
+
+	public class WindowStateConverter : GenericTypeConverter<WindowState, CatWalk.Heron.ViewModel.Windows.WindowState> {
+	}
+
+	/*
+	public class GenericFactory : MarkupExtension {
+		[ConstructorArgument("genericType")]
+		public Type GenericType { get; private set; }
+		[ConstructorArgument("types")]
+		public Type[] Types { get; private set; }
+
+		public GenericFactory(Type genericType, Type[] types) {
+			genericType.ThrowIfNull("genericType");
+			types.ThrowIfNull("type1");
+			this.GenericType = genericType;
+			this.Types = types;
+		}
+
+		public override object ProvideValue(IServiceProvider serviceProvider) {
+			Type type = this.GenericType.MakeGenericType(this.Types);
+			return Activator.CreateInstance(type);
+		}
+	}*/
+
+	public class GenericTypeConverter<T1, T2> : IValueConverter {
+		public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
+			if (value is T1 && targetType == typeof(T2)) {
+				var state = (T2)value;
+				return state;
+			} else if (value is T2 && targetType == typeof(T1)) {
+				var state = (T1)value;
+				return state;
+			} else {
+				return value;
+			}
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
+			return this.Convert(value, targetType, parameter, culture);
+		}
+	}
+
+
+	public class RectToGenericRectConverter : IValueConverter {
+		public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
+			if (value is Rect) {
+				var rect = (Rect)value;
+				if (targetType == typeof(Rect<double>)) {
+					return new Rect<double>(rect.X, rect.Y, rect.Width, rect.Height);
+				} else if (targetType == typeof(Rect<int>)) {
+					return new Rect<int>((int)rect.X, (int)rect.Y, (int)rect.Width, (int)rect.Height);
+				} else if (targetType == typeof(Rect<long>)) {
+					return new Rect<long>((long)rect.X, (long)rect.Y, (long)rect.Width, (long)rect.Height);
+				} else if (targetType == typeof(Rect<float>)) {
+					return new Rect<float>((float)rect.X, (float)rect.Y, (float)rect.Width, (float)rect.Height);
+				} else if (targetType == typeof(Rect<decimal>)) {
+					return new Rect<decimal>((decimal)rect.X, (decimal)rect.Y, (decimal)rect.Width, (decimal)rect.Height);
+				} else {
+					throw new ArgumentException("targetType");
+				}
+			}else if(targetType == typeof(Rect)) {
+				return this.ConvertBack(value, targetType, parameter, culture);
+			}else {
+				throw new ArgumentException("value");
+			}
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
+			if (targetType == typeof(Rect)) {
+				if (value is Rect<double>) {
+					var rect = (Rect<double>)value;
+					return new Rect((double)rect.X, (double)rect.Y, (double)rect.Width, (double)rect.Height);
+				} else if (value is Rect<int>) {
+					var rect = (Rect<int>)value;
+					return new Rect((double)rect.X, (double)rect.Y, (double)rect.Width, (double)rect.Height);
+				} else if (value is Rect<long>) {
+					var rect = (Rect<long>)value;
+					return new Rect((double)rect.X, (double)rect.Y, (double)rect.Width, (double)rect.Height);
+				} else if (value is Rect<float>) {
+					var rect = (Rect<float>)value;
+					return new Rect((double)rect.X, (double)rect.Y, (double)rect.Width, (double)rect.Height);
+				} else if (value is Rect<decimal>) {
+					var rect = (Rect<decimal>)value;
+					return new Rect((double)rect.X, (double)rect.Y, (double)rect.Width, (double)rect.Height);
+				} else {
+					throw new ArgumentException("value");
+				}
+			}else if(value is Rect) {
+				return this.Convert(value, targetType, parameter, culture);
+			} else {
+				throw new ArgumentException("targetType");
+			}
+		}
 	}
 
 	public enum FilePathTransform{

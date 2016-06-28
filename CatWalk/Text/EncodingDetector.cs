@@ -41,26 +41,6 @@ namespace CatWalk.Text{
 		}
 	}
 	*/
-	public static class EncodingExtension{
-		/// <summary>
-		/// byte[]をPreambleを除いて指定したEncodingにより文字列型に変換する。
-		/// </summary>
-		/// <param name="enc"></param>
-		/// <param name="data"></param>
-		/// <returns></returns>
-		public static string GetStringWithoutPreamble(this Encoding enc, byte[] data){
-			var pre = enc.GetPreamble();
-			var match = (data.Length >= pre.Length);
-			for(int i = 0; match && (i < pre.Length); i++){
-				match = match && (pre[i] == data[i]);
-			}
-			if(match){
-				return enc.GetString(data, pre.Length, data.Length - pre.Length);
-			}else{
-				return enc.GetString(data);
-			}
-		}
-	}
 	
 	public abstract class EncodingDetector{
 		internal abstract void Check(byte[] data);
@@ -92,22 +72,22 @@ namespace CatWalk.Text{
 		/// </remarks>
 		public static IEnumerable<Encoding> GetEncodings(Stream stream, CancellationTokenSource tokenSource){
 			var sevenBit = new SevenBitDetector();
-			var iso2022jp = new Iso2022JpDetector();
+			//var iso2022jp = new Iso2022JpDetector();
 			var unicodeBom = new UnicodeBomDetector();
-			var shiftJis = new ShiftJisDetector();
-			var eucJp = new EucJpDetector();
+			//var shiftJis = new ShiftJisDetector();
+			//var eucJp = new EucJpDetector();
 			var utf8 = new Utf8Detector();
-			var utf7 = new Utf7Detector();
+			//var utf7 = new Utf7Detector();
 			var utf16le = new Utf16LEDetector();
 			var utf16be = new Utf16BEDetector();
-			var utf32le = new Utf32LEDetector();
-			var utf32be = new Utf32BEDetector();
+			//var utf32le = new Utf32LEDetector();
+			//var utf32be = new Utf32BEDetector();
 			
 			const int bufferSize = 1024;
 			var buffer = new byte[bufferSize];
 			int count;
 			var candidates = new HashSet<EncodingDetector>(new EncodingDetector[]{
-				sevenBit, iso2022jp, unicodeBom, shiftJis, eucJp, utf8, utf7, utf16le, utf16be, utf32be, utf32le
+				sevenBit/*, iso2022jp*/, unicodeBom/*, shiftJis, eucJp*/, utf8/*, utf7*/, utf16le, utf16be/*, utf32be, utf32le*/
 			});
 			while((count = stream.Read(buffer, 0, bufferSize)) > 0){
 				if(tokenSource.IsCancellationRequested){
@@ -141,14 +121,14 @@ namespace CatWalk.Text{
 				}
 				if(sevenBit != null && !sevenBit.IsValid){
 					candidates.Remove(sevenBit);
-					candidates.Remove(utf7);
-					candidates.Remove(iso2022jp);
+					//candidates.Remove(utf7);
+					//candidates.Remove(iso2022jp);
 					sevenBit = null;
 				}
 				if(utf8 != null && !utf8.IsValid){
 					candidates.Remove(utf8);
-					candidates.Remove(utf32be);
-					candidates.Remove(utf32le);
+					//candidates.Remove(utf32be);
+					//candidates.Remove(utf32le);
 					utf8 = null;
 				}
 				/*
@@ -162,13 +142,13 @@ namespace CatWalk.Text{
 			}
 
 			if(sevenBit != null){
-				if(iso2022jp.EscapeSequenceCount > 0){
+				/*if(iso2022jp.EscapeSequenceCount > 0){
 					yield return iso2022jp.Encoding;
 					yield break;
 				}else if(utf7.IsValid && (utf7.Base64Count > 0)){
 					yield return utf7.Encoding;
 					yield break;
-				}
+				}*/
 			}
 			var nihongos = candidates.OfType<NihongoCountEncodingDetector>().ToArray();
 			var codes = nihongos.OrderByDescending(c => c.AsciiCount).GroupBy(c => c.AsciiCount).First();
@@ -176,7 +156,7 @@ namespace CatWalk.Text{
 			codes = codes.OrderByDescending(c => (c.KanjiCount)).GroupBy(c => (c.KanjiCount)).First();
 			codes = codes.OrderBy(c => c.ErrorCount).GroupBy(c => c.ErrorCount).First();
 			if(codes.Where(c => (c.HiraCount + c.KataCount + c.KanjiCount) == 0).FirstOrDefault() != null){
-				yield return Encoding.ASCII;
+				yield return Encoding.UTF8;
 			}else{
 				foreach(var enc in codes.Select(c => c.Encoding)){
 					yield return enc;
@@ -194,56 +174,56 @@ namespace CatWalk.Text{
 		/// </remarks>
 		public static IEnumerable<Encoding> GetEncodings(byte[] data){
 			var sevenBit = new SevenBitDetector();
-			var iso2022jp = new Iso2022JpDetector();
+			//var iso2022jp = new Iso2022JpDetector();
 			var unicodeBom = new UnicodeBomDetector();
-			var shiftJis = new ShiftJisDetector();
-			var eucJp = new EucJpDetector();
+			//var shiftJis = new ShiftJisDetector();
+			//var eucJp = new EucJpDetector();
 			var utf8 = new Utf8Detector();
-			var utf7 = new Utf7Detector();
+			//var utf7 = new Utf7Detector();
 			var utf16le = new Utf16LEDetector();
 			var utf16be = new Utf16BEDetector();
-			var utf32le = new Utf32LEDetector();
-			var utf32be = new Utf32BEDetector();
+			//var utf32le = new Utf32LEDetector();
+			//var utf32be = new Utf32BEDetector();
 			sevenBit.Check(data);
-			iso2022jp.Check(data);
+			//iso2022jp.Check(data);
 			unicodeBom.Check(data);
-			shiftJis.Check(data);
-			eucJp.Check(data);
+			//shiftJis.Check(data);
+			//eucJp.Check(data);
 			utf8.Check(data);
-			utf7.Check(data);
+			//utf7.Check(data);
 			utf16le.Check(data);
 			utf16be.Check(data);
-			utf32le.Check(data);
-			utf32be.Check(data);
+			//utf32le.Check(data);
+			//utf32be.Check(data);
 			
 			var enc = unicodeBom.Encoding;
 			if(enc != null){
 				yield return enc;
 			}else{
-				foreach(var enc2 in GetEncodingsAfterScan(sevenBit, iso2022jp, utf7, shiftJis, eucJp, utf8, utf16le, utf16be, utf32le, utf32be)){
+				foreach(var enc2 in GetEncodingsAfterScan(sevenBit/*, iso2022jp, utf7, shiftJis, eucJp*/, utf8, utf16le, utf16be/*, utf32le, utf32be*/)){
 					yield return enc2;
 				}
 			}
 		}
 		
-		private static IEnumerable<Encoding> GetEncodingsAfterScan(SevenBitDetector sevenBit, Iso2022JpDetector iso2022jp, Utf7Detector utf7, ShiftJisDetector shiftJis, EucJpDetector eucJp, Utf8Detector utf8, Utf16LEDetector utf16le, Utf16BEDetector utf16be, Utf32LEDetector utf32le, Utf32BEDetector utf32be){
+		private static IEnumerable<Encoding> GetEncodingsAfterScan(SevenBitDetector sevenBit/*, Iso2022JpDetector iso2022jp, Utf7Detector utf7, ShiftJisDetector shiftJis, EucJpDetector eucJp*/, Utf8Detector utf8, Utf16LEDetector utf16le, Utf16BEDetector utf16be/*, Utf32LEDetector utf32le, Utf32BEDetector utf32be*/){
 			if(sevenBit.IsValid){ // 7 bit
-				if(iso2022jp.EscapeSequenceCount > 0){
+				/*if(iso2022jp.EscapeSequenceCount > 0){
 					yield return iso2022jp.Encoding;
 					yield break;
 				}else if(utf7.IsValid && (utf7.Base64Count > 0)){
 					yield return utf7.Encoding;
 					yield break;
-				}
+				}*/
 			}
-			var nihongos = (utf8.IsValid) ? new NihongoCountEncodingDetector[]{shiftJis, eucJp, utf8, utf16le, utf16be, utf32le, utf32be} :
-			                              new NihongoCountEncodingDetector[]{shiftJis, eucJp, utf16le, utf16be};
+			var nihongos = (utf8.IsValid) ? new NihongoCountEncodingDetector[]{/*shiftJis, eucJp, */utf8, utf16le, utf16be/*, utf32le, utf32be*/} :
+			                              new NihongoCountEncodingDetector[]{/*shiftJis, eucJp,*/ utf16le, utf16be};
 			var codes = nihongos.OrderByDescending(c => c.AsciiCount).GroupBy(c => c.AsciiCount).First();
 			codes = codes.OrderByDescending(c => (c.HiraCount + c.KataCount)).GroupBy(c => (c.HiraCount + c.KataCount)).First();
 			codes = codes.OrderByDescending(c => (c.KanjiCount)).GroupBy(c => (c.KanjiCount)).First();
 			codes = codes.OrderBy(c => c.ErrorCount).GroupBy(c => c.ErrorCount).First();
 			if(codes.Where(c => (c.HiraCount + c.KataCount + c.KanjiCount) == 0).FirstOrDefault() != null){
-				yield return Encoding.ASCII;
+				yield return Encoding.UTF8;
 			}else{
 				foreach(var enc in codes.Select(c => c.Encoding)){
 					yield return enc;
@@ -269,11 +249,11 @@ namespace CatWalk.Text{
 			private static Encoding encoding = null;
 			internal override Encoding Encoding{
 				get{
-					return encoding ?? (encoding = Encoding.ASCII);
+					return encoding ?? (encoding = Encoding.UTF8);
 				}
 			}
 		}
-
+		/*
 		class Iso2022JpDetector : EncodingDetector{
 			public int EscapeSequenceCount{get; private set;}
 			public Iso2022JpDetector(){
@@ -331,7 +311,7 @@ namespace CatWalk.Text{
 				}
 			}
 		}
-
+		*/
 		class UnicodeBomDetector : EncodingDetector{
 			public UnicodeBom Bom{get; private set;}
 			internal override void Check(byte[] data){
@@ -359,21 +339,21 @@ namespace CatWalk.Text{
 						case UnicodeBom.UTF8:{
 							return new UTF8Encoding(true);
 						}
-						case UnicodeBom.UTF7:{
+						/*case UnicodeBom.UTF7:{
 							return Encoding.UTF7;
-						}
+						}*/
 						case UnicodeBom.UTF16LE:{
 							return new UnicodeEncoding(false, true);
 						}
 						case UnicodeBom.UTF16BE:{
 							return new UnicodeEncoding(true, true);
 						}
-						case UnicodeBom.UTF32LE:{
+						/*case UnicodeBom.UTF32LE:{
 							return new UTF32Encoding(false, true);
 						}
 						case UnicodeBom.UTF32BE:{
 							return new UTF32Encoding(true, true);
-						}
+						}*/
 						default:{
 							return null;
 						}
@@ -400,7 +380,7 @@ namespace CatWalk.Text{
 				this.HiraCount = this.KataCount = this.KanjiCount = 0;
 			}
 		}
-
+		/*
 		class ShiftJisDetector : NihongoCountEncodingDetector{
 			internal override void Check(byte[] data){
 				for(int i = 0; i < data.Length; i++){
@@ -449,8 +429,8 @@ namespace CatWalk.Text{
 					return encoding ?? (encoding = Encoding.GetEncoding(932));
 				}
 			}
-		}
-
+		}*/
+		/*
 		class EucJpDetector : NihongoCountEncodingDetector{
 			internal override void Check(byte[] data){
 				for(int i = 0; i < data.Length; i++){
@@ -500,7 +480,7 @@ namespace CatWalk.Text{
 				}
 			}
 		}
-
+		*/
 		class Utf8Detector : NihongoCountEncodingDetector{
 			public bool IsValid{get; private set;}
 			
@@ -691,7 +671,7 @@ namespace CatWalk.Text{
 				}
 			}
 		}
-		
+		/*
 		class Utf32LEDetector : NihongoCountEncodingDetector{
 			internal override void Check(byte[] data){
 				for(int i = 0; i < data.Length; i += 4){
@@ -801,6 +781,7 @@ namespace CatWalk.Text{
 				}
 			}
 		}
+		*/
 	}
 
 	enum UnicodeBom{

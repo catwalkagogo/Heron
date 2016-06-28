@@ -4,9 +4,6 @@ using System.Linq;
 using System.Text;
 
 namespace CatWalk.Collections {
-#if !SILVERLIGHT
-	[Serializable]
-#endif
 	public class SkipListDictionary<TKey, TValue> : SortedSkipList<KeyValuePair<TKey, TValue>>, IDictionary<TKey, TValue> {
 		public SkipListDictionary()
 			: this(Comparer<TKey>.Default) {

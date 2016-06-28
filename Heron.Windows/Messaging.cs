@@ -5,17 +5,27 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using CatWalk.Mvvm;
+using System.Reactive.Linq;
+using Reactive.Bindings.Extensions;
 
 namespace CatWalk.Heron.Windows {
 	public static partial class Messaging {
-		public static FrameworkMessageReceiver<TMessage> RegisterMessageReceiver<TMessage>(this FrameworkElement element, Messenger messenger, Action<TMessage> receiver, bool receiveDeliveredMessage = false) {
+		public static IObservable<TMessage> ObserveDataContextMessage<TMessage>(this Messenger messenger, FrameworkElement element, bool isReceiveDerivedMessages = false) {
+			messenger.ThrowIfNull("messenger");
+			return messenger.ToObservableWithToken<TMessage>(null, isReceiveDerivedMessages)
+				//.ObserveOnUIDispatcher()
+				.Where(_ => _.Token == element.DataContext)
+				.Select(_ => _.Message);
+		}
+
+		/*public static FrameworkMessageReceiver<TMessage> RegisterMessageReceiver<TMessage>(this FrameworkElement element, Messenger messenger, Action<TMessage> receiver, bool receiveDeliveredMessage = false) {
 			element.ThrowIfNull("element");
 			messenger.ThrowIfNull("messenger");
 			receiver.ThrowIfNull("receiver");
 
 			return new FrameworkMessageReceiver<TMessage>(element, messenger, receiver, receiveDeliveredMessage);
 		}
-
+		*/
 		public static bool GetIsCommunicateViewModelMessages(DependencyObject obj) {
 			return (bool)obj.GetValue(IsCommunicateViewModelMessagesProperty);
 		}
@@ -38,7 +48,7 @@ namespace CatWalk.Heron.Windows {
 
 		private static void IsCommunicateViewModelMessages_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e) {
 			if (e.NewValue != null) {
-				Application.Current.Messenger.Send(new Messages.DataContextAttachedMessage(sender), e.NewValue);
+				Application.Current.Messenger.Send(new Messages.DataContextAttachedMessage(), e.NewValue);
 			}
 		}
 

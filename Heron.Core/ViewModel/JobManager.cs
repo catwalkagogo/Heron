@@ -5,22 +5,44 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Data;
+using System.Reactive.Linq;
+using Reactive.Bindings.Extensions;
 using CatWalk.Collections;
 
 namespace CatWalk.Heron.ViewModel {
 	public class JobManager : ViewModelBase, IJobManager{
 		private ObservableCollection<Job> _Jobs = new ObservableCollection<Job>();
-		private ReadOnlyObservableCollection<Job> _ReadOnlyJobs;
-		private ListCollectionView _View;
+		//private ReadOnlyObservableCollection<Job> _ReadOnlyJobs;
 
 		public JobManager(){
-			this._View = new ListCollectionView(this._Jobs);
-			this._View.GroupDescriptions.Add(new PropertyGroupDescription("Status"));
-			this._View.CustomSort = new JobComparer();
-			this._ReadOnlyJobs = new ReadOnlyObservableCollection<Job>(this._Jobs);
+			//this._ReadOnlyJobs = new ReadOnlyObservableCollection<Job>(this._Jobs);
 
-			this._Jobs.CollectionChanged += this.job_StatusChanged;
+			//this._Jobs.CollectionChanged += this.job_StatusChanged;
+			this.Disposables.Add(this._Jobs.CollectionChangedAsObservable()
+				.Where(e => e.NewItems != null)
+				.Select(e => e.NewItems)
+				.Subscribe(items => {
+					foreach(var job in items.Cast<Job>()) {
+						job.StatusChanged += job_StatusChanged;
+						job.ProgressChanged += job_ProgressChanged;
+					}
+				}));
+
+			this.Disposables.Add(this._Jobs.CollectionChangedAsObservable()
+				.Where(e => e.OldItems != null)
+				.Select(e => e.OldItems)
+				.Subscribe(items => {
+					foreach (var job in items.Cast<Job>()) {
+						job.StatusChanged -= job_StatusChanged;
+						job.ProgressChanged -= job_ProgressChanged;
+					}
+				}));
+
+			this.Disposables.Add(this._Jobs.CollectionChangedAsObservable()
+				.Subscribe(e => {
+					this.OnPropertyChanged("Count");
+					this.OnPropertyChanged("RunningCount", "FailedCount", "CancelledCount", "CompletedCount", "PendingCount", "TotalProgress");
+				}));
 		}
 
 		#region Property
@@ -34,9 +56,10 @@ namespace CatWalk.Heron.ViewModel {
 			}
 		}
 
-		public ReadOnlyObservableCollection<Job> Jobs {
+		public ObservableCollection<Job> Jobs {
 			get {
-				return this._ReadOnlyJobs;
+				//return this._ReadOnlyJobs;
+				return this._Jobs;
 			}
 		}
 
@@ -75,22 +98,16 @@ namespace CatWalk.Heron.ViewModel {
 
 		#region IJobManager Members
 
-		public void Register(Job job) {
-			job.ThrowIfNull("job");
-			this._Jobs.Add(job);
-
-			job.StatusChanged += job_StatusChanged;
-			job.ProgressChanged += job_ProgressChanged;
-
-			this.OnPropertyChanged("Count");
-		}
-
 		void job_ProgressChanged(object sender, EventArgs e) {
 			this.OnPropertyChanged("TotalProgress");
 		}
 
 		private void job_StatusChanged(object sender, EventArgs e) {
 			this.OnPropertyChanged("RunningCount", "FailedCount", "CancelledCount", "CompletedCount", "PendingCount", "TotalProgress");
+		}
+
+		public void Register(Job job) {
+			this._Jobs.Add(job);
 		}
 
 		public int Count {
@@ -102,7 +119,7 @@ namespace CatWalk.Heron.ViewModel {
 		#endregion
 
 		#region View
-
+		/*
 		public CollectionView JobsView {
 			get {
 				return this._View;
@@ -155,7 +172,7 @@ namespace CatWalk.Heron.ViewModel {
 
 			#endregion
 		}
-
+		*/
 		#endregion
 
 	}

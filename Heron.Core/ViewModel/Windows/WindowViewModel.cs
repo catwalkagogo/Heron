@@ -8,15 +8,11 @@ using System.Reactive;
 using System.Reactive.Linq;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
-
+using CatWalk.Mvvm;
 
 namespace CatWalk.Heron.ViewModel.Windows {
 	public class WindowViewModel : AppWindowsViewModel {
 		public WindowViewModel(Application app) : base(app){
-			var messenger = this.Messenger;
-			messenger.Register<WindowMessages.ActivatedMessage>(this.Activated, this);
-			messenger.Register<WindowMessages.DeactivatedMessage>(this.Deactivated, this);
-
 			// 最小化から復元時のウィンドウの状態を取得
 			/*
 			if(this.WindowState != WindowState.Minimized) {
@@ -107,51 +103,38 @@ namespace CatWalk.Heron.ViewModel.Windows {
 			}
 		}
 
-		public virtual Rect RestoreBounds {
+		private Rect<double> _RestoreBounds;
+		public virtual Rect<double> RestoreBounds {
 			get {
-				var m = new WindowMessages.RequestRestoreBoundsMessage(this);
-				this.Messenger.Send(m, this);
-				return m.Bounds;
+				return this._RestoreBounds;
 			}
 			set {
-				var m = new WindowMessages.SetRestoreBoundsMessage(this, value);
-				this.Messenger.Post(m, this);
+				this._RestoreBounds = value;
+				this.OnPropertyChanged("RestoreBounds");
 			}
 		}
 
+		private Nullable<bool> _DialogResult;
 		public Nullable<bool> DialogResult {
 			get {
-				var m = new WindowMessages.RequestDialogResultMessage(this);
-				this.Messenger.Send(m, this);
-				return m.DialogResult;
+				return this._DialogResult;
 			}
 			set {
-				this.Messenger.Post(new WindowMessages.SetDialogResultMessage(this, value), this);
+				this._DialogResult = value;
+				this.OnPropertyChanged("DialogResult");
 			}
 		}
 
 		private bool _IsActive = false;
 		public bool IsActive {
 			get {
-				var m = new WindowMessages.RequestIsActiveMessage(this);
-				this.Messenger.Send(m, this);
-				return m.IsActive;
+				return this._IsActive;
 			}
 			set {
 				this._IsActive = value;
-				this.Messenger.Post(new WindowMessages.SetIsActiveMessage(this, value), this);
 				this.OnPropertyChanged("IsActive");
 			}
 		}
 
-		private void Activated(WindowMessages.ActivatedMessage m) {
-			this._IsActive = true;
-			this.OnPropertyChanged("IsActive");
-		}
-
-		private void Deactivated(WindowMessages.DeactivatedMessage m) {
-			this._IsActive = false;
-			this.OnPropertyChanged("IsActive");
-		}
 	}
 }

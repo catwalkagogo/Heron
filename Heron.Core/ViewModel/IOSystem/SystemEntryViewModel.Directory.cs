@@ -7,31 +7,31 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Specialized;
-using System.Windows.Data;
 using CatWalk;
 using CatWalk.Collections;
 using CatWalk.Mvvm;
 using CatWalk.IOSystem;
 using CatWalk.Heron.IOSystem;
+using CatWalk.ComponentModel;
 
 namespace CatWalk.Heron.ViewModel.IOSystem {
 	public partial class SystemEntryViewModel : ViewModelBase, IHierarchicalViewModel<SystemEntryViewModel>, IDisposable {
 		private ResetLazy<ChildrenCollection> _Children;
-		private ResetLazy<ChildrenCollectionView> _ChildrenView;
-		private ILookup<string, EntryGroupDescription> _Groupings;
+		//private ResetLazy<ChildrenCollectionView> _ChildrenView;
+		//private ILookup<string, EntryGroupDescription> _Groupings;
 		private IIOSystemWatcher _Watcher;
 
 		private void InitDirectory() {
 			var entry = this.Entry;
 			this._Children = new ResetLazy<ChildrenCollection>(() => new ChildrenCollection());
-			this._ChildrenView = new ResetLazy<ChildrenCollectionView>(this.ChildrenViewFactory);
+			//this._ChildrenView = new ResetLazy<ChildrenCollectionView>(this.ChildrenViewFactory);
 			var watchable = entry as IWatchable;
 			if(watchable != null) {
 				this._Watcher = watchable.Watcher;
 				this._Watcher.IsEnabled = false;
 				this._Watcher.CollectionChanged += _Watcher_CollectionChanged;
 			}
-			this._Groupings = this.Provider.GetGroupings(entry).ToLookup(grp => grp.ColumnName);
+			//this._Groupings = this.Provider.GetGroupings(entry).ToLookup(grp => grp.ColumnName);
 		}
 
 		#region Enter / Exit
@@ -45,8 +45,8 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 			this.CancelTokenProcesses();
 			this._Columns.Reset();
 			this._Children.Reset();
-			this._ChildrenView.Reset();
-			this._ChildrenGroups.Clear();
+			//this._ChildrenView.Reset();
+			//this._ChildrenGroups.Clear();
 		}
 
 		#endregion
@@ -98,6 +98,7 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 		#endregion
 
 		#region ChildrenCollection
+		
 		public class ChildrenCollection : WrappedObservableList<SystemEntryViewModel> {
 			private IDictionary<String, int> nameMap = new Dictionary<string, int>();
 
@@ -229,7 +230,7 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 		#endregion
 
 		#region ChildrenCollectionView
-
+		/*
 		private ChildrenCollectionView ChildrenViewFactory() {
 			var view = new ChildrenCollectionView(this, this._Children.Value);
 			using(view.DeferRefresh()) {
@@ -296,7 +297,7 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 				}
 			}
 		}
-
+		*/
 		#endregion
 
 		#region Watcher

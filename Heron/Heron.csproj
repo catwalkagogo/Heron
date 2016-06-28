@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>CatWalk.Heron</RootNamespace>
     <AssemblyName>Heron</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
@@ -51,10 +51,26 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <RunPostBuildEvent>Always</RunPostBuildEvent>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ClearScript, Version=5.4.6.0, Culture=neutral, PublicKeyToken=935d0c957da47c73, processorArchitecture=MSIL">
+      <HintPath>..\packages\ClearScript.V8.5.4.6\lib\net40\ClearScript.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Community.CsharpSqlite, Version=3.7.7.1, Culture=neutral, PublicKeyToken=a6e4873496fdc8b5, processorArchitecture=MSIL">
+      <HintPath>..\packages\Community.CsharpSqlite.SQLiteClient.3.7.7.3\lib\net45\Community.CsharpSqlite.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Community.CsharpSqlite.SQLiteClient, Version=3.7.7.1, Culture=neutral, PublicKeyToken=1ce56be3f3a785b7, processorArchitecture=MSIL">
+      <HintPath>..\packages\Community.CsharpSqlite.SQLiteClient.3.7.7.3\lib\net45\Community.CsharpSqlite.SQLiteClient.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="FSharp.Core, Version=4.3.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Data" />
@@ -70,6 +86,7 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration\DBStorage.cs" />
     <Compile Include="Program.xaml.cs">
       <DependentUpon>Program.xaml</DependentUpon>
     </Compile>
@@ -86,10 +103,17 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="Scripting\ClearScriptHost.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="Licenses\ClearScript.main.license" />
+    <None Include="Licenses\v8.main.license" />
+    <None Include="Licenses\v8.strongtalk.license" />
+    <None Include="Licenses\v8.v8.license" />
+    <None Include="Licenses\v8.valgrind.license" />
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -100,12 +124,8 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CatWalk.IOSystem.FileSystem\CatWalk.IOSystem.FileSystem.csproj">
-      <Project>{030f3382-51a1-4637-a48a-7e44f6575615}</Project>
-      <Name>CatWalk.IOSystem.FileSystem</Name>
-    </ProjectReference>
     <ProjectReference Include="..\CatWalk.IOSystem\CatWalk.IOSystem.csproj">
-      <Project>{fae8f115-587d-4d83-b609-7e0107ce68c5}</Project>
+      <Project>{dedb40e7-a386-4305-be85-5a1c263bd503}</Project>
       <Name>CatWalk.IOSystem</Name>
     </ProjectReference>
     <ProjectReference Include="..\CatWalk.Mvvm\CatWalk.Mvvm.csproj">
@@ -116,16 +136,12 @@
       <Project>{3f14f7f9-2111-4ed3-8b83-0328b9df9792}</Project>
       <Name>CatWalk.Win32</Name>
     </ProjectReference>
-    <ProjectReference Include="..\CatWalk.Windows\CatWalk.Windows.csproj">
-      <Project>{9a2ff1c8-be35-493a-8a2b-f2a13b902af1}</Project>
-      <Name>CatWalk.Windows</Name>
-    </ProjectReference>
     <ProjectReference Include="..\CatWalk\CatWalk.csproj">
       <Project>{ae338060-3af3-4bbb-9028-806a3ce681a3}</Project>
       <Name>CatWalk</Name>
     </ProjectReference>
     <ProjectReference Include="..\Heron.Core\Heron.Core.csproj">
-      <Project>{646b1d1d-e243-4d9e-8068-eb8303ffb121}</Project>
+      <Project>{996331ab-d837-42d5-970a-247822be6f29}</Project>
       <Name>Heron.Core</Name>
     </ProjectReference>
   </ItemGroup>
@@ -155,8 +171,7 @@
 xcopy /s /y "$(SolutionDir)packages\ClearScript.V8.5.4.6\tools\native\x86\*.*" "$(TargetDir)"
 if not exist "$(TargetDir)plugins" mkdir "$(TargetDir)plugins"
 xcopy /s /y "$(SolutionDir)Heron.IOSystem.FileSystem\bin\$(ConfigurationName)" "$(TargetDir)plugins\Heron.IOSystem.FileSystem\"
-xcopy /s /y "$(SolutionDir)Heron.Windows\bin\$(ConfigurationName)" "$(TargetDir)plugins\Heron.Windows\"
-</PostBuildEvent>
+xcopy /s /y "$(SolutionDir)Heron.Windows\bin\$(ConfigurationName)" "$(TargetDir)plugins\Heron.Windows\"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

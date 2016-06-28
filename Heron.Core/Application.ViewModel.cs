@@ -5,8 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Reflection;
+using System.Windows.Input;
 using CatWalk;
-using CatWalk.Windows.Input;
 using CatWalk.IOSystem;
 using CatWalk.Heron.IOSystem;
 using CatWalk.Heron.ViewModel.IOSystem;
@@ -28,7 +28,7 @@ namespace CatWalk.Heron {
 		private CompositeDisposable _MainWindowsActivatedSubscribers = new CompositeDisposable();
 		public MainWindowViewModel LastActiveMainWindow { get; private set; }
 
-		private void InitializeViewModel() {
+		protected virtual async Task InitializeViewModel() {
 			this._JobManager = new JobManager();
 			this.Disposables.Add(this._MainWindows.CollectionChangedAsObservable().Subscribe(e => {
 				this._MainWindowsActivatedSubscribers.Dispose();
@@ -75,16 +75,25 @@ namespace CatWalk.Heron {
 
 		#region ArrangeWindows
 
-		private DelegateCommand<ArrangeMode> _ArrangeWindowsCommand;
+		private ICommand _ArrangeWindowsCommand;
 
-		public DelegateCommand<ArrangeMode> ArrangeWindowsCommand {
+		public ICommand ArrangeWindowsCommand {
 			get {
-				return this._ArrangeWindowsCommand ?? (this._ArrangeWindowsCommand = new DelegateCommand<ArrangeMode>(this.ArrangeWindows));
+				if(this._ArrangeWindowsCommand == null) {
+					var cmd = this.MainWindows
+						.CollectionChangedAsObservable()
+						.Select(e => this.MainWindows.Count > 0)
+						.ToReactiveCommand<ArrangeMode>();
+					this.Disposables.Add(cmd.Subscribe(this.ArrangeWindows));
+					this._ArrangeWindowsCommand = cmd;
+				}
+
+				return this._ArrangeWindowsCommand;
 			}
 		}
 
 		public void ArrangeWindows(ArrangeMode mode) {
-			this.Messenger.Send(new WindowMessages.ArrangeWindowsMessage(this, mode));
+			this.Messenger.Send(new WindowMessages.ArrangeWindowsMessage(mode));
 		}
 
 		#endregion

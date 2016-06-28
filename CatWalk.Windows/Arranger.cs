@@ -6,7 +6,7 @@ using System.Windows;
 
 namespace CatWalk.Windows {
 	public abstract class Arranger{
-		public abstract Rect[] Arrange(Size containerSize, int count);
+		public abstract Rect[] Arrange(System.Windows.Size containerSize, int count);
 	}
 
 	public class CascadeArranger : Arranger{
@@ -17,7 +17,7 @@ namespace CatWalk.Windows {
 			this.WindowOffset = windowOffset;
 		}
 	
-		public override Rect[] Arrange(Size containerSize, int count){
+		public override Rect[] Arrange(System.Windows.Size containerSize, int count){
 			var rects = new Rect[count];
 			double newWidth = containerSize.Width * 0.58, // should be non-linear formula here
 				newHeight = containerSize.Height * 0.67,
@@ -36,7 +36,7 @@ namespace CatWalk.Windows {
 	}
 
 	public class TileVerticalArranger : Arranger{
-		public override Rect[] Arrange(Size containerSize, int count){
+		public override Rect[] Arrange(System.Windows.Size containerSize, int count){
 			var rects = new Rect[count];
 			int cols = (int)Math.Sqrt(count),
 				rows = count / cols;
@@ -73,7 +73,7 @@ namespace CatWalk.Windows {
 	}
 
 	public class TileHorizontalArranger : Arranger{
-		public override Rect[] Arrange(Size containerSize, int count){
+		public override Rect[] Arrange(System.Windows.Size containerSize, int count){
 			var rects = new Rect[count];
 			int rows = (int)Math.Sqrt(count),
 				cols = count / rows;
@@ -110,7 +110,7 @@ namespace CatWalk.Windows {
 	}
 
 	public class StackVerticalArranger : Arranger{
-		public override Rect[] Arrange(Size containerSize, int count) {
+		public override Rect[] Arrange(System.Windows.Size containerSize, int count) {
 			var rects = new Rect[count];
 			double newWidth = containerSize.Width;
 			double newHeight = containerSize.Height / count;
@@ -125,7 +125,7 @@ namespace CatWalk.Windows {
 	}
 
 	public class StackHorizontalArranger : Arranger{
-		public override Rect[] Arrange(Size containerSize, int count) {
+		public override Rect[] Arrange(System.Windows.Size containerSize, int count) {
 			var rects = new Rect[count];
 			double newWidth = containerSize.Width / count;
 			double newHeight = containerSize.Height;

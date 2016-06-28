@@ -4,56 +4,46 @@ using System.Linq;
 using System.Text;
 using System.ComponentModel;
 using CatWalk.Collections;
+using System.Collections;
 
 namespace CatWalk.Mvvm {
-	public abstract class DataErrorInfoViewModelBase : ViewModelBase, IDataErrorInfo{
-		#region IDataErrorInfo
+	public abstract class DataErrorInfoViewModelBase : ViewModelBase, INotifyDataErrorInfo {
+		private Lazy<IDictionary<string, IEnumerable>> _Errors = new Lazy<IDictionary<string, IEnumerable>>(() => {
+			return new Dictionary<string, IEnumerable>();
+		});
 
-		private ObservableDictionary<string, string> _Errors;
-		protected ObservableDictionary<string, string> Errors{
-			get{
-				if(this._Errors == null){
-					this._Errors = new ObservableDictionary<string, string>();
-				}
-				return this._Errors;
+		public bool HasErrors {
+			get {
+				return this._Errors.Value.Values
+					.Where(errors => errors != null)
+					.Any(errors => errors.GetEnumerator().MoveNext());
 			}
 		}
 
-		public void SetError(string propertyName, string message){
-			this.Errors[propertyName] = message;
-			this.OnPropertyChanged("HasError", "Error");
-		}
-
-		public void RemoveError(string propertyName){
-			this.Errors.Remove(propertyName);
-			this.OnPropertyChanged("HasError", "Error");
-		}
-
-		public void ClearErrors(){
-			this.Errors.Clear();
-			this.OnPropertyChanged("HasError", "Error");
-		}
-
-		public virtual string Error{
-			get{
-				return String.Join(
-					Environment.NewLine,
-					this._Errors.Where(err => !String.IsNullOrEmpty(err.Value)).Select(err => err.Value));
+		protected virtual void OnErrorsChanged(DataErrorsChangedEventArgs e) {
+			var handler = this.ErrorsChanged;
+			if (handler != null){
+				handler(this, e);
 			}
 		}
 
-		public string this[string columnName] {
-			get{
-				return this.Errors[columnName];
+		public event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
+
+		public IEnumerable GetErrors(string propertyName) {
+			IEnumerable errors;
+			if(this._Errors.Value.TryGetValue(propertyName, out errors)) {
+				return errors;
+			}else {
+				return new object[0];
 			}
 		}
 
-		public bool HasError{
-			get{
-				return (this._Errors != null) && (this._Errors.Count > 0);
-			}
-		}
+		public void SetErrors(string propertyName, IEnumerable enumerable) {
+			propertyName.ThrowIfNullOrEmpty("propertyName");
 
-		#endregion
+			this._Errors.Value[propertyName] = enumerable;
+			this.OnErrorsChanged(new DataErrorsChangedEventArgs(propertyName));
+			this.OnPropertyChanged("HasErrors");
+		}
 	}
 }

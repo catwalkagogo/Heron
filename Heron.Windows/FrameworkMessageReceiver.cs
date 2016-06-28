@@ -7,6 +7,7 @@ using System.Windows;
 using CatWalk.Mvvm;
 
 namespace CatWalk.Heron.Windows {
+	/*
 	public class FrameworkMessageReceiver<TMessage> : MessageReceiver<TMessage> {
 		public FrameworkElement Element { get; private set; }
 
@@ -30,5 +31,5 @@ namespace CatWalk.Heron.Windows {
 			}
 			base.Dispose(disposing);
 		}
-	}
+	}*/
 }

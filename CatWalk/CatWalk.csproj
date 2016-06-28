@@ -1,103 +1,91 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
+    <MinimumVisualStudioVersion>10.0</MinimumVisualStudioVersion>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{AE338060-3AF3-4BBB-9028-806A3CE681A3}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <NoStandardLibraries>false</NoStandardLibraries>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>CatWalk</RootNamespace>
     <AssemblyName>CatWalk</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <DefaultLanguage>en-US</DefaultLanguage>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
+    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <TargetFrameworkProfile>Profile111</TargetFrameworkProfile>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NET45</DefineConstants>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>none</DebugType>
+    <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Release\CatWalk.xml</DocumentationFile>
-    <FileAlignment>8192</FileAlignment>
-    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup>
-    <RootNamespace>CatWalk</RootNamespace>
-  </PropertyGroup>
-  <PropertyGroup>
-    <SignAssembly>false</SignAssembly>
-  </PropertyGroup>
-  <PropertyGroup>
-    <AssemblyOriginatorKeyFile>CatWalk.snk</AssemblyOriginatorKeyFile>
-  </PropertyGroup>
-  <PropertyGroup>
-    <DelaySign>false</DelaySign>
+    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <!-- A reference to the entire .NET Framework is automatically included -->
     <Compile Include="AsyncLazy.cs" />
-    <Compile Include="Collections\CollectionExpressions.cs" />
-    <Compile Include="Collections\Extensions.cs" />
-    <Compile Include="Collections\WrappedReadOnlyObservableList.cs" />
-    <Compile Include="Collections\FilteredObservableCollection.cs" />
-    <Compile Include="Collections\CollectionSynchronizer.cs" />
-    <Compile Include="Collections\WrappedObservableCollection.cs" />
-    <Compile Include="IDisposableExtensions.cs" />
-    <Compile Include="ILazy.cs" />
-    <Compile Include="IO\UnixPathFormat.cs" />
-    <Compile Include="IO\WindowsPathFormat.cs" />
-    <Compile Include="IO\CommonPathFormat.cs" />
-    <Compile Include="IO\FilePathFormats.cs" />
-    <Compile Include="IO\IFilePathFormat.cs" />
-    <Compile Include="Utils\ApplicationProcess.cs" />
+    <Compile Include="Calculator.cs" />
+    <Compile Include="Calculators.cs" />
+    <Compile Include="ICalculator.cs" />
     <Compile Include="Collections\ArrayDifference.cs" />
+    <Compile Include="Collections\CollectionExpressions.cs" />
+    <Compile Include="Collections\CollectionSynchronizer.cs" />
     <Compile Include="Collections\Comparer.cs" />
     <Compile Include="Collections\DoubleArrayDictionary.cs" />
+    <Compile Include="Collections\Extensions.cs" />
+    <Compile Include="Collections\FilteredObservableCollection.cs" />
     <Compile Include="Collections\GapBuffer.cs" />
     <Compile Include="Collections\Heap.cs" />
     <Compile Include="Collections\HistoryStack.cs" />
     <Compile Include="Collections\ObservableDictionary.cs" />
     <Compile Include="Collections\ObservableHashSet.cs" />
-    <Compile Include="Collections\WrappedObservableList.cs" />
     <Compile Include="Collections\ObservableSortedSkipList.cs" />
     <Compile Include="Collections\PrefixDictionary.cs" />
     <Compile Include="Collections\PriorityQueue.cs" />
     <Compile Include="Collections\ReadOnlyDictionary.cs" />
-    <Compile Include="Collections\WrappedReadOnlyObservableCollection.cs" />
     <Compile Include="Collections\SimpleMonitor.cs" />
     <Compile Include="Collections\SkipList.cs" />
     <Compile Include="Collections\SkipListDictionary.cs" />
     <Compile Include="Collections\SortedSkipList.cs" />
     <Compile Include="Collections\WeakLinkedList.cs" />
-    <Compile Include="Utils\CommandLineParser.cs" />
+    <Compile Include="Collections\WrappedObservableCollection.cs" />
+    <Compile Include="Collections\WrappedObservableList.cs" />
+    <Compile Include="Collections\WrappedReadOnlyObservableCollection.cs" />
+    <Compile Include="Collections\WrappedReadOnlyObservableList.cs" />
     <Compile Include="ComponentModel\ICancellable.cs" />
+    <Compile Include="ComponentModel\ListSortDirection.cs" />
+    <Compile Include="DisposableLazy.cs" />
     <Compile Include="DisposableObject.cs" />
     <Compile Include="Enumerable.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="IDisposableExtensions.cs" />
+    <Compile Include="ILazy.cs" />
+    <Compile Include="Point.cs" />
+    <Compile Include="Rect.cs" />
+    <Compile Include="Size.cs" />
+    <Compile Include="Vector.cs" />
+    <Compile Include="IO\CommonPathFormat.cs" />
     <Compile Include="IO\FilePath.cs" />
-    <Compile Include="Int32Point.cs" />
-    <Compile Include="Int32Rect.cs" />
-    <Compile Include="Int32Size.cs" />
-    <Compile Include="Int32Vector.cs" />
+    <Compile Include="IO\FilePathFormats.cs" />
+    <Compile Include="IO\IFilePathFormat.cs" />
+    <Compile Include="IO\UnixPathFormat.cs" />
+    <Compile Include="IO\WindowsPathFormat.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Range.cs" />
     <Compile Include="Reflection\PropertyAccessor.cs" />
     <Compile Include="ResetLazy.cs" />
-    <Compile Include="IO\Seq.Directory.cs" />
     <Compile Include="Text\Comparer.cs" />
     <Compile Include="Text\Diff.cs" />
     <Compile Include="Text\EditDistance.cs" />
@@ -106,22 +94,17 @@
     <Compile Include="Text\StringUtil.cs" />
     <Compile Include="Threading\Extension.cs" />
     <Compile Include="Threading\LeveledSemaphore.cs" />
+    <Compile Include="Threading\Timer.cs" />
     <Compile Include="WeakDelegate.cs" />
     <Compile Include="WeakMulticastDelegate.cs" />
-    <Compile Include="WeakReference.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="CatWalk.public.snk" />
-    <None Include="CatWalk.snk" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System" />
-    <Reference Include="System.Runtime.Remoting" />
-    <Reference Include="System.Security" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSHARP.Targets" />
-  <ProjectExtensions>
-    <VisualStudio AllowExistingFolder="true" />
-  </ProjectExtensions>
+  <ItemGroup />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
 </Project>

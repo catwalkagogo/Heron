@@ -5,8 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace CatWalk.Collections{
-	[Serializable]
+namespace CatWalk.Collections {
 	public class ReadOnlyDictionary<TKey, TValue> : IDictionary<TKey, TValue>,
 		IEnumerable<KeyValuePair<TKey, TValue>>, IDictionary, ICollection,
 		IEnumerable

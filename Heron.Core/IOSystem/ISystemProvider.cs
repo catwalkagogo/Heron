@@ -25,7 +25,7 @@ namespace CatWalk.Heron.IOSystem {
 		/// <param name="size"></param>
 		/// <param name="token"></param>
 		/// <returns></returns>
-		object GetEntryIcon(ISystemEntry entry, Int32Size size, System.Threading.CancellationToken token);
+		object GetEntryIcon(ISystemEntry entry, Size<int> size, System.Threading.CancellationToken token);
 
 		/// <summary>
 		/// ルートとなるISystemEntryの一覧を取得する
@@ -50,11 +50,11 @@ namespace CatWalk.Heron.IOSystem {
 		object GetViewModel(object parent, SystemEntryViewModel entry, object previous);
 
 		/// <summary>
-		/// グルーピングを取得する
+		/// 利用可能なグルーピングを取得する
 		/// </summary>
 		/// <param name="entry"></param>
 		/// <returns></returns>
-		IEnumerable<EntryGroupDescription> GetGroupings(ISystemEntry entry);
+		//IEnumerable<IGrouping> GetGroupings(ISystemEntry entry);
 
 		IEnumerable<OrderDefinition> GetOrderDefinitions(ISystemEntry entry);
 	}

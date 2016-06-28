@@ -10,6 +10,7 @@ using CatWalk.Heron.ViewModel.IOSystem;
 
 namespace CatWalk.Heron.FileSystem {
 	using IO = System.IO;
+	/*
 	public class FileSystemEntryFilter : EntryFilter{
 		private string _PathPattern = null;
 		private Lazy<Regex> _PathRegex = null;
@@ -145,5 +146,7 @@ namespace CatWalk.Heron.FileSystem {
 				return false;
 			}
 		}
+		
 	}
+	*/
 }

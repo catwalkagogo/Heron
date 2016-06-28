@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace CatWalk.IO {
 	public sealed class WindowsPathFormat : CommonPathFormat{
+		internal WindowsPathFormat() { }
 
 		public override IReadOnlyList<string> NormalizeFragments(IReadOnlyList<string> fragments, FilePathKind pathKind) {
 			var fragmentsArray = fragments.ToArray();
@@ -19,7 +20,7 @@ namespace CatWalk.IO {
 				fragmentsArray = FilePath.Resolve(fragmentsArray).ToArray();
 			}
 
-			return Array.AsReadOnly(fragmentsArray);
+			return fragmentsArray.AsReadOnly();
 		}
 
 		public override string DirectorySeparator {

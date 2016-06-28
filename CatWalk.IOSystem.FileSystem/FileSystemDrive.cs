@@ -16,7 +16,7 @@ namespace CatWalk.IOSystem.FileSystem {
 
 		public FileSystemDrive(ISystemEntry parent, string name, char driveLetter) : base(parent, name){
 			this.DriveLetter = ValidateDriveLetter(driveLetter);
-			this.FileSystemPath = new FilePath(this.DriveLetter + ":" + IO::Path.DirectorySeparatorChar);
+			this.FileSystemPath = new FilePath(this.DriveLetter + ":" + IO::Path.DirectorySeparatorChar, FilePathFormats.Windows);
 		}
 
 		private static char ValidateDriveLetter(char driveLetter){
@@ -99,7 +99,7 @@ namespace CatWalk.IOSystem.FileSystem {
 		#region IFileSystemDirectory Members
 
 		public string ConcatFileSystemPath(string name) {
-			return this.FileSystemPath + name;
+			return this.FileSystemPath.Resolve(name).FullPath;
 		}
 
 		public FilePath FileSystemPath {get; private set;}

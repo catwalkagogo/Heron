@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Reflection;
 using System.Linq.Expressions;
 
 namespace CatWalk.Collections {
 	public static class CollectionExpressions {
 		public static Action<object, object> GetAddFunction(Type type) {
-			var method = type.GetMethod("Add");
+			type.ThrowIfNull("type");
+			var method = type.GetRuntimeMethod("Add", new Type[0]);
 			var obj = Expression.Parameter(typeof(object), "obj");
 			var objCast = Expression.Convert(obj, type);
 			var param_v = Expression.Parameter(typeof(object), "v");
@@ -23,7 +25,8 @@ namespace CatWalk.Collections {
 		}
 
 		public static Action<object, object> GetRemoveFunction(Type type) {
-			var method = type.GetMethod("Remove");
+			type.ThrowIfNull("type");
+			var method = type.GetRuntimeMethod("Remove", new Type[0]);
 			var obj = Expression.Parameter(typeof(object), "obj");
 			var objCast = Expression.Convert(obj, type);
 			var param_v = Expression.Parameter(typeof(object), "v");
@@ -38,7 +41,8 @@ namespace CatWalk.Collections {
 		}
 
 		public static Action<object> GetClearFunction(Type type) {
-			var method = type.GetMethod("Clear");
+			type.ThrowIfNull("type");
+			var method = type.GetRuntimeMethod("Clear", new Type[0]);
 			var obj = Expression.Parameter(typeof(object), "obj");
 			var objCast = Expression.Convert(obj, type);
 			//var instance = Expression.Parameter(type, "instance");

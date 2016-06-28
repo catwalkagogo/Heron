@@ -38,15 +38,15 @@ namespace CatWalk.IO{
 
 		#region Constructor
 
-		public FilePath(string path) : this(path, FilePathFormats.PlatformPathFormat){
-		}
+		/*public FilePath(string path) : this(path, FilePathFormats.PlatformPathFormat){
+		}*/
 
 		public FilePath(string path, IFilePathFormat format) : this(path, null, format) {
 		}
-
+		/*
 		public FilePath(string path, FilePathKind? pathKind) : this(path, pathKind, FilePathFormats.PlatformPathFormat){
 		}
-
+		*/
 		public FilePath(string path, FilePathKind? pathKind, IFilePathFormat format) : this(){
 			if(path == null) {
 				throw new ArgumentNullException("path");
@@ -95,11 +95,11 @@ namespace CatWalk.IO{
 		#endregion
 
 		#region Normalize
-
+		/*
 		public static string Normalize(string path, FilePathKind pathKind) {
 			return Normalize(path, pathKind, FilePathFormats.PlatformPathFormat);
 		}
-
+		*/
 		/// <summary>
 		/// パス文字列を正規化する
 		/// 区切り文字をformatに合わせ、末尾の区切り文字を削除する
@@ -208,7 +208,7 @@ namespace CatWalk.IO{
 		#region GetFullPath
 
 		public FilePath GetFullPath(string basePath){
-			return this.GetFullPath(new FilePath(basePath, FilePathKind.Absolute));
+			return this.GetFullPath(new FilePath(basePath, FilePathKind.Absolute, this.Format));
 		}
 
 		/// <summary>
@@ -295,7 +295,7 @@ namespace CatWalk.IO{
 		#endregion
 
 		#region GetCommonRoot
-
+		/*
 		public static FilePath GetCommonRoot(params string[] paths){
 			return GetCommonRoot(FilePathFormats.PlatformPathFormat, paths);
 		}
@@ -303,13 +303,13 @@ namespace CatWalk.IO{
 		public static FilePath GetCommonRoot(IEnumerable<string> paths){
 			return GetCommonRoot(FilePathFormats.PlatformPathFormat, paths);
 		}
-
+		*/
 		public static FilePath GetCommonRoot(IFilePathFormat format, params string[] paths) {
-			return GetCommonRoot(format, paths.Select(path => new FilePath(path)));
+			return GetCommonRoot(format, paths.Select(path => new FilePath(path, format)));
 		}
 
 		public static FilePath GetCommonRoot(IFilePathFormat format, IEnumerable<string> paths) {
-			return GetCommonRoot(format, paths.Select(path => new FilePath(path)));
+			return GetCommonRoot(format, paths.Select(path => new FilePath(path, format)));
 		}
 
 		public static FilePath GetCommonRoot(IFilePathFormat format, IEnumerable<FilePath> paths) {
@@ -323,11 +323,21 @@ namespace CatWalk.IO{
 		/// <exception cref="System.ArgumentException">指定したパスの配列の要素に相対パスが含まれているか、配列が空の時。</exception>
 		/// <returns></returns>
 		public static FilePath GetCommonRoot(IEnumerable<FilePath> paths){
-			return GetCommonRoot(FilePathFormats.PlatformPathFormat, paths.ToArray());
+			paths.ThrowIfNull("paths");
+			var formats = paths.Select(path => path.Format).Distinct().ToArray();
+			if(formats.Length > 1) {
+				throw new ArgumentException("mixed diferent path formats");
+			}
+			return GetCommonRoot(formats[0], paths.ToArray());
 		}
 
 		public static FilePath GetCommonRoot(params FilePath[] paths) {
-			return GetCommonRoot(FilePathFormats.PlatformPathFormat, paths);
+			paths.ThrowIfNull("paths");
+			var formats = paths.Select(path => path.Format).Distinct().ToArray();
+			if (formats.Length > 1) {
+				throw new ArgumentException("mixed diferent path formats");
+			}
+			return GetCommonRoot(formats[0], paths);
 		}
 
 		/// <summary>
@@ -361,7 +371,7 @@ namespace CatWalk.IO{
 		#region GetRelativePathTo
 
 		public FilePath GetRelativePathTo(string dest){
-			return this.GetRelativePathTo(new FilePath(dest, FilePathKind.Absolute));
+			return this.GetRelativePathTo(new FilePath(dest, FilePathKind.Absolute, this.Format));
 		}
 
 		/// <summary>
@@ -399,7 +409,7 @@ namespace CatWalk.IO{
 		#region PackRelativePath
 
 		public static FilePath PackRelativePath(FilePath relativePath) {
-			return PackRelativePath(relativePath, FilePathFormats.PlatformPathFormat);
+			return PackRelativePath(relativePath, relativePath.Format);
 		}
 
 		/// <summary>

@@ -4,9 +4,6 @@ using System.Linq;
 using System.Text;
 
 namespace CatWalk.Collections {
-#if !SILVERLIGHT
-	[Serializable]
-#endif
 	public class SortedSkipList<T> : SkipList<T>, ISet<T>{
 		private IComparer<T> comparer;
 		public bool IsAllowDuplicates{get; private set;}

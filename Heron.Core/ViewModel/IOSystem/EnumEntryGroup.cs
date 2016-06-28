@@ -4,13 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CatWalk.Heron.IOSystem;
+using System.Reflection;
 
 namespace CatWalk.Heron.ViewModel.IOSystem {
+	/*
 	public class EnumEntryGroup<TID, TValue> : EntryGroup<TID>
-		where TValue : struct, IConvertible
 		where TID : IComparable<TID>{
 		static EnumEntryGroup() {
-			if(!typeof(TValue).IsEnum) {
+			if(!typeof(TValue).GetTypeInfo().IsEnum) {
 				throw new ArgumentException(typeof(TID).FullName + " is not an Enum type");
 			}
 		}
@@ -27,5 +28,5 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 		public override bool Filter(SystemEntryViewModel item) {
 			return this._Value.Equals(item.Columns[this._Column].Value);
 		}
-	}
+	}*/
 }

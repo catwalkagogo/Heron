@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Reflection;
 using CatWalk;
-using CatWalk.Windows.Input;
 using CatWalk.IOSystem;
 using CatWalk.Heron.IOSystem;
 using CatWalk.Heron.ViewModel.IOSystem;
@@ -20,7 +19,7 @@ namespace CatWalk.Heron {
 		private SystemEntryViewModel _RootEntry;
 		private RootProvider _RootProvider;
 
-		private void InitializeIOSystem() {
+		protected virtual async Task InitializeIOSystem() {
 			this._RootProvider = new RootProvider(this);
 			this._RootEntry = new SystemEntryViewModel(null, this._RootProvider, new RootEntry(this));
 
@@ -32,7 +31,7 @@ namespace CatWalk.Heron {
 		private Messenger _Messenger = null;
 		public Messenger Messenger {
 			get {
-				return this._Messenger ?? (this._Messenger = new Messenger(this.SynchronizeInvoke));
+				return this._Messenger ?? (this._Messenger = new Messenger(this.SynchronizationContext));
 			}
 		}
 

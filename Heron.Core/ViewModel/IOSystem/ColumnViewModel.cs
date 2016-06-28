@@ -10,14 +10,14 @@ using CatWalk;
 using CatWalk.Mvvm;
 using CatWalk.Heron.IOSystem;
 using CatWalk.IOSystem;
-using System.ComponentModel;
+using CatWalk.ComponentModel;
 
 namespace CatWalk.Heron.ViewModel.IOSystem {
 	public class ColumnViewModel : ViewModelBase, IColumnDefinition/*, IComparer<ISystemEntry> */{
 		public SystemEntryViewModel SystemEntryViewModel { get; private set; }
 		public IColumnDefinition Definition { get; private set; }
 		private object _Value;
-		private IEnumerable<IEntryGroup> _Groups;
+		//private IEnumerable<IEntryGroup> _Groups;
 	//	private Lazy<IComparer<ISystemEntry>> _ColumnComparer;
 
 		public ColumnViewModel(IColumnDefinition definition, SystemEntryViewModel vm) {
@@ -110,7 +110,7 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 			get;
 			private set;
 		}
-
+		/*
 		public IEnumerable<IEntryGroup> Groups {
 			get {
 				return this._Groups;
@@ -120,7 +120,7 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 				this.OnPropertyChanged("Groups");
 			}
 		}
-
+		*/
 		#region IComparable<ColumnViewModel>
 		/*
 		public int CompareTo(object obj) {

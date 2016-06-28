@@ -8,97 +8,97 @@ using System.Text;
 using System.Runtime.InteropServices;
 
 namespace CatWalk.Text{
-public class LogicalStringComparer : StringComparer{
-	public StringComparer StringComparer{get; set;}
+	public class LogicalStringComparer : StringComparer{
+		public StringComparer StringComparer{get; set;}
 	
-	public LogicalStringComparer(){
-		this.StringComparer = StringComparer.Ordinal;
-	}
-	
-	public LogicalStringComparer(StringComparer comparer){
-		comparer.ThrowIfNull("comparer");
-		this.StringComparer = comparer;
-	}
-	
-	public override int Compare(string x, string y){
-		// 片方、もしくは両方がnull、もしくは空のとき
-		var xIsNullOrEmpty = String.IsNullOrEmpty(x);
-		var yIsNullOrEmpty = String.IsNullOrEmpty(y);
-		if(xIsNullOrEmpty && yIsNullOrEmpty){
-			return 0;
-		}else if(xIsNullOrEmpty){
-			return -1;
-		}else if(yIsNullOrEmpty){
-			return 1;
+		public LogicalStringComparer(){
+			this.StringComparer = StringComparer.Ordinal;
 		}
+	
+		public LogicalStringComparer(StringComparer comparer){
+			comparer.ThrowIfNull("comparer");
+			this.StringComparer = comparer;
+		}
+	
+		public override int Compare(string x, string y){
+			// 片方、もしくは両方がnull、もしくは空のとき
+			var xIsNullOrEmpty = String.IsNullOrEmpty(x);
+			var yIsNullOrEmpty = String.IsNullOrEmpty(y);
+			if(xIsNullOrEmpty && yIsNullOrEmpty){
+				return 0;
+			}else if(xIsNullOrEmpty){
+				return -1;
+			}else if(yIsNullOrEmpty){
+				return 1;
+			}
 
-		using(IEnumerator<string> xs = Split(x))
-		using(IEnumerator<string> ys = Split(y)){
-			while(xs.MoveNext() && ys.MoveNext()){
-				string xe = xs.Current;
-				string ye = ys.Current;
-				// 数値同士の比較
-				if(IsNumber(xe[0]) && IsNumber(ye[0])){
-					// とりあえず長さで比較
-					if(xe.Length > ye.Length){
-						return 1;
-					}else if(xe.Length < ye.Length){
-						return -1;
-					}
-					// 同じ長さの場合は普通に比較すればよい。
-					int d = xe.CompareTo(ye);
-					if(d != 0){
-						return d;
-					}
-				}else{ // 数値同士でないときは普通に比較。
-					int d = this.StringComparer.Compare(xe, ye);
-					if(d != 0){
-						return d;
+			using(IEnumerator<string> xs = Split(x))
+			using(IEnumerator<string> ys = Split(y)){
+				while(xs.MoveNext() && ys.MoveNext()){
+					string xe = xs.Current;
+					string ye = ys.Current;
+					// 数値同士の比較
+					if(IsNumber(xe[0]) && IsNumber(ye[0])){
+						// とりあえず長さで比較
+						if(xe.Length > ye.Length){
+							return 1;
+						}else if(xe.Length < ye.Length){
+							return -1;
+						}
+						// 同じ長さの場合は普通に比較すればよい。
+						int d = xe.CompareTo(ye);
+						if(d != 0){
+							return d;
+						}
+					}else{ // 数値同士でないときは普通に比較。
+						int d = this.StringComparer.Compare(xe, ye);
+						if(d != 0){
+							return d;
+						}
 					}
 				}
 			}
-		}
-		// 片方のシーケンスがオワタ時は長さで比較
-		return x.Length.CompareTo(y.Length);
-	}
-	
-	public override bool Equals(string x, string y){
-		return x.Equals(y);
-	}
-	
-	public override int GetHashCode(string str){
-		return this.StringComparer.GetHashCode(str);
-	}
-	
-	/// <summary>
-	/// 数値と文字列の部分を分割して交互に返す。
-	/// </summary>
-	private static IEnumerator<string> Split(string str){
-		if(str == null){
-			yield break;
-		}
-		if(str.Length == 0){
-			yield break;
+			// 片方のシーケンスがオワタ時は長さで比較
+			return x.Length.CompareTo(y.Length);
 		}
 	
-		bool lastIsNum = IsNumber(str[0]);
-		int left = 0;
-		for(int i = 1; i < str.Length; i++){
-			bool isNum = IsNumber(str[i]);
-			if(isNum != lastIsNum){
-				yield return str.Substring(left, i - left);
-				left = i;
-				lastIsNum = isNum;
+		public override bool Equals(string x, string y){
+			return x.Equals(y);
+		}
+	
+		public override int GetHashCode(string str){
+			return this.StringComparer.GetHashCode(str);
+		}
+	
+		/// <summary>
+		/// 数値と文字列の部分を分割して交互に返す。
+		/// </summary>
+		private static IEnumerator<string> Split(string str){
+			if(str == null){
+				yield break;
 			}
-		}
-		yield return str.Substring(left);
-	}
-
-	private static bool IsNumber(char c){
-		return ('0' <= c) && (c <= '9');
-	}
-}
+			if(str.Length == 0){
+				yield break;
+			}
 	
+			bool lastIsNum = IsNumber(str[0]);
+			int left = 0;
+			for(int i = 1; i < str.Length; i++){
+				bool isNum = IsNumber(str[i]);
+				if(isNum != lastIsNum){
+					yield return str.Substring(left, i - left);
+					left = i;
+					lastIsNum = isNum;
+				}
+			}
+			yield return str.Substring(left);
+		}
+
+		private static bool IsNumber(char c){
+			return ('0' <= c) && (c <= '9');
+		}
+	}
+	/*
 	public class UnsafeLogicalStringComparer : StringComparer{
 		private static UnsafeLogicalStringComparer comparer = null;
 		public static UnsafeLogicalStringComparer Comparer{
@@ -270,7 +270,7 @@ public class LogicalStringComparer : StringComparer{
 		public override int GetHashCode(string str){
 			return str.GetHashCode();
 		}
-	}
+	}*/
 	/*
 	public class ShellLogicalStringComparer : StringComparer{
 		[DllImport("Shlwapi.dll", EntryPoint = "StrCmpLogicalW", CharSet = CharSet.Unicode)]

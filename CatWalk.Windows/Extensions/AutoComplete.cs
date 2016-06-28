@@ -66,15 +66,15 @@ namespace CatWalk.Windows.Extensions{
 		}
 		
 		public static readonly DependencyProperty PopupOffsetProperty =
-			DependencyProperty.RegisterAttached("PopupOffset", typeof(Vector), typeof(AutoComplete));
+			DependencyProperty.RegisterAttached("PopupOffset", typeof(System.Windows.Vector), typeof(AutoComplete));
 		
 		[AttachedPropertyBrowsableForType(typeof(TextBox))]
 		public static Vector GetPopupOffset(DependencyObject obj){
-			return (Vector)obj.GetValue(PopupOffsetProperty);
+			return (System.Windows.Vector)obj.GetValue(PopupOffsetProperty);
 		}
 		
 		[AttachedPropertyBrowsableForType(typeof(TextBox))]
-		public static void SetPopupOffset(DependencyObject obj, Vector value){
+		public static void SetPopupOffset(DependencyObject obj, System.Windows.Vector value){
 			obj.SetValue(PopupOffsetProperty, value);
 		}
 		

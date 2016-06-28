@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Collections.Specialized;
-using CatWalk;
+using CatWalk.Collections;
 
 namespace CatWalk.Heron.Configuration {
 	public class CachedStorage : Storage{
-		private OrderedDictionary _Cache = new OrderedDictionary();
+		private IDictionary<string, object> _Cache = new Dictionary<string, object>();
 		private int _CacheSize;
 		private IStorage _Storage;
 
@@ -33,12 +33,13 @@ namespace CatWalk.Heron.Configuration {
 			this.ThrowIfDisposed();
 			var count = this._Cache.Count - this._CacheSize;
 			if(count > 0) {
-				var keys = this._Cache.Keys.Cast<string>().Take(count).ToArray();
+				/*var keys = this._Cache.Keys.Cast<string>().Take(count).ToArray();
 				foreach(var key in keys) {
 					var v = this._Cache[key];
 					this._Storage[key] = v;
 					this._Cache.Remove(key);
-				}
+				}*/
+				this.ClearCache();
 			}
 		}
 
@@ -51,19 +52,20 @@ namespace CatWalk.Heron.Configuration {
 			}
 			this._Cache.Clear();
 		}
-
+		/*
 		public void PreloadCache() {
 			this.ThrowIfDisposed();
 			foreach(var pair in this.GetItems(this._CacheSize)) {
 				this._Cache.Add(pair.Key, pair.Value);
 			}
 		}
-
+		
 		protected virtual IEnumerable<KeyValuePair<string, object>> GetItems(int count) {
 			this.ThrowIfDisposed();
+			this.ClearCache();
 			return this.Take(count);
 		}
-
+		*/
 		protected override void AddItem(string key, object value) {
 			this.ThrowIfDisposed();
 			this._Cache.Add(key, value);
@@ -72,7 +74,7 @@ namespace CatWalk.Heron.Configuration {
 
 		protected override bool TryGetItem(string key, out object value) {
 			this.ThrowIfDisposed();
-			if(this._Cache.Contains(key)) {
+			if(this._Cache.ContainsKey(key)) {
 				value = this._Cache[key];
 				return true;
 			} else {
@@ -100,7 +102,7 @@ namespace CatWalk.Heron.Configuration {
 
 		protected override object GetItem(string key) {
 			this.ThrowIfDisposed();
-			if(this._Cache.Contains(key)) {
+			if(this._Cache.ContainsKey(key)) {
 				return this._Cache[key];
 			} else {
 				var v = this._Storage[key];
@@ -118,11 +120,13 @@ namespace CatWalk.Heron.Configuration {
 
 		protected override ICollection<string> GetKeys() {
 			this.ThrowIfDisposed();
+			this.ClearCache();
 			return this._Storage.Keys;
 		}
 
 		protected override ICollection<object> GetValues() {
 			this.ThrowIfDisposed();
+			this.ClearCache();
 			return this._Storage.Values;
 		}
 
@@ -133,7 +137,7 @@ namespace CatWalk.Heron.Configuration {
 
 		protected override bool ContainsItem(string key) {
 			this.ThrowIfDisposed();
-			if(this._Cache.Contains(key)) {
+			if(this._Cache.ContainsKey(key)) {
 				return true;
 			} else {
 				return this._Storage.ContainsKey(key);
