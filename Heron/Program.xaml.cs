@@ -47,19 +47,32 @@ namespace CatWalk.Heron {
 				this._App.SessionEnding += _App_SessionEnding;
 			}
 
-			private static void LoadBuiltinPluginAssemblies() {
+			private IEnumerable<string> GetBuiltinPlugins() {
 				var builtinPluginDir = new FilePath(Assembly.GetEntryAssembly().Location, FilePathFormats.Windows).Resolve("../plugins").FullPath;
 				var dlls = Directory.EnumerateFiles(builtinPluginDir, "*.dll", SearchOption.AllDirectories);
-				var asmNames = dlls.ToDictionary(dll => AssemblyName.GetAssemblyName(dll));
+				var asmNames = dlls.Select(dll => Tuple.Create(dll, AssemblyName.GetAssemblyName(dll).FullName)).Distinct(item => item.Item2);
 
 				var loadedAsmNames = AppDomain.CurrentDomain.GetAssemblies()
 					.SelectMany(asm => asm.GetReferencedAssemblies().Concat(Seq.Make(asm.GetName())))
-					.Distinct(asmName => asmName)
+					.Select(asmName => asmName.FullName)
+					.Distinct()
 					.ToLookup(asmName => asmName);
-				var asmsToLoad = asmNames.Where(asmName => !loadedAsmNames.Contains(asmName.Key)).Distinct(pair => pair.Key.FullName).ToArray();
+				var asmsToLoad = asmNames.Where(asmName => !loadedAsmNames.Contains(asmName.Item2)).Distinct(pair => pair.Item2).ToArray();
+				/*
+				var loadedNames = AppDomain.CurrentDomain.GetAssemblies()
+					.SelectMany(asm => asm.GetReferencedAssemblies().Concat(Seq.Make(asm.GetName())))
+					.Select(asmNAme => asmNAme.FullName)
+					.Distinct().OrderBy(name => name).ToArray();
+				var asmNames2 = dlls.Select(dll => AssemblyName.GetAssemblyName(dll).FullName).OrderBy(name => name).ToArray();
+				*/
+				var pluginAsms = new List<string>();
 				asmsToLoad.ForEach(asmName => {
-					Assembly.LoadFile(asmName.Value);
+					var asm = Assembly.LoadFile(asmName.Item1);
+					if (asm.IsPluginAssembly()) {
+						pluginAsms.Add(asmName.Item1);
+					}
 				});
+				return pluginAsms;
 			}
 
 			private void _App_SessionEnding(object sender, SessionEndingCancelEventArgs e) {
@@ -108,15 +121,18 @@ namespace CatWalk.Heron {
 
 				AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
 
-				LoadBuiltinPluginAssemblies();
-				AppDomain.CurrentDomain.GetAssemblies().ForEach(asm => this.PluginManager.RegisterAssembly(asm));
+				var plugins = this.GetBuiltinPlugins();
+				plugins.Select(file => AppDomain.CurrentDomain.Load(file)).ForEach(this.PluginManager.RegisterAssembly);
 				this.PluginManager.RestoreEnabledPluginsFromConfiguration();
 			}
 
 			private Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args) {
-				var asm1 = AppDomain.CurrentDomain.GetAssemblies().Where(_ => _.GetName().FullName == args.Name).FirstOrDefault();
+				/*var asm1 = AppDomain.CurrentDomain.GetAssemblies().Where(_ => _.GetName().FullName == args.Name).FirstOrDefault();
 				if(asm1 != null) {
 					return asm1;
+				}*/
+				if(args.RequestingAssembly == null) {
+					return Assembly.LoadFile(args.Name);
 				}
 
 				var location = args.RequestingAssembly.Location;

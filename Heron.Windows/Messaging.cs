@@ -18,14 +18,6 @@ namespace CatWalk.Heron.Windows {
 				.Select(_ => _.Message);
 		}
 
-		/*public static FrameworkMessageReceiver<TMessage> RegisterMessageReceiver<TMessage>(this FrameworkElement element, Messenger messenger, Action<TMessage> receiver, bool receiveDeliveredMessage = false) {
-			element.ThrowIfNull("element");
-			messenger.ThrowIfNull("messenger");
-			receiver.ThrowIfNull("receiver");
-
-			return new FrameworkMessageReceiver<TMessage>(element, messenger, receiver, receiveDeliveredMessage);
-		}
-		*/
 		public static bool GetIsCommunicateViewModelMessages(DependencyObject obj) {
 			return (bool)obj.GetValue(IsCommunicateViewModelMessagesProperty);
 		}
@@ -52,58 +44,7 @@ namespace CatWalk.Heron.Windows {
 			}
 		}
 
-		/*
-		public static FrameworkMessageReceiver<TMessage, TState> RegisterMessageReceiver<TMessage, TState>(this FrameworkElement element, Messenger messenger, Action<TMessage, TState> receiver, TState state, bool receiveDeliveredMessage = false) {
-			element.ThrowIfNull("element");
-			messenger.ThrowIfNull("messenger");
-			receiver.ThrowIfNull("receiver");
-
-			return new FrameworkMessageReceiver<TMessage, TState>(element, messenger, receiver, state, receiveDeliveredMessage);
-		}
-
-		public static FrameworkMessageReceiver<TMessage, TState> RegisterMessageReceiver<TMessage, TState>(this FrameworkElement element, Messenger messenger, Action<TMessage, object, TState> receiver, TState state, bool receiveDeliveredMessage = false) {
-			element.ThrowIfNull("element");
-			messenger.ThrowIfNull("messenger");
-			receiver.ThrowIfNull("receiver");
-
-			return new FrameworkMessageReceiver<TMessage, TState>(element, messenger, receiver, state, receiveDeliveredMessage);
-		}
-		*/
 	}
 
 	
-	/*
-	public class FrameworkMessageReceiver<TMessage, TState> : MessageReceiver<TMessage, TState> {
-		public FrameworkElement Element { get; private set; }
-
-		public FrameworkMessageReceiver(FrameworkElement element, Messenger messenger, Action<TMessage, TState> receiver, TState state, bool receiveDeliveredMessage = false)
-			: this(element, messenger, receiver, state, receiveDeliveredMessage, false){
-		}
-
-		public FrameworkMessageReceiver(FrameworkElement element, Messenger messenger, Action<TMessage, object, TState> receiver, TState state, bool receiveDeliveredMessage = false)
-			: this(element, messenger, receiver, state, receiveDeliveredMessage, true) {
-		}
-
-		protected FrameworkMessageReceiver(FrameworkElement element, Messenger messenger, Delegate receiver, TState state, bool receiveDeliveredMessage, bool receiveToken)
-			: base(messenger, receiver, state, receiveDeliveredMessage, receiveToken) {
-			element.ThrowIfNull("element");
-
-			this.Element = element;
-			this.Token = element.DataContext;
-
-			element.DataContextChanged += Element_DataContextChanged;
-		}
-
-		private void Element_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e) {
-			this.Token = e.NewValue;
-		}
-
-		protected override void Dispose(bool disposing) {
-			if(!this.IsDisposed) {
-				this.Element.DataContextChanged -= this.Element_DataContextChanged;
-			}
-			base.Dispose(disposing);
-		}
-	}
-	*/
 }

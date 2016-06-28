@@ -193,6 +193,15 @@ namespace CatWalk.IO{
 			}
 		}
 
+		public FilePath Parent {
+			get {
+				if(this._Fragments.Count == 0) {
+					throw new InvalidOperationException("root path");
+				}
+				return new FilePath(this._Fragments.Take(this._Fragments.Count - 1), this.PathKind, this.Format);
+			}
+		}
+
 		#endregion
 
 		#region private Functions
