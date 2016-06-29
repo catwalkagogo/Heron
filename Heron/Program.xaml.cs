@@ -72,7 +72,7 @@ namespace CatWalk.Heron {
 
 			protected override Task OnFirstStartUp(ApplicationStartUpEventArgs e) {
 				return base.OnFirstStartUp(e).ContinueWith(task => {
-					this.CreateMainWindow();
+					new MainWindowViewModel(this);
 				}, TaskScheduler.FromCurrentSynchronizationContext());
 			}
 
@@ -141,7 +141,7 @@ namespace CatWalk.Heron {
 			}
 
 			protected override IPluginManager GetPluginManager() {
-				return CatWalk.Heron.PluginManager.Create();
+				return new PluginManager();
 			}
 
 			private Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args) {

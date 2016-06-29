@@ -5,12 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using CatWalk.IOSystem;
 
-namespace CatWalk.Heron.IOSystem {
-	public interface IGrouping {
-		IGroupName GetGroupName(ISystemEntry entry);
-	}
-
-	public interface IGroupName {
+namespace CatWalk.Heron.ViewModel.IOSystem {
+	public interface IGroup {
 		string Name { get; }
 	}
 }

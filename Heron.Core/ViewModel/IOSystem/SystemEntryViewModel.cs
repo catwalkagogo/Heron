@@ -14,7 +14,8 @@ using CatWalk.IOSystem;
 using CatWalk.Heron.IOSystem;
 
 namespace CatWalk.Heron.ViewModel.IOSystem {
-	using ColumnDictionaryKey = String;
+	using ComponentModel;
+	using ColumnDictionaryKey = IColumnDefinition;
 
 	public partial class SystemEntryViewModel : ViewModelBase, IHierarchicalViewModel<SystemEntryViewModel>{
 		private readonly ResetLazy<ColumnDictionary> _Columns;
@@ -37,6 +38,40 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 			this._Columns = new ResetLazy<ColumnDictionary>(() => new ColumnDictionary(this));
 			if(this.IsDirectory) {
 				this.InitDirectory();
+			}
+
+			// 初期ソート
+			//this._Orders = Seq.Make(new ColumnOrderSet(ColumnDefinition.DisplayNameColumn, ListSortDirection.Ascending));
+		}
+
+		#endregion
+
+		#region Order
+
+		private IEnumerable<OrderDirectionSet> _Orders;
+
+		public IEnumerable<OrderDirectionSet> Orders {
+			get {
+				return this._Orders;
+			}
+			set {
+				this._Orders = value;
+				this.OnPropertyChanged("Orders");
+				this.OnPropertyChanged("EntryComparer");
+			}
+		}
+
+		public SystemEntryViewModelComparer EntryComparer {
+			get {
+				var comparer =
+					(this.Orders != null) ? new SystemEntryViewModelComparer(this._Orders) :
+					new SystemEntryViewModelComparer(
+						Seq.Make(
+							new OrderDirectionSet(
+								Ordering.FromColumn(this.Columns[ColumnDefinition.DisplayNameColumn]),
+								ListSortDirection.Ascending)));
+
+				return comparer;
 			}
 		}
 
@@ -117,14 +152,22 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 
 		public class ColumnDictionary : IReadOnlyDictionary<ColumnDictionaryKey, ColumnViewModel> {
 			private SystemEntryViewModel _this;
-			private IDictionary<ColumnDictionaryKey, Tuple<IColumnDefinition, ColumnViewModel>> _columns = new Dictionary<ColumnDictionaryKey, Tuple<IColumnDefinition, ColumnViewModel>>();
+
+			/// <summary>
+			/// backing dictionary
+			/// </summary>
+			private IDictionary<Type, Lazy<ColumnViewModel>> _columns = new Dictionary<Type, Lazy<ColumnViewModel>>();
 
 			public ColumnDictionary(SystemEntryViewModel vm){
 				this._this = vm;
 				foreach(var definition in vm.ColumnDefinitions) {
-					this._columns.Add(definition.GetType().FullName, new Tuple<IColumnDefinition, ColumnViewModel>(definition, null));
+					this._columns.Add(definition.GetType(), new Lazy<ColumnViewModel>(() => {
+						return this.CreateViewModel(definition);
+					}));
 				}
 			}
+
+			#region IReadOnlyDictionary<ColumnDictionaryKey, ColumnViewModel>
 
 			public int Count {
 				get {
@@ -133,25 +176,22 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 			}
 
 			public IEnumerator<KeyValuePair<ColumnDictionaryKey, ColumnViewModel>> GetEnumerator() {
-				this.CreateAll();
-				return this._columns.Select(pair => new KeyValuePair<ColumnDictionaryKey, ColumnViewModel>(pair.Key, pair.Value.Item2)).GetEnumerator();
+				return this._columns.Select(pair => new KeyValuePair<ColumnDictionaryKey, ColumnViewModel>(pair.Value.Value.Definition, pair.Value.Value)).GetEnumerator();
 			}
 
 			System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() {
-				this.CreateAll();
-				return this._columns.GetEnumerator();
+				return this.GetEnumerator();
 			}
 
 			public IEnumerable<ColumnDictionaryKey> Keys {
 				get{
-					return this._columns.Keys;
+					return this._columns.Select(pair => pair.Value.Value.Definition);
 				}
 			}
 
 			public IEnumerable<ColumnViewModel> Values{
 				get {
-					this.CreateAll();
-					return this._columns.Values.Select(v => v.Item2);
+					return this._columns.Values.Select(v => v.Value);
 				}
 			}
 
@@ -166,55 +206,28 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 				}
 			}
 
-			public ColumnViewModel this[IColumnDefinition column] {
-				get {
-					column.ThrowIfNull("column");
-					return this[column.GetType().FullName];
-				}
-			}
-
-			public ColumnViewModel this[Type type] {
-				get {
-					type.ThrowIfNull("type");
-					return this[type.FullName];
-				}
-			}
-
 			public bool TryGetValue(ColumnDictionaryKey column, out ColumnViewModel vm) {
-				Tuple<IColumnDefinition, ColumnViewModel> v;
-				if(this._columns.TryGetValue(column, out v)) {
-					vm = v.Item2;
-					if(vm == null) {
-						vm = this.CreateViewModel(v.Item1);
-						this._columns[column] = new Tuple<IColumnDefinition, ColumnViewModel>(v.Item1, vm);
-					}
-					return true;
-				} else {
+				if(column == null) {
 					vm = null;
 					return false;
 				}
-			}
 
-			public bool TryGetValue(IColumnDefinition column, out ColumnViewModel vm) {
-				column.ThrowIfNull("column");
-				return this.TryGetValue(column.GetType().FullName, out vm);
-			}
-
-			public bool TryGetValue(Type type, out ColumnViewModel vm) {
-				type.ThrowIfNull("type");
-				return this.TryGetValue(type.GetType().FullName, out vm);
+				return this.TryGetValue(column.GetType(), out vm);
 			}
 
 			public bool ContainsKey(ColumnDictionaryKey column) {
-				return this._columns.ContainsKey(column);
+				if(column == null) {
+					return false;
+				}
+				return this._columns.ContainsKey(column.GetType());
 			}
 
-			private ColumnViewModel CreateViewModel(IColumnDefinition provider) {
-				provider.ThrowIfNull("provider");
+			#endregion
 
-				var vm = new ColumnViewModel(provider, _this);
-				this._columns[provider.GetType().FullName] = new Tuple<IColumnDefinition,ColumnViewModel>(provider, vm);
-				//vm.PropertyChanged += vm_PropertyChanged;
+			private ColumnViewModel CreateViewModel(IColumnDefinition definition) {
+				definition.ThrowIfNull("definition");
+
+				var vm = new ColumnViewModel(definition, _this);
 				return vm;
 			}
 			/*
@@ -238,14 +251,31 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 				}
 			}
 			*/
-			private void CreateAll(){
-				foreach(var entry in this.Keys) {
-					var v = this._columns[entry];
-					if(v.Item2 == null) {
-						this.CreateViewModel(v.Item1);
-					}
+
+			#region IReadOnlyDictionary<Type, ColumnViewModel>
+
+			public ColumnViewModel this[Type key] {
+				get {
+					return this._columns[key].Value;
 				}
 			}
+
+			public bool ContainsKey(Type key) {
+				return this._columns.ContainsKey(key);
+			}
+
+			public bool TryGetValue(Type key, out ColumnViewModel value) {
+				Lazy<ColumnViewModel> v;
+				if (this._columns.TryGetValue(key, out v)) {
+					value = v.Value;
+					return true;
+				} else {
+					value = null;
+					return false;
+				}
+			}
+
+			#endregion
 		}
 
 		#endregion

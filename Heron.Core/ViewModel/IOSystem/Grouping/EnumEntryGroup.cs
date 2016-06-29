@@ -7,7 +7,6 @@ using CatWalk.Heron.IOSystem;
 using System.Reflection;
 
 namespace CatWalk.Heron.ViewModel.IOSystem {
-	/*
 	public class EnumEntryGroup<TID, TValue> : EntryGroup<TID>
 		where TID : IComparable<TID>{
 		static EnumEntryGroup() {
@@ -28,5 +27,5 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 		public override bool Filter(SystemEntryViewModel item) {
 			return this._Value.Equals(item.Columns[this._Column].Value);
 		}
-	}*/
+	}
 }

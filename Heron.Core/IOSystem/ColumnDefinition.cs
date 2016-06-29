@@ -50,14 +50,6 @@ namespace CatWalk.Heron.IOSystem {
 			throw new InvalidOperationException();
 		}
 
-		public virtual IOrderDefinition GetOrderDefinition() {
-			if (this.CanSort) {
-				return OrderDefinition.FromColumnDefinition(this);
-			}else {
-				throw new InvalidOperationException();
-			}
-		}
-
 		public override int GetHashCode() {
 			return this.GetType().GetHashCode();
 		}

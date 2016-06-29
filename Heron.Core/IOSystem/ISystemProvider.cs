@@ -56,6 +56,6 @@ namespace CatWalk.Heron.IOSystem {
 		/// <returns></returns>
 		//IEnumerable<IGrouping> GetGroupings(ISystemEntry entry);
 
-		IEnumerable<OrderDefinition> GetOrderDefinitions(ISystemEntry entry);
+		IEnumerable<Ordering> GetOrderDefinitions(SystemEntryViewModel entry);
 	}
 }

@@ -151,6 +151,9 @@ namespace CatWalk.Heron.ViewModel.Windows {
 			}
 		}
 
+		/// <summary>
+		/// currentEntryに付随するViewModelを取得・設定する
+		/// </summary>
 		public object EntryViewModel {
 			get {
 				return this._EntryViewModel;

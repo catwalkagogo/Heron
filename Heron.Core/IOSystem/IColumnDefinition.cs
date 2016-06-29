@@ -24,7 +24,6 @@ namespace CatWalk.Heron.IOSystem {
 		/// <param name="order"></param>
 		/// <returns></returns>
 		IComparer GetComparer(ListSortDirection order);
-		IOrderDefinition GetOrderDefinition();
 	}
 
 	public interface IColumnDefinition<T> : IColumnDefinition {

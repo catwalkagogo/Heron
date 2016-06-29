@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using CatWalk;
 
 namespace CatWalk.Heron.ViewModel.IOSystem {
-	/*
 	public class EntryFilterCollection : ICollection<ICombinationEntryFilter>, IEntryFilter {
 		private LinkedList<ICombinationEntryFilter> _Collection;
 
@@ -203,5 +202,5 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 		NAND = NOT | AND,
 		NOR = NOT | OR,
 		XNOR = NOT | XOR,
-	}*/
+	}
 }

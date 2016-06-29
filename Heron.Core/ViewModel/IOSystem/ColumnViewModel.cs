@@ -13,7 +13,7 @@ using CatWalk.IOSystem;
 using CatWalk.ComponentModel;
 
 namespace CatWalk.Heron.ViewModel.IOSystem {
-	public class ColumnViewModel : ViewModelBase, IColumnDefinition/*, IComparer<ISystemEntry> */{
+	public class ColumnViewModel : ViewModelBase/*, IColumnDefinition, IComparer<ISystemEntry> */{
 		public SystemEntryViewModel SystemEntryViewModel { get; private set; }
 		public IColumnDefinition Definition { get; private set; }
 		private object _Value;
@@ -45,14 +45,7 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 			this.IsValueCreated = true;
 			this.OnPropertyChanged("Value");
 		}
-		/*
-		public int Compare(ISystemEntry x, ISystemEntry y) {
-			if (!this.CanSort) {
-				throw new InvalidOperationException("This column is not able to sort.");
-			}
-			return this._ColumnComparer.Value.Compare(x, y);
-		}
-		*/
+
 		#region IColumnDefinition
 
 		public object GetValue(ISystemEntry entry) {
@@ -71,8 +64,31 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 			return Definition.GetComparer(order);
 		}
 
-		public IOrderDefinition GetOrderDefinition() {
-			return Definition.GetOrderDefinition();
+		#endregion
+
+		/*
+public int Compare(ISystemEntry x, ISystemEntry y) {
+	if (!this.CanSort) {
+		throw new InvalidOperationException("This column is not able to sort.");
+	}
+	return this._ColumnComparer.Value.Compare(x, y);
+}
+*/
+
+		public object Value {
+			get{
+				if(!this.IsValueCreated) {
+					Task.Run(delegate {
+						this.GetValue(false, this.SystemEntryViewModel.CancellationToken);
+					});
+				}
+				return this._Value;
+			}
+		}
+
+		public bool IsValueCreated {
+			get;
+			private set;
 		}
 
 		public string DisplayName {
@@ -92,35 +108,17 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 				return Definition.CanSort;
 			}
 		}
-
-		#endregion
-
-		public object Value {
-			get{
-				if(!this.IsValueCreated) {
-					Task.Run(delegate {
-						this.GetValue(false, this.SystemEntryViewModel.CancellationToken);
-					});
-				}
-				return this._Value;
-			}
-		}
-
-		public bool IsValueCreated {
-			get;
-			private set;
-		}
 		/*
-		public IEnumerable<IEntryGroup> Groups {
-			get {
-				return this._Groups;
-			}
-			set {
-				this._Groups = value;
-				this.OnPropertyChanged("Groups");
-			}
-		}
-		*/
+public IEnumerable<IEntryGroup> Groups {
+	get {
+		return this._Groups;
+	}
+	set {
+		this._Groups = value;
+		this.OnPropertyChanged("Groups");
+	}
+}
+*/
 		#region IComparable<ColumnViewModel>
 		/*
 		public int CompareTo(object obj) {

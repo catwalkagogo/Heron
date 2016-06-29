@@ -3,14 +3,15 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using CatWalk.IOSystem;
 using CatWalk.ComponentModel;
 
-namespace CatWalk.Heron.IOSystem {
+namespace CatWalk.Heron.ViewModel.IOSystem {
 	public interface IOrderDefinition {
 		string Name { get; }
 		string DisplayName { get; }
-		IComparer GetComparer(ListSortDirection order);
+		IComparer<SystemEntryViewModel> GetComparer(ListSortDirection order);
 	}
 }

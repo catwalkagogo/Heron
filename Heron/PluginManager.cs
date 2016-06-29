@@ -12,42 +12,47 @@ using System.Reflection;
 
 namespace CatWalk.Heron {
 	public class PluginManager : IPluginManager{
-		private PluginManager() {
-		}
+		private PluginHost _PluginHost;
 
-		public static PluginManager Create() {
+		public PluginManager() {
 			var builder = new RegistrationBuilder();
 			builder
 				.ForTypesDerivedFrom<IPlugin>()
 				.ExportInterfaces();
 
 			builder
-				.ForType<PluginManager>()
-			//	.ImportProperty(x => x.PluginInstances, b => b.AsMany())
-				.Export<PluginManager>();
+				.ForType<PluginHost>()
+				//	.ImportProperty(x => x.PluginInstances, b => b.AsMany())
+				.Export<PluginHost>();
 
-			var hostCatalog = new AssemblyCatalog(typeof(PluginManager).Assembly, builder);
+			var hostCatalog = new AssemblyCatalog(typeof(PluginHost).Assembly, builder);
 			var catalog = new AggregateCatalog(hostCatalog);
 
 			var builtinPluginDir = new FilePath(Assembly.GetEntryAssembly().Location, FilePathFormats.Windows).Resolve("../plugins").FullPath;
 			var dlls = Directory.EnumerateFiles(builtinPluginDir, "*.dll", SearchOption.AllDirectories);
-			foreach(var dll in dlls) {
+			foreach (var dll in dlls) {
 				var dllCatalog = new AssemblyCatalog(Assembly.LoadFile(dll), builder);
 				catalog.Catalogs.Add(dllCatalog);
 			}
 
 			var container = new CompositionContainer(catalog);
-			var mngr = container.GetExportedValue<PluginManager>();
-			return mngr;
-		}
+			var host = container.GetExportedValue<PluginHost>();
+			if(host == null) {
+				throw new InvalidOperationException();
+			}
 
-		[System.ComponentModel.Composition.ImportMany]
-		private IEnumerable<IPlugin> PluginInstances { get; set; }
+			this._PluginHost = host;
+		}
 
 		public IEnumerable<IPlugin> Plugins {
 			get {
-				return this.PluginInstances.EmptyIfNull().OrderByDescending(p => p.Priority);
+				return this._PluginHost.PluginInstances.EmptyIfNull().OrderByDescending(p => p.Priority);
 			}
+		}
+
+		private class PluginHost {
+			[System.ComponentModel.Composition.ImportMany(AllowRecomposition = true)]
+			public IEnumerable<IPlugin> PluginInstances { get; set; }
 		}
 	}
 }

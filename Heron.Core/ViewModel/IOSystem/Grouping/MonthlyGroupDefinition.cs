@@ -4,13 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CatWalk.Heron.IOSystem;
+using CatWalk.IOSystem;
 
 namespace CatWalk.Heron.ViewModel.IOSystem {
-	/*
-	public class MonthlyGroupDescription<TColumn> : ColumnGroupDescription<TColumn, DateTime> where TColumn : IColumnDefinition<DateTime> {
+	
+	public class MonthlyGroupDefinition<TColumn> : ColumnGroupDescription<TColumn, DateTime> where TColumn : IColumnDefinition<DateTime> {
 		private static IDictionary<string, WeakReference<DateTimeGroup>> _Cache = new Dictionary<string, WeakReference<DateTimeGroup>>();
 
-		protected override IEntryGroup GroupNameFromItem(SystemEntryViewModel entry, int level, System.Globalization.CultureInfo culture) {
+		public override IGroup GetGroupName(SystemEntryViewModel entry) {
 			var dt = GetColumnValue(entry);
 			var year = dt.Year;
 			var month = dt.Month;
@@ -44,5 +45,5 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 				return this.Year == dt.Year && this.Month == dt.Month;
 			}
 		}
-	}*/
+	}
 }

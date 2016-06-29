@@ -46,12 +46,15 @@ namespace CatWalk.Heron {
 			}));
 		}
 
-		public MainWindowViewModel CreateMainWindow() {
-			var vm = new MainWindowViewModel(this);
+		internal void AddMainWindow(MainWindowViewModel vm) {
+			vm.ThrowIfNull("vm");
 			this.Children.Add(vm);
 			var v = this.ViewFactory.Create(vm);
 			this._MainWindows.Add(vm);
-			return vm;
+		}
+
+		internal bool RemoveMainWindow(MainWindowViewModel mainWindow) {
+			return this._MainWindows.Remove(mainWindow);
 		}
 
 		public IReadOnlyObservableList<MainWindowViewModel> MainWindows {

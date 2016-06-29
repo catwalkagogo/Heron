@@ -48,6 +48,12 @@ namespace CatWalk.Heron.ViewModel.Windows {
 				var windwState2 = this.WindowState;
 				this.Application.Configuration[this.GetConfigurationKey("WindowState")] = this.RestoreWindowState;
 			}, this);
+
+			messenger.Subscribe<WindowMessages.CloseMessage>(m => {
+				this.Application.RemoveMainWindow(this);
+			}, this);
+
+			this.Application.AddMainWindow(this);
 		}
 
 		protected string GetConfigurationKey(string prop) {
