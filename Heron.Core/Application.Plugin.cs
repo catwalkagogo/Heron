@@ -16,8 +16,12 @@ using CatWalk.Heron.ViewModel;
 namespace CatWalk.Heron {
 	public abstract partial class Application : ControlViewModel, IJobManagerSite {
 		protected virtual async Task InitializePlugin() {
-			this.PluginManager = new PluginManager(this);
+			this._PluginManager = new Lazy<IPluginManager>(() => {
+				return this.GetPluginManager();
+			});
 		}
+
+		protected abstract IPluginManager GetPluginManager();
 
 		private EntryOperatorCollection _EntryOperators = new EntryOperatorCollection();
 		public IEntryOperator EntryOperator {
@@ -36,7 +40,12 @@ namespace CatWalk.Heron {
 			}
 		}
 
-		public PluginManager PluginManager { get; private set; }
+		private Lazy<IPluginManager> _PluginManager;
+		public IPluginManager PluginManager {
+			get {
+				return this._PluginManager.Value;
+			}
+		}
 
 		public void RegisterSystemProvider(ISystemProvider provider) {
 			provider.ThrowIfNull("provider");

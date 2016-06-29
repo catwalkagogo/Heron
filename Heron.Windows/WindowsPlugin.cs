@@ -30,9 +30,9 @@ namespace CatWalk.Heron.Windows {
 			WindowUtility.ArrangeMainWindows(m.Mode);
 		}
 
-		public override PluginPriority Priority {
+		public override int Priority {
 			get {
-				return PluginPriority.Builtin;
+				return PRIORITY_BUILTIN;
 			}
 		}
 

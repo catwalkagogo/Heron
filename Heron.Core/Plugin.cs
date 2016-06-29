@@ -8,12 +8,21 @@ using System.Reflection;
 
 namespace CatWalk.Heron {
 	public abstract class Plugin : IPlugin {
+		public const int PRIORITY_NORMAL = 100;
+		public const int PRIORITY_BUILTIN = Int32.MaxValue;
+		public const int PRIORITY_LOWEST = Int32.MinValue;
+
+		/// <summary>
+		/// プラグイン用Storage
+		/// </summary>
 		public IStorage Storage { get; private set; }
 
 		public void Load(Application app) {
 			app.ThrowIfNull("app");
 
 			this.Storage = new PartialStorage(this.GetType().FullName, app.Configuration);
+
+			this.IsLoaded = true;
 
 			this.OnLoaded(new PluginEventArgs(app));
 		}
@@ -24,6 +33,8 @@ namespace CatWalk.Heron {
 			}
 
 			app.ThrowIfNull("app");
+
+			this.IsLoaded = false;
 
 			this.OnUnloaded(new PluginEventArgs(app));
 
@@ -55,15 +66,17 @@ namespace CatWalk.Heron {
 
 		#region IPlugin Members
 
+		public bool IsLoaded { get; private set; }
+
 		public abstract string DisplayName { get; }
 
 		public virtual bool CanUnload(Application app) {
 			return true;
 		}
 
-		public virtual PluginPriority Priority {
+		public virtual int Priority {
 			get {
-				return PluginPriority.Normal;
+				return PRIORITY_NORMAL;
 			}
 		}
 
@@ -72,7 +85,7 @@ namespace CatWalk.Heron {
 
 	public class PluginEventArgs : EventArgs {
 		public Application Application { get; private set; }
-
+	
 		public PluginEventArgs(Application app) {
 			app.ThrowIfNull("app");
 			this.Application = app;

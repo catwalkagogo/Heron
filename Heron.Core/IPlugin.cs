@@ -10,12 +10,7 @@ namespace CatWalk.Heron {
 		void Load(Application app);
 		void Unload(Application app);
 		bool CanUnload(Application app);
-		PluginPriority Priority{get;}
-	}
-
-	public enum PluginPriority {
-		Lowest = 0x01,
-		Normal = 0x0a,
-		Builtin = 0xff,
+		bool IsLoaded { get; }
+		int Priority{get;}
 	}
 }
