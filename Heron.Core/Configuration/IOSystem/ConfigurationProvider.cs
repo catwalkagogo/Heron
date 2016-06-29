@@ -17,9 +17,8 @@ namespace CatWalk.Heron.Configuration.IOSystem {
 			return null;
 		}
 
-		public override bool TryParsePath(ISystemEntry root, string path, out ISystemEntry entry) {
-			entry = null;
-			return false;
+		public override ParsePathResult ParsePath(ISystemEntry root, string path) {
+			return new ParsePathResult(false, null, false);
 		}
 	}
 }

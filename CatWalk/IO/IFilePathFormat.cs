@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 
 namespace CatWalk.IO {
 	public interface IFilePathFormat {
+		string TrimEndSeparator(string path);
+
+		bool EndsWithDirectorySeparator(string path);
+
 		string NormalizePath(string path, FilePathKind pathKind);
 
 		IReadOnlyList<string> NormalizeFragments(IReadOnlyList<string> fragments, FilePathKind pathKind);
@@ -23,6 +27,7 @@ namespace CatWalk.IO {
 		FilePath PackRelativePath(FilePath relativePath);
 
 		IEqualityComparer<string> StringEqualityComparer { get; }
+		StringComparison StringComparison { get; }
 
 		int GetHashCode(FilePath path);
 	}

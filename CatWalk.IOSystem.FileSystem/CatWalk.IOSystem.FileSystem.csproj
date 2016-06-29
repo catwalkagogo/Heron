@@ -48,6 +48,7 @@
     <Compile Include="FileSystemDrive.cs" />
     <Compile Include="FileSystemDriveDirectory.cs" />
     <Compile Include="FileSystemEntry.cs" />
+    <Compile Include="FileSystemEntryBase.cs" />
     <Compile Include="FileSystemWatcher.cs" />
     <Compile Include="IFileInformation.cs" />
     <Compile Include="IFileSystemEntry.cs" />

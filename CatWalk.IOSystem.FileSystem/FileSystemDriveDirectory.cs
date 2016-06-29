@@ -9,7 +9,7 @@ using System.IO;
 using System.Threading;
 
 namespace CatWalk.IOSystem.FileSystem {
-	public class FileSystemDriveDirectory : SystemEntry{
+	public class FileSystemDriveDirectory : FileSystemEntryBase{
 		public FileSystemDriveDirectory(ISystemEntry parent, string name) : base(parent, name){
 		}
 
@@ -20,7 +20,12 @@ namespace CatWalk.IOSystem.FileSystem {
 		}
 
 		public override IEnumerable<ISystemEntry> GetChildren(CancellationToken token, IProgress<double> progress) {
-			return DriveInfo.GetDrives().WithCancellation(token).Select(drive => new FileSystemDrive(this, drive.Name, drive.Name[0]));
+			return DriveInfo.GetDrives().WithCancellation(token).Select(drive => new FileSystemDrive(this, drive.Name[0]));
+		}
+
+		public override ISystemEntry GetChild(string name, CancellationToken token, IProgress<double> progress) {
+			name.ThrowIfNullOrEmpty("name");
+			return new FileSystemDrive(this, name[0]);
 		}
 	}
 }

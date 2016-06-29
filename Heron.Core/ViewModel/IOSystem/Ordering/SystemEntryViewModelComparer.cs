@@ -10,7 +10,7 @@ using CatWalk.Heron.IOSystem;
 
 namespace CatWalk.Heron.ViewModel.IOSystem {
 	using ComponentModel;
-	using ColumnOrderDefinition = IEnumerable<OrderDirectionSet>;
+	using ColumnOrderDefinition = IEnumerable<OrderDefinitionDirectionSet>;
 
 	public class SystemEntryViewModelComparer : IComparer<SystemEntryViewModel>, System.Collections.IComparer{
 		//public CancellationToken CancellationToken { get; set; }

@@ -86,23 +86,23 @@ namespace CatWalk.Heron.FileSystem {
 
 		#endregion
 
-		#region TryParsePath
+		#region ParsePath
 
-		public override bool TryParsePath(ISystemEntry root, string path, out ISystemEntry entry) {
+		public override ParsePathResult ParsePath(ISystemEntry root, string path) {
 			root.ThrowIfNull("root");
 			path.ThrowIfNull("path");
 			var filePath = new FilePath(path, FilePathKind.Absolute, FilePathFormats.Windows);
 			if(filePath.IsValid && filePath.PathKind == FilePathKind.Absolute) {
 				var drives = new FileSystemDriveDirectory(root, "Drives");
-				var drive = drives.GetChildDirectory(filePath.Fragments[0]);
+				var drive = drives.GetChild(filePath.Fragments[0]);
+				ISystemEntry entry;
 				entry = drive;
-				foreach(var name in filePath.Fragments) {
-					entry = entry.GetChildDirectory(name);
+				foreach(var name in filePath.Fragments.Skip(1)) {
+					entry = entry.GetChild(name);
 				}
-				return true;
+				return new ParsePathResult(true, entry, FilePathFormats.Windows.EndsWithDirectorySeparator(path));
 			} else {
-				entry = null;
-				return false;
+				return new ParsePathResult(false, null, false);
 			}
 		}
 

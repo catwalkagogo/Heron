@@ -17,21 +17,17 @@ using CatWalk.ComponentModel;
 namespace CatWalk.Heron.ViewModel.IOSystem {
 	public partial class SystemEntryViewModel : ViewModelBase, IHierarchicalViewModel<SystemEntryViewModel>, IDisposable {
 		private ResetLazy<ChildrenCollection> _Children;
-		//private ResetLazy<ChildrenCollectionView> _ChildrenView;
-		//private ILookup<string, EntryGroupDescription> _Groupings;
 		private IIOSystemWatcher _Watcher;
 
 		private void InitDirectory() {
 			var entry = this.Entry;
 			this._Children = new ResetLazy<ChildrenCollection>(() => new ChildrenCollection());
-			//this._ChildrenView = new ResetLazy<ChildrenCollectionView>(this.ChildrenViewFactory);
 			var watchable = entry as IWatchable;
 			if(watchable != null) {
 				this._Watcher = watchable.Watcher;
 				this._Watcher.IsEnabled = false;
 				this._Watcher.CollectionChanged += _Watcher_CollectionChanged;
 			}
-			//this._Groupings = this.Provider.GetGroupings(entry).ToLookup(grp => grp.ColumnName);
 		}
 
 		#region Enter / Exit
@@ -76,12 +72,24 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 			}
 		}
 
+		/// <summary>
+		/// 子エントリを列挙する
+		/// </summary>
 		public void RefreshChildren() {
 			this.RefreshChildren(this.CancellationToken, null);
 		}
+		/// <summary>
+		/// 子エントリを列挙する
+		/// </summary>
+		/// <param name="token"></param>
 		public void RefreshChildren(CancellationToken token) {
 			this.RefreshChildren(token, null);
 		}
+		/// <summary>
+		/// 子エントリを列挙する
+		/// </summary>
+		/// <param name="token"></param>
+		/// <param name="progress"></param>
 		public void RefreshChildren(CancellationToken token, IProgress<double> progress) {
 			this.ThrowIfNotDirectory();
 
@@ -99,6 +107,10 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 
 		#region ChildrenCollection
 		
+		/// <summary>
+		/// 子エントリのコレクション
+		/// nameによってアクセス可能
+		/// </summary>
 		public class ChildrenCollection : WrappedObservableList<SystemEntryViewModel> {
 			private IDictionary<String, int> nameMap = new Dictionary<string, int>();
 
@@ -231,6 +243,9 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 
 		#region ChildrenCollectionView
 		/*
+		 * CollectionViewは提供しない(View側で吸収する)
+		 * SystemEntryViewModelの変更をCollectionViewに通知するにはEditItem -> CommitEditを使用する
+		 * 
 		private ChildrenCollectionView ChildrenViewFactory() {
 			var view = new ChildrenCollectionView(this, this._Children.Value);
 			using(view.DeferRefresh()) {

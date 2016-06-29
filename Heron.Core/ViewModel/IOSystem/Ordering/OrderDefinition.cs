@@ -10,7 +10,7 @@ using CatWalk.ComponentModel;
 using CatWalk.Heron.IOSystem;
 
 namespace CatWalk.Heron.ViewModel.IOSystem {
-	public abstract class Ordering : IOrdering {
+	public abstract class OrderDefinition : IOrderDefinition {
 		public abstract string DisplayName { get; }
 
 		public abstract string Name { get; }
@@ -25,7 +25,7 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 
 		protected abstract IComparer<SystemEntryViewModel> GetAscendingComparer();
 		
-		public static Ordering FromColumn(ColumnViewModel column) {
+		public static OrderDefinition FromColumnDefinition(IColumnDefinition column) {
 			column.ThrowIfNull("column");
 			if (!column.CanSort) {
 				throw new ArgumentException("column");
@@ -33,10 +33,10 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 			return new ColumnDefinitionOrderDefinition(column);
 		}
 		
-		public class ColumnDefinitionOrderDefinition : Ordering {
-			public ColumnViewModel Column { get; private set; }
+		public class ColumnDefinitionOrderDefinition : OrderDefinition {
+			public IColumnDefinition Column { get; private set; }
 
-			public ColumnDefinitionOrderDefinition(ColumnViewModel column) {
+			public ColumnDefinitionOrderDefinition(IColumnDefinition column) {
 				column.ThrowIfNull("column");
 
 				this.Column = column;
@@ -68,7 +68,7 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 				}
 
 				public int Compare(SystemEntryViewModel x, SystemEntryViewModel y) {
-					var column = this._Self.Column.Definition;
+					var column = this._Self.Column;
 
 					ColumnViewModel xColumn;
 					if (!x.Columns.TryGetValue(column, out xColumn)) {

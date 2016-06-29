@@ -11,14 +11,19 @@ using CatWalk.IO;
 
 namespace CatWalk.IOSystem.FileSystem {
 	using IO = System.IO;
-	public class FileSystemDrive : SystemEntry, IFileSystemEntry{
+	public class FileSystemDrive : FileSystemEntryBase, IFileSystemEntry{
 		public char DriveLetter{get; private set;}
 
-		public FileSystemDrive(ISystemEntry parent, string name, char driveLetter) : base(parent, name){
+		public FileSystemDrive(ISystemEntry parent, char driveLetter) : base(parent, ValidateDriveLetter(driveLetter).ToString()){
 			this.DriveLetter = ValidateDriveLetter(driveLetter);
 			this.FileSystemPath = new FilePath(this.DriveLetter + ":" + IO::Path.DirectorySeparatorChar, FilePathFormats.Windows);
 		}
 
+		/// <summary>
+		/// ドライブ文字を検証し、正規化する
+		/// </summary>
+		/// <param name="driveLetter"></param>
+		/// <returns></returns>
 		private static char ValidateDriveLetter(char driveLetter){
 			driveLetter = driveLetter.ToString().ToUpper()[0];
 			if(driveLetter < 'A' || 'Z' < driveLetter){
@@ -119,16 +124,12 @@ namespace CatWalk.IOSystem.FileSystem {
 				.Aggregate((a,b) => a.Concat(b));
 		}
 
-		public override ISystemEntry GetChildDirectory(string name) {
+		public override ISystemEntry GetChild(string name, CancellationToken token, IProgress<double> progress) {
 			var path = this.ConcatFileSystemPath(name);
-			if(Directory.Exists(path)){
-				return new FileSystemEntry(this, name, path, true);
-			}else{
-				return null;
-			}
+			return new FileSystemEntry(this, name, path, true);
 		}
 
-		public override bool Contains(string name) {
+		public override bool Contains(string name, CancellationToken token, IProgress<double> progress) {
 			var path = this.ConcatFileSystemPath(name);
 			return Directory.Exists(path) || File.Exists(path);
 		}

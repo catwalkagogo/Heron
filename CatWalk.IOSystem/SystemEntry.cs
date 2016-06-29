@@ -132,50 +132,56 @@ namespace CatWalk.IOSystem {
 			}
 		}
 
+		protected virtual StringComparison StringComparison {
+			get {
+				return StringComparison.Ordinal;
+			}
+		}
+
 		public abstract bool IsDirectory { get; }
 
-		public virtual IEnumerable<ISystemEntry> GetChildren() {
+		public IEnumerable<ISystemEntry> GetChildren() {
 			this.ThrowIfNotDirectory();
 			return this.GetChildren(CancellationToken.None, null);
 		}
-		public virtual IEnumerable<ISystemEntry> GetChildren(CancellationToken token) {
+		public IEnumerable<ISystemEntry> GetChildren(CancellationToken token) {
 			this.ThrowIfNotDirectory();
 			return this.GetChildren(token, null);
 		}
 		public abstract IEnumerable<ISystemEntry> GetChildren(CancellationToken token, IProgress<double> progress);
 
-		public virtual ISystemEntry GetChildDirectory(string name) {
+		public ISystemEntry GetChild(string name) {
 			this.ThrowIfNotDirectory();
-			return this.GetChildren().OfType<ISystemEntry>().FirstOrDefault(entry => entry.Name.Equals(name));
+			return this.GetChild(name, CancellationToken.None, null);
 		}
-		public virtual ISystemEntry GetChildDirectory(string name, CancellationToken token) {
+		public ISystemEntry GetChild(string name, CancellationToken token) {
 			this.ThrowIfNotDirectory();
-			return this.GetChildren(token).OfType<ISystemEntry>().FirstOrDefault(entry => entry.Name.Equals(name));
+			return this.GetChild(name, token, null);
 		}
-		public virtual ISystemEntry GetChildDirectory(string name, CancellationToken token, IProgress<double> progress) {
+		public virtual ISystemEntry GetChild(string name, CancellationToken token, IProgress<double> progress) {
 			this.ThrowIfNotDirectory();
-			return this.GetChildren(token, progress).OfType<ISystemEntry>().FirstOrDefault(entry => entry.Name.Equals(name));
+			return this.GetChildren(token, progress).OfType<ISystemEntry>().FirstOrDefault(entry => entry.Name.Equals(name, this.StringComparison));
 		}
 
-		public virtual bool Contains(string name) {
+		public bool Contains(string name) {
 			this.ThrowIfNotDirectory();
-			return this.GetChildren().Any(entry => entry.Name.Equals(name));
+			return this.Contains(name, CancellationToken.None, null);
 		}
-		public virtual bool Contains(string name, CancellationToken token) {
+		public bool Contains(string name, CancellationToken token) {
 			this.ThrowIfNotDirectory();
-			return this.GetChildren(token).Any(entry => entry.Name.Equals(name));
+			return this.Contains(name, token, null);
 		}
 		public virtual bool Contains(string name, CancellationToken token, IProgress<double> progress) {
 			this.ThrowIfNotDirectory();
-			return this.GetChildren(token, progress).Any(entry => entry.Name.Equals(name));
+			return this.GetChildren(token, progress).Any(entry => entry.Name.Equals(name, this.StringComparison));
 		}
 
-		public string ConcatPath(string name) {
+		public virtual string ConcatPath(string name) {
 			this.ThrowIfNotDirectory();
 			return this.Path + DirectorySeperatorChar + name;
 		}
 
-		public string ConcatDisplayPath(string name) {
+		public virtual string ConcatDisplayPath(string name) {
 			this.ThrowIfNotDirectory();
 			return this.DisplayPath + DirectorySeperatorChar + name;
 		}

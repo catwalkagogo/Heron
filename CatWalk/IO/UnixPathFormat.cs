@@ -77,6 +77,12 @@ namespace CatWalk.IO {
 			}
 		}
 
+		public override StringComparison StringComparison {
+			get {
+				return StringComparison.Ordinal;
+			}
+		}
+
 		public override int GetHashCode(FilePath path) {
 			return
 				path.Path.GetHashCode() ^

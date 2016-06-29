@@ -47,13 +47,13 @@ namespace CatWalk.Heron {
 			}
 		}
 
-		public void RegisterSystemProvider(ISystemProvider provider) {
+		public void RegisterSystemProvider(SystemProvider provider) {
 			provider.ThrowIfNull("provider");
 
 			this.Provider.Providers.Add(provider);
 		}
 
-		public void UnregisterSystemProvider(ISystemProvider provider) {
+		public void UnregisterSystemProvider(SystemProvider provider) {
 			this.Provider.Providers.RemoveAll(p => provider == p);
 		}
 

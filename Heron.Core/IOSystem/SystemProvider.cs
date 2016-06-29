@@ -27,33 +27,34 @@ namespace CatWalk.Heron.IOSystem {
 		protected virtual IEnumerable<ColumnDefinition> GetAdditionalColumnProviders(ISystemEntry entry) {
 			return new ColumnDefinition[0];
 		}
-		public abstract bool TryParsePath(ISystemEntry root, string path, out ISystemEntry entry);
+		public abstract ParsePathResult ParsePath(ISystemEntry root, string path);
+
 		public abstract IEnumerable<ISystemEntry> GetRootEntries(ISystemEntry parent);
 		public virtual object GetEntryIcon(ISystemEntry entry, Size<int> size, CancellationToken token) {
 			return null;
 		}
 		public abstract object GetViewModel(object parent, SystemEntryViewModel entry, object previous);
 		
-		//private static readonly NameEntryGroupDescription _NameEntryGroupDescription = new NameEntryGroupDescription();
-		/*
-		public IEnumerable<EntryGroupDescription> GetGroupings(ISystemEntry entry) {
-			return Seq.Make(_NameEntryGroupDescription).Concat(this.GetAdditionalGroupings(entry));
+		private static readonly DisplayNameEntryGroupDescription _DisplayNameEntryGroupDescription = new DisplayNameEntryGroupDescription();
+		
+		public IEnumerable<IGroupDefinition> GetGroupings(ISystemEntry entry) {
+			return Seq.Make(_DisplayNameEntryGroupDescription).Concat(this.GetAdditionalGroupings(entry));
 		}
 
-		protected virtual IEnumerable<EntryGroupDescription> GetAdditionalGroupings(ISystemEntry entry) {
-			return new EntryGroupDescription[0];
+		protected virtual IEnumerable<IGroupDefinition> GetAdditionalGroupings(ISystemEntry entry) {
+			return new IGroupDefinition[0];
 		}
-		*/
+		
 		public IEnumerable<OrderDefinition> GetOrderDefinitions(SystemEntryViewModel entry) {
-			return entry.Columns.Values.Select(vm => OrderDefinition.FromColumn(vm));
+			return entry.Columns.Values.Select(vm => OrderDefinition.FromColumnDefinition(vm.Definition));
 		}
 
 		#region NameGroup
-		/*
-		private class NameEntryGroupDescription : EntryGroupDescription {
+		
+		private class DisplayNameEntryGroupDescription : IGroupDefinition {
 			private static readonly DelegateEntryGroup<int>[] Candidates;
 
-			static NameEntryGroupDescription() {
+			static DisplayNameEntryGroupDescription() {
 				Candidates =
 					new[] { 
 						new DelegateEntryGroup<int>(0x0001, "0 - 9", entry => entry.DisplayName[0].IsDecimalNumber())
@@ -70,17 +71,11 @@ namespace CatWalk.Heron.IOSystem {
 					.ToArray();
 			}
 
-			public override string ColumnName {
-				get {
-					return ColumnDefinition.DisplayNameColumn.Name;
-				}
-			}
-
-			protected override IEntryGroup GroupNameFromItem(SystemEntryViewModel entry, int level, System.Globalization.CultureInfo culture) {
+			public IGroup GetGroupName(SystemEntryViewModel entry) {
 				return Candidates.FirstOrDefault(grp => grp.Filter(entry));
 			}
 		}
-		*/
+		
 		#endregion
 	}
 }

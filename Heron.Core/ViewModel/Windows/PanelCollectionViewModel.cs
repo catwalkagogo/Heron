@@ -25,9 +25,11 @@ namespace CatWalk.Heron.ViewModel.Windows {
 			this._Panels = new WrappedObservableList<PanelViewModel>(new SkipList<PanelViewModel>());
 
 			this._Synchronizer = this._Panels.NotifyToCollection(this.Children);
+			this.Disposables.Add(this._Synchronizer);
 
 			this.AddPanelCommand = new ReactiveCommand<string>();
 			this.AddPanelCommand.Subscribe(this.AddPanel);
+			this.Disposables.Add(this.AddPanelCommand);
 		}
 
 		public IReadOnlyObservableList<PanelViewModel> Panels {
@@ -49,8 +51,11 @@ namespace CatWalk.Heron.ViewModel.Windows {
 			if(path.IsNullOrEmpty()) {
 				vm = app.Entry;
 			} else {
-				if(!app.TryParseEntryPath(path, out vm)) {
+				var result = app.ParseEntryPath(path);
+				if (!result.Success) {
 					vm = app.Entry;
+				}else {
+					vm = result.Entry;
 				}
 			}
 
@@ -78,12 +83,5 @@ namespace CatWalk.Heron.ViewModel.Windows {
 
 		#endregion
 
-		protected override void Dispose(bool disposing) {
-			new IDisposable[]{
-				this.AddPanelCommand,
-				this._Synchronizer,
-			}.Dispose();
-			base.Dispose(disposing);
-		}
 	}
 }

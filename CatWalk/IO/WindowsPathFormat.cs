@@ -100,6 +100,12 @@ namespace CatWalk.IO {
 			}
 		}
 
+		public override StringComparison StringComparison {
+			get {
+				return StringComparison.OrdinalIgnoreCase;
+			}
+		}
+
 		public override int GetHashCode(FilePath path) {
 			return
 				path.Path.ToUpper().GetHashCode() ^

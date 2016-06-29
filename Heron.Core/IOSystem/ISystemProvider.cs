@@ -5,7 +5,7 @@ using CatWalk.IOSystem;
 using CatWalk.Heron.ViewModel.IOSystem;
 
 namespace CatWalk.Heron.IOSystem {
-	public interface ISystemProvider {
+	internal interface ISystemProvider {
 		/// <summary>
 		/// プロバイダ表示名を取得する
 		/// </summary>
@@ -39,7 +39,7 @@ namespace CatWalk.Heron.IOSystem {
 		/// </summary>
 		string Name { get; }
 
-		bool TryParsePath(ISystemEntry root, string path, out ISystemEntry entry);
+		ParsePathResult ParsePath(ISystemEntry root, string path);
 		/// <summary>
 		/// SystemEntryViewModelに紐づくViewModelを取得する
 		/// </summary>
@@ -54,8 +54,20 @@ namespace CatWalk.Heron.IOSystem {
 		/// </summary>
 		/// <param name="entry"></param>
 		/// <returns></returns>
-		//IEnumerable<IGrouping> GetGroupings(ISystemEntry entry);
+		IEnumerable<IGroupDefinition> GetGroupings(ISystemEntry entry);
 
-		IEnumerable<Ordering> GetOrderDefinitions(SystemEntryViewModel entry);
+		IEnumerable<OrderDefinition> GetOrderDefinitions(SystemEntryViewModel entry);
+	}
+
+	public class ParsePathResult {
+		public bool Success { get; private set; }
+		public ISystemEntry Entry { get; private set; }
+		public bool TerminatedByDirectorySeparator { get; private set; }
+
+		public ParsePathResult(bool success, ISystemEntry entry, bool terminatedByDirectorySeparator) {
+			this.Success = success;
+			this.Entry = entry;
+			this.TerminatedByDirectorySeparator = terminatedByDirectorySeparator;
+		}
 	}
 }

@@ -21,12 +21,12 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 		private readonly ResetLazy<ColumnDictionary> _Columns;
 		public SystemEntryViewModel Parent { get; private set; }
 		public ISystemEntry Entry { get; private set; }
-		public ISystemProvider Provider { get; private set; }
+		public SystemProvider Provider { get; private set; }
 		//private readonly IDictionary<string, ISet<IEntryGroup>> _ChildrenGroups = new ObservableDictionary<string, ISet<IEntryGroup>>();
 
 		#region Constructor
 
-		public SystemEntryViewModel(SystemEntryViewModel parent, ISystemProvider provider, ISystemEntry entry) {
+		public SystemEntryViewModel(SystemEntryViewModel parent, SystemProvider provider, ISystemEntry entry) {
 			entry.ThrowIfNull("entry");
 			provider.ThrowIfNull("provider");
 			/*if(!parent.IsDirectory) {
@@ -41,16 +41,16 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 			}
 
 			// 初期ソート
-			//this._Orders = Seq.Make(new ColumnOrderSet(ColumnDefinition.DisplayNameColumn, ListSortDirection.Ascending));
+			this._Orders = Seq.Make(new OrderDefinitionDirectionSet(OrderDefinition.FromColumnDefinition(ColumnDefinition.DisplayNameColumn), ListSortDirection.Ascending));
 		}
 
 		#endregion
 
 		#region Order
 
-		private IEnumerable<OrderDirectionSet> _Orders;
+		private IEnumerable<OrderDefinitionDirectionSet> _Orders;
 
-		public IEnumerable<OrderDirectionSet> Orders {
+		public IEnumerable<OrderDefinitionDirectionSet> Orders {
 			get {
 				return this._Orders;
 			}
@@ -67,8 +67,8 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 					(this.Orders != null) ? new SystemEntryViewModelComparer(this._Orders) :
 					new SystemEntryViewModelComparer(
 						Seq.Make(
-							new OrderDirectionSet(
-								Ordering.FromColumn(this.Columns[ColumnDefinition.DisplayNameColumn]),
+							new OrderDefinitionDirectionSet(
+								OrderDefinition.FromColumnDefinition(ColumnDefinition.DisplayNameColumn),
 								ListSortDirection.Ascending)));
 
 				return comparer;

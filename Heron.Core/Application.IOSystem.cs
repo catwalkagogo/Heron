@@ -51,64 +51,74 @@ namespace CatWalk.Heron {
 
 		#region TryParseEntryPath
 
-		public bool TryParseEntryPath(string path, out SystemEntryViewModel viewModel) {
+		/// <summary>
+		/// 指定されたパスを解析してエントリーを取得する
+		/// </summary>
+		/// <param name="path"></param>
+		/// <param name="viewModel"></param>
+		/// <returns></returns>
+		public ParseEntryPathResult ParseEntryPath(string path) {
 			path.ThrowIfNull("path");
-			ISystemEntry entry;
-			ISystemProvider provider;
 
-			viewModel = null;
 			var root = this.Entry.Entry;
-			if(this._RootProvider.TryParsePath(root, path, out entry, out provider)) {
+			var result = this._RootProvider.ParsePath(root, path);
+			if (result.Success) {
+				var entry = result.Entry;
 				var stack = new Stack<ISystemEntry>();
+
+				// ルートまでのエントリーの階層を取得する
 				while(root != entry) {
 					stack.Push(entry);
 					entry = entry.Parent;
 				}
 
-				viewModel = this.Entry;
+				// ルートからViewModelを生成する
+				var viewModel = this.Entry;
 				while(stack.Count > 0) {
-					viewModel = new SystemEntryViewModel(viewModel, provider, stack.Pop());
+					viewModel = new SystemEntryViewModel(viewModel, this._RootProvider, stack.Pop());
 				}
-				return true;
+				return new ParseEntryPathResult(true, viewModel, result.TerminatedByDirectorySeparator);
 			} else {
-				return false;
+				return new ParseEntryPathResult(false, null, false);
 			}
 		}
 		#endregion
 
 		#region RootProvider
 
+		/// <summary>
+		/// ルートプロバイダ
+		/// 登録されたプロバイダのルートエントリを束ねる
+		/// </summary>
 		internal class RootProvider : SystemProvider {
-			public List<ISystemProvider> Providers { get; private set; }
+			public List<SystemProvider> Providers { get; private set; }
 			public Application Application { get; private set; }
 			public RootProvider(Application app) {
 				app.ThrowIfNull("app");
 				this.Application = app;
-				this.Providers = new List<ISystemProvider>();
+				this.Providers = new List<SystemProvider>();
 			}
 
-			public override bool TryParsePath(ISystemEntry root, string path, out ISystemEntry entry) {
-				entry = null;
+			public override ParsePathResult ParsePath(ISystemEntry root, string path) {
+				root.ThrowIfNull("root");
+				path.ThrowIfNull("path");
 				foreach(var provider in this.Providers) {
-					if(provider.TryParsePath(root, path, out entry)) {
-						return true;
+					var result = provider.ParsePath(root, path);
+					if (result.Success) {
+						return result;
 					}
 				}
-				return false;
-			}
 
-			public bool TryParsePath(ISystemEntry root, string path, out ISystemEntry entry, out ISystemProvider provider) {
-				entry = null;
-				provider = null;
-				foreach(var pro in this.Providers) {
-					if(pro.TryParsePath(root, path, out entry)) {
-						provider = pro;
-						return true;
+				var fragments = path.Split(SystemEntry.DirectorySeperatorChar);
+				var entry = root;
+				foreach (var name in fragments) {
+					entry = entry.GetChild(name);
+					if (entry == null) {
+						return new ParsePathResult(false, null, false);
 					}
 				}
-				return false;
+				return new ParsePathResult(true, entry, path.EndsWith(SystemEntry.DirectorySeperatorChar.ToString()));
 			}
-
 
 			public override IEnumerable<ISystemEntry> GetRootEntries(ISystemEntry parent) {
 				return this.Providers.SelectMany(p => p.GetRootEntries(parent));
@@ -143,5 +153,18 @@ namespace CatWalk.Heron {
 		}
 
 		#endregion
+	}
+
+
+	public class ParseEntryPathResult {
+		public bool Success { get; private set; }
+		public SystemEntryViewModel Entry { get; private set; }
+		public bool TerminatedByDirectorySeparator { get; private set; }
+
+		public ParseEntryPathResult(bool success, SystemEntryViewModel entry, bool terminatedByDirectorySeparator) {
+			this.Success = success;
+			this.Entry = entry;
+			this.TerminatedByDirectorySeparator = terminatedByDirectorySeparator;
+		}
 	}
 }

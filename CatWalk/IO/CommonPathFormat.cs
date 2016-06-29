@@ -6,12 +6,17 @@ using System.Threading.Tasks;
 
 namespace CatWalk.IO {
 	public abstract class CommonPathFormat : IFilePathFormat{
-		private string TrimEndSeparator(string path) {
+		public string TrimEndSeparator(string path) {
 			var sep = this.DirectorySeparator;
-			while(path.EndsWith(sep)) {
+			while(path.EndsWith(sep, this.StringComparison)) {
 				path = path.Substring(0, path.Length - sep.Length);
 			}
 			return path;
+		}
+
+		public bool EndsWithDirectorySeparator(string path) {
+			path.ThrowIfNull("path");
+			return path.EndsWith(this.DirectorySeparator, this.StringComparison);
 		}
 
 		public virtual string NormalizePath(string path, FilePathKind pathKind) {
@@ -71,6 +76,8 @@ namespace CatWalk.IO {
 		public abstract IEqualityComparer<string> StringEqualityComparer {
 			get;
 		}
+
+		public abstract StringComparison StringComparison { get; }
 
 		public abstract int GetHashCode(FilePath path);
 

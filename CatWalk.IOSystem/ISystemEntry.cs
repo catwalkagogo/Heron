@@ -30,11 +30,11 @@ namespace CatWalk.IOSystem {
 		/// </summary>
 		/// <param name="name">識別子</param>
 		/// <returns>一致したISystemDirectory。見つからない場合はnull</returns>
-		ISystemEntry GetChildDirectory(string name);
+		ISystemEntry GetChild(string name);
 
-		ISystemEntry GetChildDirectory(string name, CancellationToken token);
+		ISystemEntry GetChild(string name, CancellationToken token);
 
-		ISystemEntry GetChildDirectory(string name, CancellationToken token, IProgress<double> progress);
+		ISystemEntry GetChild(string name, CancellationToken token, IProgress<double> progress);
 
 
 		/// <summary>

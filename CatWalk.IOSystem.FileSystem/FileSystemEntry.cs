@@ -14,7 +14,7 @@ using CatWalk.IO;
 
 namespace CatWalk.IOSystem.FileSystem {
 	using IO = System.IO;
-	public class FileSystemEntry : SystemEntry, IFileSystemEntry{
+	public class FileSystemEntry : FileSystemEntryBase, IFileSystemEntry{
 		private Lazy<bool> _IsDirectory;
 
 		public FileSystemEntry(ISystemEntry parent, string name, string path) : base(parent, name){
@@ -56,37 +56,15 @@ namespace CatWalk.IOSystem.FileSystem {
 
 		#region Directory
 
-		public override ISystemEntry GetChildDirectory(string name) {
-			this.ThrowIfNotDirectory();
-			var path = this.ConcatFileSystemPath(name);
-			if(Directory.Exists(path.FullPath)) {
-				return new FileSystemEntry(this, name, path.FullPath, true);
-			} else {
-				return null;
-			}
-		}
-
-		public override bool Contains(string name) {
+		public override bool Contains(string name, CancellationToken token, IProgress<double> progress) {
 			this.ThrowIfNotDirectory();
 			var path = this.ConcatFileSystemPath(name);
 			return Directory.Exists(path.FullPath) || File.Exists(path.FullPath);
 		}
 
-		public override bool Contains(string name, CancellationToken token) {
-			return this.Contains(name);
-		}
-
-		public override bool Contains(string name, CancellationToken token, IProgress<double> progress) {
-			return this.Contains(name);
-		}
-
 		public FilePath ConcatFileSystemPath(string name) {
 			this.ThrowIfNotDirectory();
 			return this.FileSystemPath.Resolve(name);
-		}
-
-		public override IEnumerable<ISystemEntry> GetChildren() {
-			return this.GetChildren(CancellationToken.None);
 		}
 
 		public override IEnumerable<ISystemEntry> GetChildren(CancellationToken token, IProgress<double> progress) {
@@ -100,12 +78,10 @@ namespace CatWalk.IOSystem.FileSystem {
 				.Aggregate((a, b) => a.Concat(b));
 		}
 
-		public override ISystemEntry GetChildDirectory(string name, CancellationToken token) {
-			return this.GetChildDirectory(name);
-		}
-
-		public override ISystemEntry GetChildDirectory(string name, CancellationToken token, IProgress<double> progress) {
-			return base.GetChildDirectory(name, token, progress);
+		public override ISystemEntry GetChild(string name, CancellationToken token, IProgress<double> progress) {
+			this.ThrowIfNotDirectory();
+			var path = this.ConcatFileSystemPath(name);
+			return new FileSystemEntry(this, name, path.FullPath, true);
 		}
 
 		#endregion
