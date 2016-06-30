@@ -10,7 +10,7 @@ namespace CatWalk.Collections {
 	public static class CollectionExpressions {
 		public static Action<object, object> GetAddFunction(Type type) {
 			type.ThrowIfNull("type");
-			var method = type.GetRuntimeMethod("Add", new Type[0]);
+			var method = type.GetRuntimeMethods().First(info => info.Name == "Add" && info.GetParameters().Length == 1);
 			var obj = Expression.Parameter(typeof(object), "obj");
 			var objCast = Expression.Convert(obj, type);
 			var param_v = Expression.Parameter(typeof(object), "v");
@@ -26,7 +26,7 @@ namespace CatWalk.Collections {
 
 		public static Action<object, object> GetRemoveFunction(Type type) {
 			type.ThrowIfNull("type");
-			var method = type.GetRuntimeMethod("Remove", new Type[0]);
+			var method = type.GetRuntimeMethods().First(info => info.Name == "Remove" && info.GetParameters().Length == 1);
 			var obj = Expression.Parameter(typeof(object), "obj");
 			var objCast = Expression.Convert(obj, type);
 			var param_v = Expression.Parameter(typeof(object), "v");

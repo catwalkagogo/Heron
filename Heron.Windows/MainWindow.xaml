@@ -49,7 +49,7 @@
 			<RowDefinition Height="*" />
 		</Grid.RowDefinitions>
 
-		<ctrl:PanelList Grid.Row="1" Grid.Column="0" x:Name="_PanelList">
+		<ctrl:PanelList Grid.Row="1" Grid.Column="0" x:Name="_PanelList" DataContext="{Binding Panels}">
 			
 		</ctrl:PanelList>
 	</Grid>

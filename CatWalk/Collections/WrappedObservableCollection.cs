@@ -23,11 +23,7 @@ namespace CatWalk.Collections{
 	/// <typeparam name="T"></typeparam>
 	public class WrappedObservableCollection<T> : IObservableCollection<T>{
 		protected ICollection<T> Collection{get; private set;}
-		
-		public WrappedObservableCollection(){
-			this.Collection = new List<T>();
-		}
-		
+				
 		public WrappedObservableCollection(ICollection<T> list){
 			list.ThrowIfNull("list");
 			this.Collection = list;

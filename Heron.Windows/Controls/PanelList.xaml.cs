@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CatWalk.Windows.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,8 +21,16 @@ namespace CatWalk.Heron.Windows.Controls {
 	public partial class PanelList : UserControl {
 		public PanelList() {
 			InitializeComponent();
+
+			this.DataContextChanged += PanelList_DataContextChanged;
 		}
-		
+
+		private void PanelList_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e) {
+			var unko = e.NewValue;
+
+			GridItemsPanel.SetIsEnabled(this._ListBox, true);
+		}
+
 		public PanelTemplateSelector PanelTemplateSelector {
 			get {
 				return this._PanelTemplateSelector;

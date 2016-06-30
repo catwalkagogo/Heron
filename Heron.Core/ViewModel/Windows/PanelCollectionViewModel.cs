@@ -24,6 +24,7 @@ namespace CatWalk.Heron.ViewModel.Windows {
 
 		public PanelCollectionViewModel(Application app) : base(app) {
 			this._Panels = new WrappedObservableList<PanelViewModel>(new SkipList<PanelViewModel>());
+			this._Panels.CollectionChanged += _Panels_CollectionChanged;
 
 			this._Synchronizer = this._Panels.NotifyToCollection(this.Children);
 			this.Disposables.Add(this._Synchronizer);
@@ -32,6 +33,29 @@ namespace CatWalk.Heron.ViewModel.Windows {
 			this.AddPanelCommand.Subscribe(this.AddPanel);
 			this.Disposables.Add(this.AddPanelCommand);
 		}
+
+		private void _Panels_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
+			this.OnCollectionChanged(e);
+		}
+
+		#region Property
+
+		private PanelViewModel _ActivePanel;
+		public PanelViewModel ActivePanel {
+			get {
+				return this._ActivePanel;
+			}
+			set {
+				if(value != null && !this._Panels.Contains(value)) {
+					throw new ArgumentException("value must be added in this collection.");
+				}
+
+				this._ActivePanel = value;
+				this.OnPropertyChanged("ActivePanel");
+			}
+		}
+
+		#endregion
 
 		#region IReadOnlyObservableList<PanelViewModel>
 
@@ -45,6 +69,13 @@ namespace CatWalk.Heron.ViewModel.Windows {
 		public int Count {
 			get {
 				return _Panels.Count;
+			}
+		}
+
+		protected virtual void OnCollectionChanged(NotifyCollectionChangedEventArgs e) {
+			var handler = this.CollectionChanged;
+			if(handler != null) {
+				handler(this, e);
 			}
 		}
 
@@ -81,9 +112,12 @@ namespace CatWalk.Heron.ViewModel.Windows {
 				}
 			}
 
-			var panel = new PanelViewModel(this.Application);
-			panel.ListView = new ListViewModel(this.Application, vm);
+			var panel = new PanelViewModel(this, vm);
 			this._Panels.Add(panel);
+
+			if(this.ActivePanel == null) {
+				this.ActivePanel = panel;
+			}
 		}
 
 		#endregion

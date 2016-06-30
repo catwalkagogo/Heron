@@ -14,7 +14,12 @@
 		</Grid.RowDefinitions>
 
 		<local:AddressBar Grid.Row="0"></local:AddressBar>
-		
+
+		<local:EntryListView
+			x:Name="_ListView"
+			Grid.Row="1"
+			DataContext="{Binding ListView}">
+		</local:EntryListView>
 		
 	</Grid>
 </UserControl>

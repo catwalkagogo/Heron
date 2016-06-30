@@ -87,6 +87,9 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controls\EntryListView.xaml.cs">
+      <DependentUpon>EntryListView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\AddressBar.xaml.cs">
       <DependentUpon>AddressBar.xaml</DependentUpon>
     </Compile>
@@ -149,6 +152,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Controls\EntryListView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Controls\AddressBar.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

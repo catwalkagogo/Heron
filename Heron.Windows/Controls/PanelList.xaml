@@ -10,14 +10,33 @@
 	<ListBox
 		x:Name="_ListBox"
 		ext:GridItemsPanel.IsEnabled="True"
-		ItemsSource="{Binding Panels}">
+		ItemsSource="{Binding}"
+		SelectedItem="{Binding ActivePanel, Mode=TwoWay}">
+
+		<ListBox.Resources>
+			<ResourceDictionary>
+				<DataTemplate x:Key="DefaultPanelTemplate">
+					<local:Panel></local:Panel>
+				</DataTemplate>
+			</ResourceDictionary>
+		</ListBox.Resources>
+
+		<ListBox.ItemContainerStyle>
+			<Style TargetType="ListBoxItem">
+				<Setter Property="HorizontalContentAlignment" Value="Stretch"></Setter>
+				<Setter Property="VerticalContentAlignment" Value="Stretch"></Setter>
+				<Setter Property="Template">
+					<Setter.Value>
+						<ControlTemplate TargetType="ListBoxItem">
+							<ContentPresenter />
+						</ControlTemplate>
+					</Setter.Value>
+				</Setter>
+			</Style>
+		</ListBox.ItemContainerStyle>
+
 		<ListBox.ItemTemplateSelector>
 			<local:PanelTemplateSelector x:Name="_PanelTemplateSelector"></local:PanelTemplateSelector>
 		</ListBox.ItemTemplateSelector>
-		<ListBox.ItemTemplate>
-			<DataTemplate>
-
-			</DataTemplate>
-		</ListBox.ItemTemplate>
 	</ListBox>
 </UserControl>

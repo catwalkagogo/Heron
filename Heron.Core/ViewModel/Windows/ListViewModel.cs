@@ -36,7 +36,6 @@ namespace CatWalk.Heron.ViewModel.Windows {
 
 		public ListViewModel(Application app, SystemEntryViewModel entry) : base(app){
 			this._Current = entry;
-
 			this.SelectedItems = new ObservableHashSet<SystemEntryViewModel>();
 			/*
 			this._FocusedItem =

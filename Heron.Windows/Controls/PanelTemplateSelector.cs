@@ -15,14 +15,15 @@ namespace CatWalk.Heron.Windows.Controls {
 		public ViewFactory ViewFactory { get; private set; } = new ViewFactory();
 
 		public override DataTemplate SelectTemplate(object item, DependencyObject container) {
+			var element = (FrameworkElement)container;
+
 			// 現在のISystemItemに応じてViewModelを作成する
 			var panelVM = (PanelViewModel)item;
 			var entry = panelVM.ListView.CurrentEntry.Entry;
 
 			var view = this.ViewFactory.Create(entry);
 
-			var itemsControl = (ItemsControl)container;
-			return view ?? itemsControl.ItemTemplate;
+			return view ?? (DataTemplate)element.FindResource("DefaultPanelTemplate");
 		}
 	}
 }

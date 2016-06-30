@@ -25,9 +25,6 @@ namespace CatWalk.Collections{
 				return (IList<T>)this.Collection;
 			}
 		}
-		
-		public WrappedObservableList() {
-		}
 
 		public WrappedObservableList(IList<T> list) : base(list) {
 		}
@@ -97,23 +94,23 @@ namespace CatWalk.Collections{
 		}
 
 		public void Remove(object item) {
-			this.Items.Remove((T) item);
+			((WrappedObservableCollection<T>)this).Remove((T) item);
 		}
 
 		public void Insert(int index, object item) {
-			this.Items.Insert(index, (T)item);
+			this.Insert(index, (T)item);
 		}
 
 		public int IndexOf(object item) {
-			return this.Items.IndexOf((T)item);
+			return this.IndexOf((T)item);
 		}
 
 		public bool Contains(object item) {
-			return this.Items.Contains((T)item);
+			return ((WrappedObservableCollection<T>)this).Contains((T)item);
 		}
 
 		public int Add(object item) {
-			this.Items.Add((T)item);
+			((WrappedObservableCollection<T>)this).Add((T)item);
 			return this.Count - 1;
 		}
 
