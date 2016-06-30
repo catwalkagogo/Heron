@@ -81,16 +81,12 @@ namespace CatWalk.Collections{
 			return this.Items.IndexOf(item);
 		}
 		
-		#endregion
-
-		#region IList
-
 		object IList.this[int index]{
 			get{
-				return this[index];			
+				return this.Items[index];
 			}
 			set {
-				this[index] = (T)value;
+				this.Items[index] = (T)value;
 			}
 		}
 
@@ -101,11 +97,11 @@ namespace CatWalk.Collections{
 		}
 
 		public void Remove(object item) {
-			this.Remove((T) item);
+			this.Items.Remove((T) item);
 		}
 
 		public void Insert(int index, object item) {
-			this.Insert(index, (T)item);
+			this.Items.Insert(index, (T)item);
 		}
 
 		public int IndexOf(object item) {
