@@ -102,11 +102,11 @@ namespace CatWalk.Heron.ViewModel.Windows {
 			SystemEntryViewModel vm;
 			var app = this.Application;
 			if(path.IsNullOrEmpty()) {
-				vm = app.Entry;
+				vm = app.RootEntry;
 			} else {
 				var result = app.ParseEntryPath(path);
 				if (!result.Success) {
-					vm = app.Entry;
+					vm = app.RootEntry;
 				}else {
 					vm = result.Entry;
 				}

@@ -52,12 +52,12 @@
     <Compile Include="Configuration\Storage.cs" />
     <Compile Include="Factory.cs" />
     <Compile Include="IJob.cs" />
-    <Compile Include="IOSystem\CacheColumnDefinition.cs" />
-    <Compile Include="IOSystem\ColumnDefinition.cs" />
-    <Compile Include="IOSystem\DelegateEntryGroupName.cs" />
+    <Compile Include="IOSystem\Columns\CacheColumnDefinition.cs" />
+    <Compile Include="IOSystem\Columns\ColumnDefinition.cs" />
     <Compile Include="IOSystem\EntryOperatorCollection.cs" />
-    <Compile Include="IOSystem\IColumnDefinition.cs" />
-    <Compile Include="IOSystem\IColumnValueSource.cs" />
+    <Compile Include="IOSystem\GenericSystemProvider.cs" />
+    <Compile Include="IOSystem\Columns\IColumnDefinition.cs" />
+    <Compile Include="IOSystem\Columns\IColumnValueSource.cs" />
     <Compile Include="IOSystem\IEntryOperator.cs" />
     <Compile Include="ViewModel\IOSystem\Filtering\CompositeEntryFilter.cs" />
     <Compile Include="ViewModel\IOSystem\Filtering\DelegateEntryFilter.cs" />
@@ -71,7 +71,7 @@
     <Compile Include="IOSystem\ISystemProvider.cs" />
     <Compile Include="ViewModel\IOSystem\Ordering\OrderDefinitionDirectionSet.cs" />
     <Compile Include="ViewModel\IOSystem\Ordering\OrderDefinition.cs" />
-    <Compile Include="IOSystem\ResetLazyColumnValueSource.cs" />
+    <Compile Include="IOSystem\Columns\ResetLazyColumnValueSource.cs" />
     <Compile Include="IOSystem\SystemProvider.cs" />
     <Compile Include="IPlugin.cs" />
     <Compile Include="IPluginManager.cs" />

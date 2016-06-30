@@ -17,11 +17,11 @@ using CatWalk.Heron.Configuration.IOSystem;
 namespace CatWalk.Heron {
 	public abstract partial class Application : ControlViewModel, IJobManagerSite {
 		private SystemEntryViewModel _RootEntry;
-		private RootProvider _RootProvider;
+		private RootSystemProvider _RootProvider;
 
 		protected virtual async Task InitializeIOSystem() {
-			this._RootProvider = new RootProvider(this);
-			this._RootEntry = new SystemEntryViewModel(null, this._RootProvider, new RootEntry(this));
+			this._RootProvider = new RootSystemProvider(this);
+			this._RootEntry = new SystemEntryViewModel(null, this._RootProvider, new RootSystemEntry(this));
 
 			this.RegisterSystemProvider(new ConfigurationProvider());
 		}
@@ -35,13 +35,13 @@ namespace CatWalk.Heron {
 			}
 		}
 
-		internal RootProvider Provider {
+		public GenericSystemProvider RootProvider {
 			get {
 				return this._RootProvider;
 			}
 		}
 
-		internal SystemEntryViewModel Entry {
+		internal SystemEntryViewModel RootEntry {
 			get {
 				return this._RootEntry;
 			}
@@ -59,7 +59,7 @@ namespace CatWalk.Heron {
 		public ParseEntryPathResult ParseEntryPath(string path) {
 			path.ThrowIfNull("path");
 
-			var root = this.Entry.Entry;
+			var root = this.RootEntry.Entry;
 			var result = this._RootProvider.ParsePath(root, path);
 			if (result.Success) {
 				var entry = result.Entry;
@@ -72,7 +72,7 @@ namespace CatWalk.Heron {
 				}
 
 				// ルートからViewModelを生成する
-				var viewModel = this.Entry;
+				var viewModel = this.RootEntry;
 				while(stack.Count > 0) {
 					viewModel = new SystemEntryViewModel(viewModel, this._RootProvider, stack.Pop());
 				}
@@ -89,10 +89,10 @@ namespace CatWalk.Heron {
 		/// ルートプロバイダ
 		/// 登録されたプロバイダのルートエントリを束ねる
 		/// </summary>
-		internal class RootProvider : SystemProvider {
+		internal class RootSystemProvider : GenericSystemProvider {
 			public List<SystemProvider> Providers { get; private set; }
 			public Application Application { get; private set; }
-			public RootProvider(Application app) {
+			public RootSystemProvider(Application app) {
 				app.ThrowIfNull("app");
 				this.Application = app;
 				this.Providers = new List<SystemProvider>();
@@ -101,11 +101,17 @@ namespace CatWalk.Heron {
 			public override ParsePathResult ParsePath(ISystemEntry root, string path) {
 				root.ThrowIfNull("root");
 				path.ThrowIfNull("path");
+
 				foreach(var provider in this.Providers) {
 					var result = provider.ParsePath(root, path);
 					if (result.Success) {
 						return result;
 					}
+				}
+
+				var result2 = base.ParsePath(root, path);
+				if(result2.Success) {
+					return result2;
 				}
 
 				var fragments = path.Split(SystemEntry.DirectorySeperatorChar);
@@ -120,11 +126,11 @@ namespace CatWalk.Heron {
 			}
 
 			public override IEnumerable<ISystemEntry> GetRootEntries(ISystemEntry parent) {
-				return this.Providers.SelectMany(p => p.GetRootEntries(parent));
+				return this.Providers.SelectMany(p => p.GetRootEntries(parent)).Concat(base.GetRootEntries(parent));
 			}
 
 			public override object GetViewModel(object parent, SystemEntryViewModel entry, object previous) {
-				return this.Providers.Select(p => p.GetViewModel(parent, entry, previous)).FirstOrDefault(vm => vm != null);
+				return this.Providers.Select(p => p.GetViewModel(parent, entry, previous)).Concat(Seq.Make(base.GetViewModel(parent, entry, previous))).FirstOrDefault(vm => vm != null);
 			}
 		}
 
@@ -132,9 +138,9 @@ namespace CatWalk.Heron {
 
 		#region RootEntry
 
-		private class RootEntry : SystemEntry {
+		private class RootSystemEntry : SystemEntry {
 			public Application Application { get; private set; }
-			public RootEntry(Application app)
+			public RootSystemEntry(Application app)
 				: base(null, "") {
 				app.ThrowIfNull("app");
 				this.Application = app;

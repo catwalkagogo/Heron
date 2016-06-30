@@ -52,11 +52,11 @@ namespace CatWalk.Heron {
 		public void RegisterSystemProvider(SystemProvider provider) {
 			provider.ThrowIfNull("provider");
 
-			this.Provider.Providers.Add(provider);
+			this.RootProvider.Providers.Add(provider);
 		}
 
 		public void UnregisterSystemProvider(SystemProvider provider) {
-			this.Provider.Providers.RemoveAll(p => provider == p);
+			this.RootProvider.Providers.RemoveAll(p => provider == p);
 		}
 
 		public void RegisterEntryOperator(IEntryOperator op) {
