@@ -35,7 +35,12 @@ namespace CatWalk.Heron.ViewModel.Windows {
 		private readonly Lazy<ReactiveProperty<PanelCollectionViewModel>> _Panels;
 
 		public ListViewModel(Application app, SystemEntryViewModel entry) : base(app){
+			entry.ThrowIfNull("entry");
+
 			this._Current = entry;
+
+			entry.RefreshChildrenAsync();
+
 			this.SelectedItems = new ObservableHashSet<SystemEntryViewModel>();
 			/*
 			this._FocusedItem =
@@ -212,7 +217,7 @@ namespace CatWalk.Heron.ViewModel.Windows {
 				var focused = this.FocusedItem;
 				var focusedName = focused != null ? focused.Name : null;
 				this._History.Add(new HistoryItem(
-					old.DisplayName,
+					old.Name,
 					() => {
 						this.Navigate(old, focusedName);
 					}

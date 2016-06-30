@@ -22,7 +22,7 @@ namespace CatWalk.Heron.IOSystem {
 		}
 
 		public IEnumerable<IColumnDefinition> GetColumnDefinitions(ISystemEntry entry) {
-			return (new ColumnDefinition[]{ColumnDefinition.NameColumn, ColumnDefinition.DisplayNameColumn}).Concat(this.GetAdditionalColumnProviders(entry));
+			return (new ColumnDefinition[]{ColumnDefinition.NameColumn}).Concat(this.GetAdditionalColumnProviders(entry));
 		}
 		protected virtual IEnumerable<ColumnDefinition> GetAdditionalColumnProviders(ISystemEntry entry) {
 			return new ColumnDefinition[0];
@@ -35,7 +35,7 @@ namespace CatWalk.Heron.IOSystem {
 		}
 		public abstract object GetViewModel(object parent, SystemEntryViewModel entry, object previous);
 		
-		private static readonly DisplayNameEntryGroupDescription _DisplayNameEntryGroupDescription = new DisplayNameEntryGroupDescription();
+		private static readonly NameEntryGroupDescription _DisplayNameEntryGroupDescription = new NameEntryGroupDescription();
 		
 		public IEnumerable<IGroupDefinition> GetGroupings(ISystemEntry entry) {
 			return Seq.Make(_DisplayNameEntryGroupDescription).Concat(this.GetAdditionalGroupings(entry));
@@ -51,21 +51,21 @@ namespace CatWalk.Heron.IOSystem {
 
 		#region NameGroup
 		
-		private class DisplayNameEntryGroupDescription : IGroupDefinition {
+		private class NameEntryGroupDescription : IGroupDefinition {
 			private static readonly DelegateEntryGroup<int>[] Candidates;
 
-			static DisplayNameEntryGroupDescription() {
+			static NameEntryGroupDescription() {
 				Candidates =
 					new[] { 
-						new DelegateEntryGroup<int>(0x0001, "0 - 9", entry => entry.DisplayName[0].IsDecimalNumber())
+						new DelegateEntryGroup<int>(0x0001, "0 - 9", entry => entry.Name[0].IsDecimalNumber())
 					}
 					.Concat(
 						Enumerable.Range('A', 'Z')
-							.Select(c => new DelegateEntryGroup<int>(0x0010 + c, "" + (char)c, entry => Char.ToUpper(entry.DisplayName[0]) == c)))
+							.Select(c => new DelegateEntryGroup<int>(0x0010 + c, "" + (char)c, entry => Char.ToUpper(entry.Name[0]) == c)))
 					.Concat(new[]{
-						new DelegateEntryGroup<int>(0x0100, "ひらがな", entry => entry.DisplayName[0].IsHiragana()),
-						new DelegateEntryGroup<int>(0x0101, "カタカナ", entry => entry.DisplayName[0].IsKatakana()),
-						new DelegateEntryGroup<int>(0x0102, "漢字", entry => entry.DisplayName[0].IsKanji()),
+						new DelegateEntryGroup<int>(0x0100, "ひらがな", entry => entry.Name[0].IsHiragana()),
+						new DelegateEntryGroup<int>(0x0101, "カタカナ", entry => entry.Name[0].IsKatakana()),
+						new DelegateEntryGroup<int>(0x0102, "漢字", entry => entry.Name[0].IsKanji()),
 						 new DelegateEntryGroup<int>(0, "etc.", entry => true),
 					})
 					.ToArray();

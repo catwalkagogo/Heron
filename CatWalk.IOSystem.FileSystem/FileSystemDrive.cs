@@ -46,13 +46,6 @@ namespace CatWalk.IOSystem.FileSystem {
 			}
 		}
 
-		public override string DisplayName{
-			get{
-				var info = this.DriveInfo;
-				return (info.IsReady) ? info.VolumeLabel + " (" + this.DriveLetter + ":)" : info.Name;
-			}
-		}
-
 		public override bool IsExists() {
 			var info = this.DriveInfo;
 			return info.IsReady;

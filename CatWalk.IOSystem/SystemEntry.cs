@@ -25,7 +25,7 @@ namespace CatWalk.IOSystem {
 			}
 			this.Parent = parent;
 			this.Name = name;
-			this.DisplayName = name;
+			//this.DisplayName = name;
 		}
 
 		#region Implemented
@@ -48,13 +48,14 @@ namespace CatWalk.IOSystem {
 		/// <summary>
 		/// 表示名
 		/// </summary>
-		public virtual string DisplayName{get; private set;}
+		//public virtual string DisplayName{get; private set;}
 
 		/// <summary>
 		/// 親のISystemDirectory
 		/// </summary>
 		public ISystemEntry Parent{get; private set;}
 
+		/*
 		/// <summary>
 		/// 表示パス。
 		/// 親のISystemDirectoryのConcatDisplayPath関数によりDisplayNameを連結してDisplayPathに設定します。
@@ -67,7 +68,7 @@ namespace CatWalk.IOSystem {
 					return this.Parent.ConcatDisplayPath(this.DisplayName);
 				}
 			}
-		}
+		}*/
 
 		/// <summary>
 		/// このエントリの実体が存在するかどうか。
@@ -176,16 +177,16 @@ namespace CatWalk.IOSystem {
 			return this.GetChildren(token, progress).Any(entry => entry.Name.Equals(name, this.StringComparison));
 		}
 
-		public virtual string ConcatPath(string name) {
+		public string ConcatPath(string name) {
 			this.ThrowIfNotDirectory();
 			return this.Path + DirectorySeperatorChar + name;
 		}
-
+		/*
 		public virtual string ConcatDisplayPath(string name) {
 			this.ThrowIfNotDirectory();
 			return this.DisplayPath + DirectorySeperatorChar + name;
 		}
-
+		*/
 		#endregion
 	}
 }

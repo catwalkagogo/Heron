@@ -41,7 +41,7 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 			}
 
 			// 初期ソート
-			this._Orders = Seq.Make(new OrderDefinitionDirectionSet(OrderDefinition.FromColumnDefinition(ColumnDefinition.DisplayNameColumn), ListSortDirection.Ascending));
+			this._Orders = Seq.Make(new OrderDefinitionDirectionSet(OrderDefinition.FromColumnDefinition(ColumnDefinition.NameColumn), ListSortDirection.Ascending));
 		}
 
 		#endregion
@@ -68,7 +68,7 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 					new SystemEntryViewModelComparer(
 						Seq.Make(
 							new OrderDefinitionDirectionSet(
-								OrderDefinition.FromColumnDefinition(ColumnDefinition.DisplayNameColumn),
+								OrderDefinition.FromColumnDefinition(ColumnDefinition.NameColumn),
 								ListSortDirection.Ascending)));
 
 				return comparer;
@@ -128,16 +128,6 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 		public string Path {
 			get {
 				return this.Entry.Path;
-			}
-		}
-		public string DisplayName {
-			get {
-				return this.Entry.DisplayName;
-			}
-		}
-		public string DisplayPath {
-			get {
-				return this.Entry.DisplayPath;
 			}
 		}
 		public bool IsDirectory {

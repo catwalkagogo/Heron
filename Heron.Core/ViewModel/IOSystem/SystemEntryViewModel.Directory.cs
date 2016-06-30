@@ -16,12 +16,12 @@ using CatWalk.ComponentModel;
 
 namespace CatWalk.Heron.ViewModel.IOSystem {
 	public partial class SystemEntryViewModel : ViewModelBase, IHierarchicalViewModel<SystemEntryViewModel>, IDisposable {
-		private ResetLazy<ChildrenCollection> _Children;
+		private ChildrenCollection _Children;
 		private IIOSystemWatcher _Watcher;
 
 		private void InitDirectory() {
 			var entry = this.Entry;
-			this._Children = new ResetLazy<ChildrenCollection>(() => new ChildrenCollection());
+			this._Children = new ChildrenCollection();
 			var watchable = entry as IWatchable;
 			if(watchable != null) {
 				this._Watcher = watchable.Watcher;
@@ -40,7 +40,7 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 			this.IsWatcherEnabled = false;
 			this.CancelTokenProcesses();
 			this._Columns.Reset();
-			this._Children.Reset();
+			this._Children.Clear();
 			//this._ChildrenView.Reset();
 			//this._ChildrenGroups.Clear();
 		}
@@ -58,18 +58,32 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 		public ChildrenCollection Children {
 			get {
 				this.ThrowIfNotDirectory();
-				return this._Children.Value;
+				return this._Children;
 			}
 		}
 		
 		IEnumerable<SystemEntryViewModel> IHierarchicalViewModel<SystemEntryViewModel>.Children {
 			get {
 				if(this.IsDirectory) {
-					return this._Children.Value;
+					return this._Children;
 				} else {
 					return new SystemEntryViewModel[0];
 				}
 			}
+		}
+
+		public Task RefreshChildrenAsync() {
+			return this.RefreshChildrenAsync(this.CancellationToken, null);
+		}
+
+		public Task RefreshChildrenAsync(CancellationToken token) {
+			return this.RefreshChildrenAsync(token, null);
+		}
+
+		public Task RefreshChildrenAsync(CancellationToken token, IProgress<double> progress) {
+			return Task.Run(() => {
+				this.RefreshChildren(token, progress);
+			}, token);
 		}
 
 		/// <summary>
@@ -93,13 +107,13 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 		public void RefreshChildren(CancellationToken token, IProgress<double> progress) {
 			this.ThrowIfNotDirectory();
 
-			this._Children.Value.Clear();
+			this._Children.Clear();
 
 			var children = this.Entry.GetChildren(token, progress)
 				.Select(child => GetViewModel(this, child));
 
 			foreach(var child in children) {
-				this._Children.Value.Add(child);
+				this._Children.Add(child);
 			}
 		}
 
@@ -329,7 +343,7 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 		}
 
 		private void _Watcher_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
-			var children = this._Children.Value;
+			var children = this._Children;
 			switch(e.Action) {
 				case NotifyCollectionChangedAction.Add: {
 						foreach(var item in e.NewItems.Cast<ISystemEntry>()) {

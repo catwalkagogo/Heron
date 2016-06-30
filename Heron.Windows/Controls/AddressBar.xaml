@@ -10,6 +10,6 @@
 			<RowDefinition Height="auto"></RowDefinition>
 		</Grid.RowDefinitions>
 
-		<TextBox Text="{Binding ListView.CurrentEntry.DisplayPath, Mode=OneWay}"></TextBox>
+		<TextBox Text="{Binding ListView.CurrentEntry.Path, Mode=OneWay}"></TextBox>
 	</Grid>
 </UserControl>

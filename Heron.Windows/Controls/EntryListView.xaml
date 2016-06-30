@@ -15,7 +15,6 @@
 
 	<ListView
 		x:Name="_ListView"
-		Background="Black"
 		HorizontalAlignment="Stretch"
 		VerticalAlignment="Stretch"
 		ItemsSource="{Binding Source={StaticResource ChildrenView}}">
