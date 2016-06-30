@@ -55,7 +55,6 @@ namespace CatWalk.Heron {
 		/// 指定されたパスを解析してエントリーを取得する
 		/// </summary>
 		/// <param name="path"></param>
-		/// <param name="viewModel"></param>
 		/// <returns></returns>
 		public ParseEntryPathResult ParseEntryPath(string path) {
 			path.ThrowIfNull("path");
@@ -125,7 +124,7 @@ namespace CatWalk.Heron {
 			}
 
 			public override object GetViewModel(object parent, SystemEntryViewModel entry, object previous) {
-				return this.Providers.Select(p => p.GetViewModel(parent, entry, previous)).Where(vm => vm != null).FirstOrDefault();
+				return this.Providers.Select(p => p.GetViewModel(parent, entry, previous)).FirstOrDefault(vm => vm != null);
 			}
 		}
 

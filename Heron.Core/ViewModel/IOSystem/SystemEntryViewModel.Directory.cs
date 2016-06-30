@@ -144,7 +144,7 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 		/// nameによってアクセス可能
 		/// </summary>
 		public class ChildrenCollection : WrappedObservableList<SystemEntryViewModel> {
-			private IDictionary<String, int> nameMap = new Dictionary<string, int>();
+			private readonly IDictionary<String, int> nameMap = new Dictionary<string, int>();
 
 			public ChildrenCollection()
 				: base(new SkipList<SystemEntryViewModel>()) {
@@ -351,7 +351,7 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 
 		private bool IsWatcherEnabled {
 			get {
-				return this._Watcher != null ? this._Watcher.IsEnabled : false;
+				return this._Watcher != null && this._Watcher.IsEnabled;
 			}
 			set {
 				if(this._Watcher != null) {

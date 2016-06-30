@@ -19,9 +19,9 @@ namespace CatWalk.IOSystem {
 		/// </summary>
 		/// <param name="parent">親のISystemDirectory</param>
 		/// <param name="id">同階層内で一意な識別子</param>
-		public SystemEntry(ISystemEntry parent, string name){
+		protected SystemEntry(ISystemEntry parent, string name){
 			if(name == null){
-				throw new ArgumentNullException("name");
+				throw new ArgumentNullException(nameof(name));
 			}
 			this.Parent = parent;
 			this.Name = name;
@@ -75,15 +75,15 @@ namespace CatWalk.IOSystem {
 		/// 既定では親のISystemDirectoryのContains関数を呼び出します。
 		/// </summary>
 		public virtual bool IsExists() {
-			return (this.Parent != null) ? this.Parent.Contains(this.Name) : true;
+			return (this.Parent == null) || this.Parent.Contains(this.Name);
 		}
 
 		public virtual bool IsExists(CancellationToken token){
-			return (this.Parent != null) ? this.Parent.Contains(this.Name, token) : true;
+			return (this.Parent == null) || this.Parent.Contains(this.Name, token);
 		}
 
 		public virtual bool IsExists(CancellationToken token, IProgress<double> progress) {
-			return (this.Parent != null) ? this.Parent.Contains(this.Name, token, progress) : true;
+			return (this.Parent == null) || this.Parent.Contains(this.Name, token, progress);
 		}
 
 		#endregion
@@ -95,7 +95,7 @@ namespace CatWalk.IOSystem {
 			if(entry != null) {
 				return this.Equals(entry);
 			} else {
-				return base.Equals(obj);
+				return Object.ReferenceEquals(this, obj);
 			}
 		}
 

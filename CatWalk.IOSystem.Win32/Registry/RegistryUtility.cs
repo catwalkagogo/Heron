@@ -18,7 +18,7 @@ namespace CatWalk.IOSystem.Win32{
 				case RegistryHive.LocalMachine: return "HKEY_LOCAL_MACHINE";
 				case RegistryHive.PerformanceData: return "HKEY_PERFORMANCE_DATA";
 				case RegistryHive.Users: return "HKEY_USERS";
-				default: throw new ArgumentOutOfRangeException("hive");
+				default: throw new ArgumentOutOfRangeException(nameof(hive));
 			}
 		}
 
@@ -31,7 +31,7 @@ namespace CatWalk.IOSystem.Win32{
 				case "HKEY_LOCAL_MACHINE": return RegistryHive.LocalMachine;
 				case "HKEY_PERFORMANCE_DATA": return RegistryHive.PerformanceData;
 				case "HKEY_USERS": return RegistryHive.Users;
-				default: throw new ArgumentException("name");
+				default: throw new ArgumentException(nameof(name));
 			}
 		}
 
@@ -44,7 +44,7 @@ namespace CatWalk.IOSystem.Win32{
 				case RegistryHive.LocalMachine: return Registry.LocalMachine;
 				case RegistryHive.PerformanceData: return Registry.PerformanceData;
 				case RegistryHive.Users: return Registry.Users;
-				default: throw new ArgumentOutOfRangeException("hive");
+				default: throw new ArgumentOutOfRangeException(nameof(hive));
 			}
 		}
 	}
