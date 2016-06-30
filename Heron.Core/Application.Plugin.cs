@@ -14,6 +14,8 @@ using CatWalk.Mvvm;
 using CatWalk.Heron.ViewModel;
 
 namespace CatWalk.Heron {
+	using ViewFactory = Factory<object, object>;
+
 	public abstract partial class Application : ControlViewModel, IJobManagerSite {
 		protected virtual async Task InitializePlugin() {
 			this._PluginManager = new Lazy<IPluginManager>(() => {

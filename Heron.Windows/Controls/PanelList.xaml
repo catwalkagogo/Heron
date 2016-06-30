@@ -4,11 +4,20 @@
 			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
 			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
 			 xmlns:ext="clr-namespace:CatWalk.Windows.Extensions;assembly=CatWalk.Windows"
+			 xmlns:local="clr-namespace:CatWalk.Heron.Windows.Controls"
 			 mc:Ignorable="d" 
 			 d:DesignHeight="300" d:DesignWidth="300">
 	<ListBox
 		x:Name="_ListBox"
-		ext:GridItemsPanel.IsEnabled="True">
-		
+		ext:GridItemsPanel.IsEnabled="True"
+		ItemsSource="{Binding Panels}">
+		<ListBox.ItemTemplateSelector>
+			<local:PanelTemplateSelector x:Name="_PanelTemplateSelector"></local:PanelTemplateSelector>
+		</ListBox.ItemTemplateSelector>
+		<ListBox.ItemTemplate>
+			<DataTemplate>
+
+			</DataTemplate>
+		</ListBox.ItemTemplate>
 	</ListBox>
 </UserControl>

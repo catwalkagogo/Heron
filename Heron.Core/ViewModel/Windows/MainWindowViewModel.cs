@@ -65,6 +65,16 @@ namespace CatWalk.Heron.ViewModel.Windows {
 			}
 		}
 
+		#region Property
+
+		public PanelCollectionViewModel Panels {
+			get {
+				return this._Panels;
+			}
+		}
+
+		#endregion
+
 		#region IJobManagerSite Members
 
 		public IJobManager JobManager {

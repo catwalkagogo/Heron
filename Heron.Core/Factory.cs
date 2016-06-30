@@ -5,48 +5,35 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace CatWalk.Heron {
-	public class Factory<TKey, TValue> {
-		private IDictionary<TKey, Delegate> _Creaters = new Dictionary<TKey, Delegate>();
+	public class Factory<TSource, TDest> {
+		private ICollection<Creator> _Creators = new List<Creator>();
 
-		public void Register(TKey key, Delegate d) {
-			key.ThrowIfNull("key");
-			d.ThrowIfNull("d");
-			this._Creaters.Add(key, d);
+		public void Register(Func<TSource, bool> predicate, Func<TSource, TDest> create) {
+			predicate.ThrowIfNull("predicate");
+			create.ThrowIfNull("create");
+
+			this._Creators.Add(new Creator(predicate, create));
 		}
 
-		public TValue Create(TKey key, params object[] args) {
-			key.ThrowIfNull("key");
-			Delegate d;
-			TValue v;
-			if(this._Creaters.TryGetValue(key, out d)) {
-				var prms = Seq.Make((object)key).Concat(args.EmptyIfNull()).ToArray();
-				v = (TValue)d.DynamicInvoke(prms);
-			} else {
-				v = default(TValue);
+		public TDest Create(TSource vm) {
+			foreach(var creator in this._Creators){
+				if (creator.Predicate(vm)) {
+					var obj = creator.Create(vm);
+					return obj;
+				}
 			}
-			this.OnCreated(new FactoryValueCreatedEventArgs<TKey, TValue>(key, v, args));
-			return v;
+
+			return default(TDest);
 		}
 
-		public event EventHandler Created;
+		private struct Creator {
+			public Func<TSource, bool> Predicate { get; private set; }
+			public Func<TSource, TDest> Create { get; private set; }
 
-		protected virtual void OnCreated(FactoryValueCreatedEventArgs<TKey, TValue> e) {
-			var handler = this.Created;
-			if(handler != null) {
-				handler(this, e);
+			public Creator(Func<TSource, bool> predicate, Func<TSource, TDest> create) : this(){
+				this.Create = create;
+				this.Predicate = predicate;
 			}
-		}
-	}
-
-	public class FactoryValueCreatedEventArgs<TKey, TValue> : EventArgs {
-		public TKey Key { get; private set; }
-		public TValue Value { get; private set; }
-		public IReadOnlyList<object> Parameters { get; private set; }
-
-		public FactoryValueCreatedEventArgs(TKey key, TValue value, object[] parameters) {
-			this.Key = key;
-			this.Value = value;
-			this.Parameters = parameters;
 		}
 	}
 }

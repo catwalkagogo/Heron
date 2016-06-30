@@ -14,11 +14,8 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace CatWalk.Heron.Windows.Controls {
-	/// <summary>
-	/// Interaction logic for LogList.xaml
-	/// </summary>
-	public partial class LogList : UserControl {
-		public LogList() {
+	public partial class JobList : UserControl {
+		public JobList() {
 			InitializeComponent();
 		}
 	}

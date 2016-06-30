@@ -17,6 +17,7 @@ using System.Windows.Interop;
 using CatWalk.Win32;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
+using CatWalk.Heron.Windows.Controls;
 
 namespace CatWalk.Heron.Windows {
 	/// <summary>
@@ -45,15 +46,26 @@ namespace CatWalk.Heron.Windows {
 			return this._HotKeyManager.WndProc(hwnd, msg, wParam, lParam, ref handled);
 		}
 
+		#region Property
+
 		public HotKeyManager HotKeyManager {
 			get {
 				return this._HotKeyManager;
 			}
 		}
 
+		public PanelList PanelList {
+			get {
+				return this._PanelList;
+			}
+		}
+
+		#endregion
+
 		private void Window_Activated(object sender, EventArgs e) {
 			WindowUtility.LatestActiveWindow = this;
 		}
+
 
 		#region SwitchWindowCommand
 

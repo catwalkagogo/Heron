@@ -1,8 +1,8 @@
 ﻿<Window x:Class="CatWalk.Heron.Windows.MainWindow"
 		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-		xmlns:v="clr-namespace:CatWalk.Heron.Windows"
 		xmlns:win="clr-namespace:CatWalk.Heron.Windows"
+		xmlns:ctrl="clr-namespace:CatWalk.Heron.Windows.Controls"
 		xmlns:conv="clr-namespace:CatWalk.Heron.Windows.Converters"
 		xmlns:input="clr-namespace:CatWalk.Heron.Windows.Input"
 		Title="{Binding Title}"
@@ -17,7 +17,7 @@
 		Activated="Window_Activated"
 		x:Name="_this">
 	<Window.Resources>
-		<v:JobCountToProgressStateConverter x:Key="JobCountToProgressStateConverter" />
+		<win:JobCountToProgressStateConverter x:Key="JobCountToProgressStateConverter" />
 		<conv:RectToGenericRectConverter x:Key="RectToGenericRectConverter" />
 		<conv:WindowStateConverter x:Key="WindowStateConverter" />
 	</Window.Resources>
@@ -30,15 +30,13 @@
 	<win:WindowUtility.RestoreWindowState>
 		<Binding Path="RestoreWindowState" Converter="{StaticResource WindowStateConverter}" />
 	</win:WindowUtility.RestoreWindowState>
-
 	<Window.TaskbarItemInfo>
 		<TaskbarItemInfo
 			ProgressValue="{Binding JobManager.TotalProgress}"
 			ProgressState="{Binding Converter={StaticResource JobCountToProgressStateConverter}, Path=JobManager.RunningCount}">
-			
+
 		</TaskbarItemInfo>
 	</Window.TaskbarItemInfo>
-	
 	<Window.InputBindings>
 		<KeyBinding Key="Tab" Modifiers="Control" Command="{Binding ElementName=_this, Path=SwitchWindowCommand}" CommandParameter="{x:Static win:Direction.Next}"></KeyBinding>
 		<KeyBinding Key="Tab" Modifiers="Control+Shift" Command="{Binding ElementName=_this, Path=SwitchWindowCommand}"
@@ -50,5 +48,9 @@
 			<RowDefinition Height="auto" />
 			<RowDefinition Height="*" />
 		</Grid.RowDefinitions>
+
+		<ctrl:PanelList Grid.Row="1" Grid.Column="0" x:Name="_PanelList">
+			
+		</ctrl:PanelList>
 	</Grid>
 </Window>

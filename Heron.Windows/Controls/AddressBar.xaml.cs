@@ -15,17 +15,11 @@ using System.Windows.Shapes;
 
 namespace CatWalk.Heron.Windows.Controls {
 	/// <summary>
-	/// Interaction logic for PanelList.xaml
+	/// Interaction logic for LogList.xaml
 	/// </summary>
-	public partial class PanelList : UserControl {
-		public PanelList() {
+	public partial class AddressBar : UserControl {
+		public AddressBar() {
 			InitializeComponent();
-		}
-		
-		public PanelTemplateSelector PanelTemplateSelector {
-			get {
-				return this._PanelTemplateSelector;
-			}
 		}
 	}
 }

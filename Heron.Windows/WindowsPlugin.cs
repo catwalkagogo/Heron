@@ -14,12 +14,14 @@ namespace CatWalk.Heron.Windows {
 
 			app.Messenger.Subscribe<WindowMessages.ArrangeWindowsMessage>((Action<WindowMessages.ArrangeWindowsMessage>)OnArrangeWindowsMessage, app);
 
-			app.ViewFactory.Register<MainWindowViewModel>((type, vm) => {
-				var window = new MainWindow(this);
-				window.DataContext = vm;
-				window.Show();
-				return window;
-			});
+			app.ViewFactory.Register(
+				vm => vm is MainWindowViewModel,
+				vm => {
+					var window = new MainWindow(this);
+					window.DataContext = vm;
+					window.Show();
+					return window;
+				});
 		}
 
 		public override bool CanUnload(Application app) {

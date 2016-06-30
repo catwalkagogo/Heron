@@ -159,18 +159,6 @@ namespace CatWalk.Heron {
 
 	}
 
-	public class ViewFactory{
-		private Factory<Type, object> _Factory = new Factory<Type, object>();
-
-		public void Register<T>(Func<Type, T, object> d) {
-			this._Factory.Register(typeof(T), d);
-		}
-		public object Create(object vm) {
-			vm.ThrowIfNull("vm");
-			return this._Factory.Create(vm.GetType(), vm);
-		}
-	}
-
 	public class ApplicationStartUpEventArgs : EventArgs {
 		public IReadOnlyList<string> Args { get; private set; }
 

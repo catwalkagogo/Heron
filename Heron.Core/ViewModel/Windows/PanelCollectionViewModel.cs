@@ -11,9 +11,10 @@ using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using CatWalk.Collections;
 using CatWalk.Heron.ViewModel.IOSystem;
+using System.Collections;
 
 namespace CatWalk.Heron.ViewModel.Windows {
-	public class PanelCollectionViewModel : AppWindowsViewModel{
+	public class PanelCollectionViewModel : AppWindowsViewModel, IReadOnlyObservableList<PanelViewModel> {
 		private readonly WrappedObservableList<PanelViewModel> _Panels;
 
 		/// <summary>
@@ -32,11 +33,32 @@ namespace CatWalk.Heron.ViewModel.Windows {
 			this.Disposables.Add(this.AddPanelCommand);
 		}
 
-		public IReadOnlyObservableList<PanelViewModel> Panels {
+		#region IReadOnlyObservableList<PanelViewModel>
+
+		public PanelViewModel this[int index] {
 			get {
-				return this._Panels;
+				return _Panels[index];
 			}
 		}
+
+
+		public int Count {
+			get {
+				return _Panels.Count;
+			}
+		}
+
+		public event NotifyCollectionChangedEventHandler CollectionChanged;
+
+		public IEnumerator<PanelViewModel> GetEnumerator() {
+			return _Panels.GetEnumerator();
+		}
+
+		IEnumerator IEnumerable.GetEnumerator() {
+			return _Panels.GetEnumerator();
+		}
+
+		#endregion
 
 		#region AddPanel
 
@@ -60,7 +82,7 @@ namespace CatWalk.Heron.ViewModel.Windows {
 			}
 
 			var panel = new PanelViewModel(this.Application);
-			panel.Content = new ListViewModel(this.Application, vm);
+			panel.ListView = new ListViewModel(this.Application, vm);
 			this._Panels.Add(panel);
 		}
 
@@ -69,7 +91,7 @@ namespace CatWalk.Heron.ViewModel.Windows {
 		#region GetAnotherPanel
 
 		public async Task<PanelViewModel> GetAnotherPanel(PanelViewModel current) {
-			var others = this.Panels.Where(panel => panel != current).ToArray();
+			var others = this._Panels.Where(panel => panel != current).ToArray();
 			if(others.Length == 0) {
 				return null;
 			} else if(others.Length == 1) {

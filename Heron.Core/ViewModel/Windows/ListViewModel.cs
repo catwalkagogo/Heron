@@ -33,7 +33,6 @@ namespace CatWalk.Heron.ViewModel.Windows {
 		private readonly Lazy<ReactiveCommand> _RemoveCommand;
 		private readonly Lazy<ReactiveProperty<PanelViewModel>> _Panel;
 		private readonly Lazy<ReactiveProperty<PanelCollectionViewModel>> _Panels;
-		private readonly Lazy<ReactiveProperty<IReadOnlyObservableList<PanelViewModel>>> _PanelsCollection;
 
 		public ListViewModel(Application app, SystemEntryViewModel entry) : base(app){
 			this._Current = entry;
@@ -68,7 +67,7 @@ namespace CatWalk.Heron.ViewModel.Windows {
 				var cmd =
 					Observable.Merge(
 						this.SelectedItems.ObserveProperty(items => items.Count).Select(count => count > 0),
-						this.PanelsCollection.Select(_ => _.Count > 1)
+						this.Panels.Select(_ => _.Count > 1)
 					).ToReactiveCommand<ISystemEntry>();
 				this.Disposables.Add(cmd.Subscribe(this.CopyTo));
 				this.Disposables.Add(cmd);
@@ -78,7 +77,7 @@ namespace CatWalk.Heron.ViewModel.Windows {
 				var cmd =
 					Observable.Merge(
 						this.SelectedItems.ObserveProperty(items => items.Count).Select(count => count > 0),
-						this.PanelsCollection.Select(_ => _.Count > 1)
+						this.Panels.Select(_ => _.Count > 1)
 					).ToReactiveCommand<ISystemEntry>();
 				this.Disposables.Add(cmd.Subscribe(this.MoveTo));
 				this.Disposables.Add(cmd);
@@ -119,16 +118,6 @@ namespace CatWalk.Heron.ViewModel.Windows {
 						.Select(_ => _.OfType<PanelCollectionViewModel>().FirstOrDefault())
 						.ToReactiveProperty();
 				this.Disposables.Add(prop.Subscribe(_ => this.OnPropertyChanged("Panels")));
-				this.Disposables.Add(prop);
-				return prop;
-			});
-			this._PanelsCollection = new Lazy<ReactiveProperty<IReadOnlyObservableList<PanelViewModel>>>(() => {
-				var prop =
-					this.Panels
-						.Where(_ => _ != null)
-						.SelectMany(_ => _.Panels.CollectionChangedAsObservable())
-						.Select(_ => this.Panels.Value.Panels)
-						.ToReactiveProperty();
 				this.Disposables.Add(prop);
 				return prop;
 			});
@@ -411,24 +400,23 @@ namespace CatWalk.Heron.ViewModel.Windows {
 
 		#region Panel
 
+		/// <summary>
+		/// parent Panel
+		/// </summary>
 		public ReactiveProperty<PanelViewModel> Panel {
 			get {
 				return this._Panel.Value;
 			}
 		}
 
+		/// <summary>
+		/// parent Panels
+		/// </summary>
 		public ReactiveProperty<PanelCollectionViewModel> Panels {
 			get {
 				return this._Panels.Value;
 			}
 		}
-
-		public ReactiveProperty<IReadOnlyObservableList<PanelViewModel>> PanelsCollection {
-			get {
-				return this._PanelsCollection.Value;
-			}
-		}
-
 		#endregion
 
 		public class NewItemPromptMessage : WindowMessages.PromptMessage {

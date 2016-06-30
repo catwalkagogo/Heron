@@ -117,7 +117,7 @@ namespace CatWalk.Collections{
 		}
 
 		public int Add(object item) {
-			this.Add((T)item);
+			this.Items.Add((T)item);
 			return this.Count - 1;
 		}
 
