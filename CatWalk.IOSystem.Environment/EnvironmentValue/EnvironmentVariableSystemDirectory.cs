@@ -30,10 +30,6 @@ namespace CatWalk.IOSystem.Environment {
 				.Select(v => new EnvironmentVariableSystemEntry(this, (string)v.Key, this.EnvironmentVariableTarget, (string)v.Key));
 		}
 
-		public override ISystemEntry GetChildDirectory(string name) {
-			return null;
-		}
-
 		#endregion
 	}
 }

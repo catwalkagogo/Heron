@@ -35,7 +35,7 @@ namespace CatWalk.IOSystem.Win32{
 			.Select(hive => new RegistrySystemKey(this, RegistryUtility.GetHiveName(hive), hive));
 		}
 
-		public override ISystemEntry GetChildDirectory(string name){
+		public override ISystemEntry GetChild(string name, CancellationToken token, IProgress<double> progress) {
 			return this.GetChildren().Where(entry => entry.IsDirectory).FirstOrDefault(key => key.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 		}
 	}

@@ -49,12 +49,6 @@ namespace CatWalk.IOSystem.Environment {
 			}
 		}
 
-		public override string DisplayName {
-			get {
-				return this.Process.ProcessName;
-			}
-		}
-
 		private Process GetParentProcess(){
 			var id = ProcessUtility.GetParentProcessId(this.ProcessId);
 			if(id != 0){

@@ -28,11 +28,11 @@ namespace CatWalk.IOSystem.Environment{
 				.Select(target => new EnvironmentVariableSystemDirectory(this, target.ToString(), target));
 		}
 
-		public override ISystemEntry GetChildDirectory(string name) {
+		public override ISystemEntry GetChild(string name, CancellationToken token, IProgress<double> progress) {
 			return this.GetChildren().Cast<EnvironmentVariableSystemDirectory>().FirstOrDefault(entry => entry.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 		}
 
-		public override bool Contains(string name) {
+		public override bool Contains(string name, CancellationToken token, IProgress<double> progress) {
 			EnvironmentVariableTarget target;
 			if(Enum.TryParse<EnvironmentVariableTarget>(name, out target)){
 				return true;

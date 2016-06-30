@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Heron", "Heron\Heron.csproj", "{52816E46-15D6-4D30-815C-0CBF4AC368BB}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -26,6 +26,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CatWalk.IOSystem", "CatWalk.IOSystem\CatWalk.IOSystem.csproj", "{DEDB40E7-A386-4305-BE85-5A1C263BD503}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Heron.Core", "Heron.Core\Heron.Core.csproj", "{996331AB-D837-42D5-970A-247822BE6F29}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CatWalk.IOSystem.Environment", "CatWalk.IOSystem.Environment\CatWalk.IOSystem.Environment.csproj", "{84E6D62B-A6C7-4381-A690-C33F1236CBA8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CatWalk.IOSystem.Win32", "CatWalk.IOSystem.Win32\CatWalk.IOSystem.Win32.csproj", "{9C100D3D-DE5F-4299-819D-F6B1504AD38B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -115,6 +119,22 @@ Global
 		{996331AB-D837-42D5-970A-247822BE6F29}.Release|Any CPU.Build.0 = Release|Any CPU
 		{996331AB-D837-42D5-970A-247822BE6F29}.Release|x86.ActiveCfg = Release|Any CPU
 		{996331AB-D837-42D5-970A-247822BE6F29}.Release|x86.Build.0 = Release|Any CPU
+		{84E6D62B-A6C7-4381-A690-C33F1236CBA8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{84E6D62B-A6C7-4381-A690-C33F1236CBA8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{84E6D62B-A6C7-4381-A690-C33F1236CBA8}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{84E6D62B-A6C7-4381-A690-C33F1236CBA8}.Debug|x86.Build.0 = Debug|Any CPU
+		{84E6D62B-A6C7-4381-A690-C33F1236CBA8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{84E6D62B-A6C7-4381-A690-C33F1236CBA8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{84E6D62B-A6C7-4381-A690-C33F1236CBA8}.Release|x86.ActiveCfg = Release|Any CPU
+		{84E6D62B-A6C7-4381-A690-C33F1236CBA8}.Release|x86.Build.0 = Release|Any CPU
+		{9C100D3D-DE5F-4299-819D-F6B1504AD38B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C100D3D-DE5F-4299-819D-F6B1504AD38B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C100D3D-DE5F-4299-819D-F6B1504AD38B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{9C100D3D-DE5F-4299-819D-F6B1504AD38B}.Debug|x86.Build.0 = Debug|Any CPU
+		{9C100D3D-DE5F-4299-819D-F6B1504AD38B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C100D3D-DE5F-4299-819D-F6B1504AD38B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C100D3D-DE5F-4299-819D-F6B1504AD38B}.Release|x86.ActiveCfg = Release|Any CPU
+		{9C100D3D-DE5F-4299-819D-F6B1504AD38B}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

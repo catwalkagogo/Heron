@@ -65,11 +65,11 @@ namespace CatWalk.IOSystem.Win32 {
 			}
 		}
 
-		public override bool Contains(string name) {
+		public override bool Contains(string name, CancellationToken token, IProgress<double> progress) {
 			return this.GetChildren().Any(entry => entry.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 		}
 
-		public override ISystemEntry GetChildDirectory(string name){
+		public override ISystemEntry GetChild(string name, CancellationToken token, IProgress<double> progress) {
 			return this.GetChildren()
 				.Where(entry => entry.IsDirectory)
 				.FirstOrDefault(entry => entry.Name.Equals(name, StringComparison.OrdinalIgnoreCase));

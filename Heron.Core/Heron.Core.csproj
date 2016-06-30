@@ -66,6 +66,7 @@
     <Compile Include="ViewModel\IOSystem\Grouping\EntryGroup.cs" />
     <Compile Include="ViewModel\IOSystem\Grouping\IGroup.cs" />
     <Compile Include="ViewModel\IOSystem\Grouping\IGroupDefinition.cs" />
+    <Compile Include="ViewModel\IOSystem\ISystemEntryViewModelHost.cs" />
     <Compile Include="ViewModel\IOSystem\Ordering\IOrderDefinition.cs" />
     <Compile Include="IOSystem\ISystemProvider.cs" />
     <Compile Include="ViewModel\IOSystem\Ordering\OrderDefinitionDirectionSet.cs" />

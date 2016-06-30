@@ -15,6 +15,7 @@ using CatWalk.Heron.IOSystem;
 
 namespace CatWalk.Heron.ViewModel.IOSystem {
 	using ComponentModel;
+	using Windows;
 	using ColumnDictionaryKey = IColumnDefinition;
 
 	public partial class SystemEntryViewModel : ViewModelBase, IHierarchicalViewModel<SystemEntryViewModel>{
@@ -42,6 +43,21 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 
 			// 初期ソート
 			this._Orders = Seq.Make(new OrderDefinitionDirectionSet(OrderDefinition.FromColumnDefinition(ColumnDefinition.NameColumn), ListSortDirection.Ascending));
+		}
+
+		#endregion
+
+		#region Host
+
+		private ISystemEntryViewModelHost _Host;
+		public ISystemEntryViewModelHost Host{
+			get{
+				return this._Host;
+			}
+			internal set {
+				this._Host = value;
+				this.OnPropertyChanged("Host");
+			}
 		}
 
 		#endregion

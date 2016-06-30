@@ -13,6 +13,9 @@ using CatWalk.Mvvm;
 using CatWalk.IOSystem;
 using CatWalk.Heron.IOSystem;
 using CatWalk.ComponentModel;
+using System.Reactive.Linq;
+using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
 
 namespace CatWalk.Heron.ViewModel.IOSystem {
 	public partial class SystemEntryViewModel : ViewModelBase, IHierarchicalViewModel<SystemEntryViewModel>, IDisposable {
@@ -28,6 +31,21 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 				this._Watcher.IsEnabled = false;
 				this._Watcher.CollectionChanged += _Watcher_CollectionChanged;
 			}
+
+			// Enter
+			this.Disposables.Add(this.ObserveProperty(_ => _.Host)
+				.Where(_ => _ != null && _.CurrentEntry == this)
+				.Subscribe(host => {
+					this.Enter();
+				}));
+
+
+			// Exit
+			this.Disposables.Add(this.ObserveProperty(_ => _.Host)
+				.Where(_ => _ == null || _.CurrentEntry != this)
+				.Subscribe(host => {
+					this.Exit();
+				}));
 		}
 
 		#region Enter / Exit
