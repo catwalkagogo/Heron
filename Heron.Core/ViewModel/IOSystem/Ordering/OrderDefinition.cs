@@ -8,6 +8,7 @@ using CatWalk.IOSystem;
 using CatWalk.Collections;
 using CatWalk.ComponentModel;
 using CatWalk.Heron.IOSystem;
+using System.Threading;
 
 namespace CatWalk.Heron.ViewModel.IOSystem {
 	public abstract class OrderDefinition : IOrderDefinition {
@@ -15,15 +16,7 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 
 		public abstract string Name { get; }
 
-		public virtual IComparer<SystemEntryViewModel> GetComparer(ListSortDirection order) {
-			var comparer = this.GetAscendingComparer();
-			if(order == ListSortDirection.Descending) {
-				comparer = new ReversedComparer<SystemEntryViewModel>(comparer);
-			}
-			return comparer;
-		}
-
-		protected abstract IComparer<SystemEntryViewModel> GetAscendingComparer();
+		public abstract IComparer<SystemEntryViewModel> GetComparer(ListSortDirection order);
 		
 		public static OrderDefinition FromColumnDefinition(IColumnDefinition column) {
 			column.ThrowIfNull("column");
@@ -54,17 +47,17 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 				}
 			}
 
-			protected override IComparer<SystemEntryViewModel> GetAscendingComparer() {
-				return new ColumnComparer(this);
+			public override IComparer<SystemEntryViewModel> GetComparer(ListSortDirection order) {
+				return new ColumnComparer(this, order);
 			}
 
 			private class ColumnComparer : IComparer<SystemEntryViewModel> {
 				private ColumnDefinitionOrderDefinition _Self;
 				private IComparer _Comparer;
 
-				public ColumnComparer(ColumnDefinitionOrderDefinition self) {
+				public ColumnComparer(ColumnDefinitionOrderDefinition self, ListSortDirection direction) {
 					this._Self = self;
-					this._Comparer = this._Self.Column.GetComparer(ListSortDirection.Ascending);
+					this._Comparer = this._Self.Column.GetComparer(direction);
 				}
 
 				public int Compare(SystemEntryViewModel x, SystemEntryViewModel y) {
@@ -80,11 +73,17 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 						throw new InvalidOperationException("column not found");
 					}
 
+					// 値未取得のものは後ろに持っていく。
+					if (!xColumn.IsValueCreated && !yColumn.IsValueCreated) {
+						return 0;
+					}
 					if (!xColumn.IsValueCreated) {
-						xColumn.Refresh();
+						xColumn.RefreshAsync(xColumn.SystemEntryViewModel.CancellationToken);
+						return Int32.MinValue;
 					}
 					if (!yColumn.IsValueCreated) {
-						yColumn.Refresh();
+						yColumn.RefreshAsync(yColumn.SystemEntryViewModel.CancellationToken);
+						return Int32.MaxValue;
 					}
 
 					return this._Comparer.Compare(xColumn.Value, yColumn.Value);

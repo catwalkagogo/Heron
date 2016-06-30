@@ -18,7 +18,9 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 		public IColumnDefinition Definition { get; private set; }
 		private object _Value;
 		//private IEnumerable<IEntryGroup> _Groups;
-	//	private Lazy<IComparer<ISystemEntry>> _ColumnComparer;
+		//private Lazy<IComparer<ISystemEntry>> _ColumnComparer;
+		private Task _GetValueTask;
+		private object _Sync = new object();
 
 		public ColumnViewModel(IColumnDefinition definition, SystemEntryViewModel vm) {
 			definition.ThrowIfNull("provider");
@@ -37,6 +39,10 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 
 		public void Refresh(CancellationToken token) {
 			this.GetValue(true, token);
+		}
+
+		public Task RefreshAsync(CancellationToken token) {
+			return this.RunGetValueTask(token);
 		}
 
 		private void GetValue(bool refresh, CancellationToken token) {
@@ -74,13 +80,23 @@ public int Compare(ISystemEntry x, ISystemEntry y) {
 	return this._ColumnComparer.Value.Compare(x, y);
 }
 */
+		private Task RunGetValueTask(CancellationToken token) {
+			lock (this._Sync) {
+				// タスクがすでに実行されてる場合はなにもしない
+				if (this._GetValueTask != null && !this._GetValueTask.IsCompleted) {
+					return this._GetValueTask;
+				}
+
+				return this._GetValueTask = Task.Run(delegate {
+					this.GetValue(false, token);
+				}, token);
+			}
+		}
 
 		public object Value {
 			get{
 				if(!this.IsValueCreated) {
-					Task.Run(delegate {
-						this.GetValue(false, this.SystemEntryViewModel.CancellationToken);
-					});
+					this.RunGetValueTask(this.SystemEntryViewModel.CancellationToken);
 				}
 				return this._Value;
 			}
