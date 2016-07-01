@@ -69,11 +69,11 @@ namespace CatWalk.Heron {
 			get;
 		}
 
-		protected virtual void OnStartup(ApplicationStartUpEventArgs e) {
+		protected virtual async Task OnStartup(ApplicationStartUpEventArgs e) {
 			if(this.IsFirst) {
-				this.OnFirstStartUp(e);
+				await this.OnFirstStartUp(e);
 			} else {
-				this.OnSecondStartUp(e);
+				await this.OnSecondStartUp(e);
 			}
 
 			var handler = this.StartUp;
@@ -100,7 +100,7 @@ namespace CatWalk.Heron {
 			});
 		}
 
-		protected virtual void OnSecondStartUp(ApplicationStartUpEventArgs e) {
+		protected virtual async Task OnSecondStartUp(ApplicationStartUpEventArgs e) {
 			this.Shutdown();
 		}
 

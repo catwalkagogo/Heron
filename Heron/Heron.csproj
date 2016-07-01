@@ -196,6 +196,7 @@
 xcopy /s /y "$(SolutionDir)packages\ClearScript.V8.5.4.6\tools\native\x86\*.*" "$(TargetDir)"
 if not exist "$(TargetDir)plugins" mkdir "$(TargetDir)plugins"
 xcopy /s /y "$(SolutionDir)Heron.IOSystem.FileSystem\bin\$(ConfigurationName)" "$(TargetDir)plugins\Heron.IOSystem.FileSystem\"
+xcopy /s /y "$(SolutionDir)Heron.IOSystem.Win32\bin\$(ConfigurationName)" "$(TargetDir)plugins\Heron.IOSystem.Win32\"
 xcopy /s /y "$(SolutionDir)Heron.Windows\bin\$(ConfigurationName)" "$(TargetDir)plugins\Heron.Windows\"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

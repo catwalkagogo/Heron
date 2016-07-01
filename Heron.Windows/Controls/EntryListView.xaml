@@ -1,26 +1,58 @@
 ﻿<ListView
+	x:Name="_this"
 	x:Class="CatWalk.Heron.Windows.Controls.EntryListView"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
 	xmlns:local="clr-namespace:CatWalk.Heron.Windows.Controls"
+	xmlns:conv="clr-namespace:CatWalk.Heron.Windows.Converters"
 	mc:Ignorable="d" 
 	d:DesignHeight="300" d:DesignWidth="300"
 	HorizontalAlignment="Stretch"
 	VerticalAlignment="Stretch">
 	<ListView.Resources>
 		<ResourceDictionary>
-			<CollectionViewSource x:Key="ChildrenView" x:Name="_ChildrenView" Source="{Binding CurrentEntry.Children}">
+			<CollectionViewSource x:Key="{x:Static local:EntryListView.ChildrenViewKey}" Source="{Binding CurrentEntry.Children}">
 			</CollectionViewSource>
-			<DataTemplate x:Key="{x:Static local:EntryListView.DefaultItemTemplateKey}">
-				<TextBlock Text="{Binding Name}" />
-			</DataTemplate>
+			<!--DataTemplate x:Key="{x:Static local:EntryListView.DefaultItemTemplateKey}">
+				<StackPanel>
+					<TextBlock Text="{Binding Name}" />
+				</StackPanel>
+				
+			</DataTemplate -->
+
+			<local:EntryListViewViewFactoryConverter
+				x:Key="{x:Static local:EntryListView.ViewFactoryConverterKey}"
+				ListView="{x:Reference _this}"
+				Factory="{x:Static local:EntryListView.ViewFactory}">
+			</local:EntryListViewViewFactoryConverter>
+			<local:EntryListViewEntryImageFactoryConverter
+				x:Key="EntryImageFactoryConverter"
+				Factory="{x:Static local:EntryListView.EntryImageFactory}">
+			</local:EntryListViewEntryImageFactoryConverter>
+
+			<GridView x:Key="{x:Static local:EntryListView.DefaultViewKey}">
+				<GridViewColumn Header="Name">
+					<GridViewColumn.CellTemplate>
+						<DataTemplate>
+							<StackPanel Orientation="Horizontal">
+								<Image Source="{Binding Converter={StaticResource EntryImageFactoryConverter}}" Width="16" Height="16" />
+								<TextBlock Text="{Binding Name}" />
+							</StackPanel>
+						</DataTemplate>
+					</GridViewColumn.CellTemplate>
+				</GridViewColumn>
+			</GridView>
 		</ResourceDictionary>
 	</ListView.Resources>
 	<ListView.ItemsSource>
-		<Binding Source="{StaticResource ChildrenView}" />
+		<Binding Source="{StaticResource ResourceKey={x:Static local:EntryListView.ChildrenViewKey}}" />
 	</ListView.ItemsSource>
 	
-		
+	<ListView.View>
+		<Binding
+			Path="CurrentEntry"
+			Converter="{StaticResource ResourceKey={x:Static local:EntryListView.ViewFactoryConverterKey}}"/>
+	</ListView.View>
 </ListView>

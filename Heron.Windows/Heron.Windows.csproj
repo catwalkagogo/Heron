@@ -112,6 +112,7 @@
     <Compile Include="Input\InputUtility.cs" />
     <Compile Include="Input\KeyGestureInfo.cs" />
     <Compile Include="Input\MouseGestureInfo.cs" />
+    <Compile Include="Interop\IconUtility.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>

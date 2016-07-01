@@ -320,6 +320,7 @@ namespace CatWalk.Heron.Windows.Converters{
 	}*/
 
 	public class GenericTypeConverter<T1, T2> : IValueConverter {
+		#region IValueConverter
 		public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
 			if (value is T1 && targetType == typeof(T2)) {
 				var state = (T2)value;
@@ -335,10 +336,13 @@ namespace CatWalk.Heron.Windows.Converters{
 		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
 			return this.Convert(value, targetType, parameter, culture);
 		}
+
+		#endregion
 	}
 
 
 	public class RectToGenericRectConverter : IValueConverter {
+		#region IValueConverter
 		public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
 			if (value is Rect) {
 				var rect = (Rect)value;
@@ -388,6 +392,26 @@ namespace CatWalk.Heron.Windows.Converters{
 				throw new ArgumentException("targetType");
 			}
 		}
+
+		#endregion
+	}
+
+	public class FactoryConverter : IValueConverter {
+		public Factory Factory { get; set; }
+
+		public FactoryConverter() {
+		}
+
+		#region IValueConverter
+		public virtual object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
+			return this.Factory.Create(new object[]{ value });
+		}
+
+		public virtual object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
+			throw new NotImplementedException();
+		}
+
+		#endregion
 	}
 
 	public enum FilePathTransform{

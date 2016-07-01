@@ -73,7 +73,7 @@ namespace CatWalk.Heron {
 			protected override Task OnFirstStartUp(ApplicationStartUpEventArgs e) {
 				return base.OnFirstStartUp(e).ContinueWith(task => {
 					var mainWindow = new MainWindowViewModel(this);
-					mainWindow.Panels.AddPanel(@"C:\");
+					mainWindow.Panels.AddPanel(null);
 				}, TaskScheduler.FromCurrentSynchronizationContext());
 			}
 
