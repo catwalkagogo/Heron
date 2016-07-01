@@ -16,9 +16,16 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Globalization;
 using System.Windows.Interop;
+using CatWalk.Collections;
+using System.Reactive;
+using System.Reactive.Linq;
+using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
 
 namespace CatWalk.Heron.Windows.Controls {
 	using Interop;
+	using System.Collections.Specialized;
+	using System.Reactive.Disposables;
 	using Win32 = CatWalk.Win32;
 
 	/// <summary>
@@ -31,11 +38,24 @@ namespace CatWalk.Heron.Windows.Controls {
 		public const string ViewFactoryConverterKey = "ViewFactoryConverter";
 
 		private CollectionViewSource _ChildrenView;
-
-		//public static Factory<SystemEntryViewModel, DataTemplate> ItemDataTemplateFactory { get; private set; } = new Factory<SystemEntryViewModel, DataTemplate>();
+		private GridView _DefaultGridView;
+		private CompositeDisposable _Disposables = new CompositeDisposable();
 
 		public static Factory<SystemEntryViewModel, ViewBase> ViewFactory { get; private set; } = new Factory<SystemEntryViewModel, ViewBase>();
 		public static Factory<RequireEntryImageParameter, ImageSource> EntryImageFactory { get; private set; } = new Factory<RequireEntryImageParameter, ImageSource>();
+
+		public IEnumerable<GridViewColumn> GridViewColumns {
+			get { return (IEnumerable<GridViewColumn>)GetValue(GridViewColumnsProperty); }
+			set { SetValue(GridViewColumnsProperty, value); }
+		}
+
+		// Using a DependencyProperty as the backing store for GridViewColumns.  This enables animation, styling, binding, etc...
+		public static readonly DependencyProperty GridViewColumnsProperty =
+			DependencyProperty.Register("GridViewColumns", typeof(IEnumerable<GridViewColumn>), typeof(EntryListView), new PropertyMetadata(null, (s, e) => {
+				var listView = (EntryListView)s;
+				var notify = (IEnumerable<GridViewColumn>)e.NewValue;
+				notify.NotifyToCollection(listView._DefaultGridView.Columns);
+			})); 
 
 		static EntryListView() {
 			EntryImageFactory.Register(p => true, p => {
@@ -53,13 +73,48 @@ namespace CatWalk.Heron.Windows.Controls {
 
 			this._ChildrenView = (CollectionViewSource)this.FindResource(ChildrenViewKey);
 
-			//this.ItemTemplateSelector = new EntryItemTemplateSelector();
+			this._DefaultGridView = (GridView)this.FindResource(DefaultViewKey);
+			this._Disposables.Add(this._DefaultGridView.Columns
+				.CollectionChangedAsObservable()
+				.Subscribe(e => {
+					this.FitColumn();
+				}));
+
+			this._Disposables.Add(Observable.FromEventPattern<SizeChangedEventArgs>(this, "SizeChanged").Subscribe(e => {
+				this.FitColumn();
+			}));
+
+			this.FitColumn();
 		}
 
-		/*private class EntryItemTemplateSelector : FactoryDataTemplateSelector<SystemEntryViewModel> {
-			public EntryItemTemplateSelector() : base(ItemDataTemplateFactory, DefaultItemTemplateKey) { }
-		}*/
+		private CompositeDisposable _FitColumnEvents = new CompositeDisposable();
+		private void AttachFitColumnEvents() {
+			this._FitColumnEvents.Clear();
 
+			var columns = this._DefaultGridView.Columns;
+			foreach (var column in columns) {
+				// カラム自動調整
+				this._FitColumnEvents.Add(column
+					.ObserveProperty(_ => _.ActualWidth)
+					.Subscribe(_ => {
+						this.FitColumn();
+					}));
+			}
+			
+		}
+
+		private void FitColumn() {
+			var columns = this._DefaultGridView.Columns;
+			// 調整
+			var idx = 0;
+			var widthButThis = columns.Where((c, i) => i != idx).Sum(c => c.ActualWidth);
+			var sv = (ScrollViewer)this.GetVisualChild(v => v is ScrollViewer);
+
+			if(sv != null) {
+				var totalWidth = sv.ViewportWidth;
+				columns[idx].Width = totalWidth - widthButThis;
+			}
+		}
 	}
 
 	public class RequireEntryImageParameter{

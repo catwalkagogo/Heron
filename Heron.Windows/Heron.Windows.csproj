@@ -87,6 +87,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controls\ControlUtility.cs" />
     <Compile Include="Controls\EntryListView.xaml.cs">
       <DependentUpon>EntryListView.xaml</DependentUpon>
     </Compile>
