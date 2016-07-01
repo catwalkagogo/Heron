@@ -11,7 +11,9 @@
 	ext:GridItemsPanel.IsEnabled="True"
 	ItemsSource="{Binding}"
 	SelectedItem="{Binding ActivePanel, Mode=TwoWay}"
-	d:DesignHeight="300" d:DesignWidth="300">
+	d:DesignHeight="300" d:DesignWidth="300"
+	ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+	ScrollViewer.VerticalScrollBarVisibility="Disabled">
 
 	<ListBox.Resources>
 		<ResourceDictionary>

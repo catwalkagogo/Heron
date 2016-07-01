@@ -80,7 +80,10 @@ namespace CatWalk.Heron.Windows.Controls {
 					this.FitColumn();
 				}));
 
-			this._Disposables.Add(Observable.FromEventPattern<SizeChangedEventArgs>(this, "SizeChanged").Subscribe(e => {
+			this._Disposables.Add(Observable.FromEventPattern<SizeChangedEventArgs>(this, "SizeChanged")
+				.Delay(TimeSpan.FromMilliseconds(10))
+				.ObserveOnUIDispatcher()
+				.Subscribe(e => {
 				this.FitColumn();
 			}));
 
@@ -111,7 +114,8 @@ namespace CatWalk.Heron.Windows.Controls {
 			var sv = (ScrollViewer)this.GetVisualChild(v => v is ScrollViewer);
 
 			if(sv != null) {
-				var totalWidth = sv.ViewportWidth;
+				var totalWidth = Math.Max(0, sv.ViewportWidth - 6);
+
 				columns[idx].Width = totalWidth - widthButThis;
 			}
 		}
