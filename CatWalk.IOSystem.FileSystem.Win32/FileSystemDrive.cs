@@ -9,9 +9,9 @@ using System.IO;
 using System.Threading;
 using CatWalk.IO;
 
-namespace CatWalk.IOSystem.FileSystem {
+namespace CatWalk.IOSystem.FileSystem.Win32 {
 	using IO = System.IO;
-	public class FileSystemDrive : FileSystemEntryBase, IFileSystemEntry{
+	public class FileSystemDrive : FileSystemEntryBase, IWin32FileSystemEntry{
 		public char DriveLetter{get; private set;}
 
 		public FileSystemDrive(ISystemEntry parent, char driveLetter) : base(parent, ValidateDriveLetter(driveLetter).ToString()){
@@ -32,6 +32,12 @@ namespace CatWalk.IOSystem.FileSystem {
 			return driveLetter;
 		}
 
+		public override StringComparison StringComparison {
+			get {
+				return StringComparison.OrdinalIgnoreCase;
+			}
+		}
+
 		#region Properties
 
 		public override bool IsDirectory {
@@ -46,7 +52,7 @@ namespace CatWalk.IOSystem.FileSystem {
 			}
 		}
 
-		public override bool IsExists() {
+		public override bool IsExists(CancellationToken token, IProgress<double> progress) {
 			var info = this.DriveInfo;
 			return info.IsReady;
 		}
@@ -110,16 +116,16 @@ namespace CatWalk.IOSystem.FileSystem {
 			return
 				Seq.Make(
 					Directory.EnumerateDirectories(this.FileSystemPath.FullPath)
-						.Select(file => new FileSystemEntry(this, IO::Path.GetFileName(file), file, true) as ISystemEntry),
+						.Select(file => new Win32FileSystemEntry(this, IO::Path.GetFileName(file), file, true) as ISystemEntry),
 					Directory.EnumerateFiles(this.FileSystemPath.FullPath)
-						.Select(file => new FileSystemEntry(this, IO::Path.GetFileName(file), file, false) as ISystemEntry))
+						.Select(file => new Win32FileSystemEntry(this, IO::Path.GetFileName(file), file, false) as ISystemEntry))
 				.WithCancellation(token)
 				.Aggregate((a,b) => a.Concat(b));
 		}
 
 		public override ISystemEntry GetChild(string name, CancellationToken token, IProgress<double> progress) {
 			var path = this.ConcatFileSystemPath(name);
-			return new FileSystemEntry(this, name, path, true);
+			return new Win32FileSystemEntry(this, name, path, true);
 		}
 
 		public override bool Contains(string name, CancellationToken token, IProgress<double> progress) {

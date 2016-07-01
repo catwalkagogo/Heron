@@ -9,10 +9,5 @@ namespace CatWalk.IOSystem.FileSystem {
 		public FileSystemEntryBase(ISystemEntry parent, string name) : base(parent, name) {
 		}
 
-		protected override StringComparison StringComparison {
-			get {
-				return StringComparison.OrdinalIgnoreCase;
-			}
-		}
 	}
 }

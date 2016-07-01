@@ -11,7 +11,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using CatWalk;
 using CatWalk.IOSystem;
-using CatWalk.IOSystem.FileSystem;
+using CatWalk.IOSystem.Win32FileSystem;
 using CatWalk.Win32.Shell;
 using CatWalk.IO;
 using CatWalk.Heron.IOSystem;
@@ -47,7 +47,7 @@ namespace CatWalk.Heron.FileSystem {
 			entry.ThrowIfNull("entry");
 			IEnumerable<ColumnDefinition> columns = new ColumnDefinition[]{
 			};
-			var fsentry = entry as FileSystemEntry;
+			var fsentry = entry as Win32FileSystemEntry;
 			if(fsentry != null) {
 				var source = new FileInfoSource(fsentry);
 				columns = columns.Concat(new ColumnDefinition[]{
@@ -238,7 +238,7 @@ namespace CatWalk.Heron.FileSystem {
 		}
 
 		public class FileInfoSource : ResetLazyColumnValueSource<IFileInformation> {
-			public FileInfoSource(FileSystemEntry entry)
+			public FileInfoSource(Win32FileSystemEntry entry)
 				: base(() => entry.FileInformation) {
 			}
 		}
@@ -294,13 +294,13 @@ namespace CatWalk.Heron.FileSystem {
 
 		public class ExtensionColumn : ColumnDefinition<string> {
 			protected override object GetValueImpl(ISystemEntry entry, bool noCache, CancellationToken token) {
-				return ((FileSystemEntry)entry).Extension;
+				return ((Win32FileSystemEntry)entry).Extension;
 			}
 		}
 
 		public class BaseNameColumn : ColumnDefinition<string> {
 			protected override object GetValueImpl(ISystemEntry entry, bool noCache, CancellationToken token) {
-				return ((FileSystemEntry)entry).BaseName;
+				return ((Win32FileSystemEntry)entry).BaseName;
 			}
 		}
 

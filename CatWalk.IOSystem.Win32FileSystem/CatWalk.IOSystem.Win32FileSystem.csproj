@@ -2,19 +2,15 @@
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
-    <MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{4680EF35-26A8-47E4-B585-6DB99B09B455}</ProjectGuid>
+    <ProjectGuid>{5E7B0E87-E86A-479E-8FB0-C52640E337FD}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CatWalk.Heron.IOSystem.Generic</RootNamespace>
-    <AssemblyName>Heron.IOSystem.Generic</AssemblyName>
-    <DefaultLanguage>en-US</DefaultLanguage>
+    <RootNamespace>CatWalk.IOSystem.Win32FileSystem</RootNamespace>
+    <AssemblyName>CatWalk.IOSystem.Win32FileSystem</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <TargetFrameworkProfile>Profile111</TargetFrameworkProfile>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -34,7 +30,23 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <!-- A reference to the entire .NET Framework is automatically included -->
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="FileInformation.cs" />
+    <Compile Include="FileSystemDrive.cs" />
+    <Compile Include="FileSystemDriveDirectory.cs" />
+    <Compile Include="Win32FileSystemEntry.cs" />
+    <Compile Include="FileSystemWatcher.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CatWalk.IOSystem.FileSystem\CatWalk.IOSystem.FileSystem.csproj">
+      <Project>{5024779a-fe45-4f94-b8bf-617d7673c830}</Project>
+      <Name>CatWalk.IOSystem.FileSystem</Name>
+    </ProjectReference>
     <ProjectReference Include="..\CatWalk.IOSystem\CatWalk.IOSystem.csproj">
       <Project>{dedb40e7-a386-4305-be85-5a1c263bd503}</Project>
       <Name>CatWalk.IOSystem</Name>
@@ -43,16 +55,8 @@
       <Project>{ae338060-3af3-4bbb-9028-806a3ce681a3}</Project>
       <Name>CatWalk</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Heron.Core\Heron.Core.csproj">
-      <Project>{996331ab-d837-42d5-970a-247822be6f29}</Project>
-      <Name>Heron.Core</Name>
-    </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="GenericSystemProvider.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

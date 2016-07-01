@@ -68,7 +68,7 @@ namespace CatWalk.IOSystem.Win32 {
 			}
 		}
 
-		public override bool IsExists() {
+		public override bool IsExists(CancellationToken token, IProgress<double> progress) {
 			return this.Process != null || !this.Process.HasExited;
 		}
 

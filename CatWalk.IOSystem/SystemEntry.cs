@@ -74,12 +74,12 @@ namespace CatWalk.IOSystem {
 		/// このエントリの実体が存在するかどうか。
 		/// 既定では親のISystemDirectoryのContains関数を呼び出します。
 		/// </summary>
-		public virtual bool IsExists() {
-			return (this.Parent == null) || this.Parent.Contains(this.Name);
+		public bool IsExists() {
+			return this.IsExists(CancellationToken.None, null);
 		}
 
-		public virtual bool IsExists(CancellationToken token){
-			return (this.Parent == null) || this.Parent.Contains(this.Name, token);
+		public bool IsExists(CancellationToken token){
+			return this.IsExists(token, null);
 		}
 
 		public virtual bool IsExists(CancellationToken token, IProgress<double> progress) {
@@ -133,7 +133,7 @@ namespace CatWalk.IOSystem {
 			}
 		}
 
-		protected virtual StringComparison StringComparison {
+		public virtual StringComparison StringComparison {
 			get {
 				return StringComparison.Ordinal;
 			}

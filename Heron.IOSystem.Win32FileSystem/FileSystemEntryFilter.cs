@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
-using CatWalk.IOSystem.FileSystem;
+using CatWalk.IOSystem.Win32FileSystem;
 using CatWalk.Heron.IOSystem;
 using CatWalk.Heron.ViewModel.IOSystem;
 

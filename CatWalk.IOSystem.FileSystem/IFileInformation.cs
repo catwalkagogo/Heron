@@ -3,7 +3,6 @@ using System.IO;
 
 namespace CatWalk.IOSystem.FileSystem {
 	public interface IFileInformation {
-		FileAttributes Attributes { get; }
 		DateTime CreationTime { get; }
 		DateTime LastAccessTime { get; }
 		DateTime LastWriteTime { get; }

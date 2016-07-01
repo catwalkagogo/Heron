@@ -8,8 +8,8 @@ using System.Text;
 using System.IO;
 using System.Threading;
 
-namespace CatWalk.IOSystem.FileSystem {
-	public class FileSystemDriveDirectory : FileSystemEntryBase{
+namespace CatWalk.IOSystem.Win32FileSystem {
+	public class FileSystemDriveDirectory : Win32FileSystemEntryBase{
 		public FileSystemDriveDirectory(ISystemEntry parent, string name) : base(parent, name){
 		}
 

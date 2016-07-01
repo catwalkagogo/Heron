@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
-using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Threading;
 using CatWalk;
@@ -14,73 +13,21 @@ using CatWalk.IO;
 
 namespace CatWalk.IOSystem.FileSystem {
 	using IO = System.IO;
-	public class FileSystemEntry : FileSystemEntryBase, IFileSystemEntry{
-		private Lazy<bool> _IsDirectory;
+	public abstract class FileSystemEntry : FileSystemEntryBase, IFileSystemEntry{
 
 		public FileSystemEntry(ISystemEntry parent, string name, string path) : base(parent, name){
-			this.Initialize(parent, name, path, () => IO::Directory.Exists(this.FileSystemPath.FullPath));
-		}
-
-		internal FileSystemEntry(ISystemEntry parent, string name, string path, bool isDirectory) : base(parent, name){
-			this.Initialize(parent, name, path, () => isDirectory);
-		}
-
-		private void Initialize(ISystemEntry parent, string name, string path, Func<bool> isDirectory){
 			this.FileSystemPath = new FilePath(path, FilePathKind.Absolute, FilePathFormats.Windows);
-			this._IsDirectory = new Lazy<bool>(isDirectory);
 		}
 
-		public override bool IsDirectory {
-			get {
-				return this._IsDirectory.Value;
-			}
-		}
 
-		public override bool IsExists() {
-			if(this.IsDirectory) {
-				return Directory.Exists(this.FileSystemPath.FullPath);
-			} else {
-				return File.Exists(this.FileSystemPath.FullPath);
-			}
-		}
-
-		public override bool IsExists(CancellationToken token) {
-			return this.IsExists();
-		}
-
-		public override bool IsExists(CancellationToken token, IProgress<double> progress) {
-			return base.IsExists();
-		}
+		public abstract IFilePathFormat FilePathFormat { get; }
 
 
 		#region Directory
 
-		public override bool Contains(string name, CancellationToken token, IProgress<double> progress) {
-			this.ThrowIfNotDirectory();
-			var path = this.ConcatFileSystemPath(name);
-			return Directory.Exists(path.FullPath) || File.Exists(path.FullPath);
-		}
-
 		public FilePath ConcatFileSystemPath(string name) {
 			this.ThrowIfNotDirectory();
 			return this.FileSystemPath.Resolve(name);
-		}
-
-		public override IEnumerable<ISystemEntry> GetChildren(CancellationToken token, IProgress<double> progress) {
-			this.ThrowIfNotDirectory();
-			return Seq.Make(
-				Directory.EnumerateDirectories(this.FileSystemPath.FullPath)
-					.Select(file => new FileSystemEntry(this, IO::Path.GetFileName(file), file, false) as ISystemEntry),
-				Directory.EnumerateFiles(this.FileSystemPath.FullPath)
-					.Select(file => new FileSystemEntry(this, IO::Path.GetFileName(file), file, false) as ISystemEntry))
-				.WithCancellation(token)
-				.Aggregate((a, b) => a.Concat(b));
-		}
-
-		public override ISystemEntry GetChild(string name, CancellationToken token, IProgress<double> progress) {
-			this.ThrowIfNotDirectory();
-			var path = this.ConcatFileSystemPath(name);
-			return new FileSystemEntry(this, name, path.FullPath, true);
 		}
 
 		#endregion
@@ -93,12 +40,7 @@ namespace CatWalk.IOSystem.FileSystem {
 
 		#region FileInformation
 
-		public IFileInformation FileInformation {
-			get {
-				return new FileInformation(this.FileSystemPath.FullPath);
-			}
-
-		}
+		public abstract IFileInformation FileInformation { get; }
 
 		public long Size {
 			get {
@@ -111,12 +53,6 @@ namespace CatWalk.IOSystem.FileSystem {
 			get {
 				var info = this.FileInformation;
 				return info.LinkCount;
-			}
-		}
-
-		public FileAttributes FileAttibutes{
-			get{
-				return this.FileInformation.Attributes;
 			}
 		}
 
@@ -135,37 +71,6 @@ namespace CatWalk.IOSystem.FileSystem {
 		public DateTime LastAccessTime{
 			get{
 				return this.FileInformation.LastAccessTime;
-			}
-		}
-		
-		public FileSecurity AccessControl{
-			get{
-				return File.GetAccessControl(this.FileSystemPath.FullPath);
-			}
-		}
-
-		public NTAccount Owner{
-			get{
-				return this.AccessControl.GetOwner(typeof(NTAccount)) as NTAccount;
-			}
-		}
-
-		public IEnumerable<FileSystemAccessRule> AccessRules{
-			get{
-				var current = WindowsIdentity.GetCurrent();
-				var fs = this.AccessControl;
-				var rules = fs.GetAccessRules(true, true, typeof(SecurityIdentifier));
-				foreach(FileSystemAccessRule rule in rules){
-					if(rule.IdentityReference == current.User){
-						yield return rule;
-					}
-					foreach(IdentityReference group in current.Groups){
-						if(rule.IdentityReference == group){
-							yield return rule;
-							break;
-						}
-					}
-				}
 			}
 		}
 		

@@ -7,18 +7,18 @@ using System.Threading;
 using System.Threading.Tasks;
 using CatWalk.Collections;
 
-namespace CatWalk.IOSystem.FileSystem {
+namespace CatWalk.IOSystem.FileSystem.Win32 {
 	using IO = System.IO;
 	public class FileSystemWatcher : IIOSystemWatcher{
 		private Lazy<IO::FileSystemWatcher> _Watcher;
-		private IFileSystemEntry _Target;
+		private IWin32FileSystemEntry _Target;
 		private Task _NotifyTask;
 		private object _SyncObject = new Object();
 		private const int DelayTime = 1000;
 		private Queue<IO::FileSystemEventArgs> _EventQueue = new Queue<IO.FileSystemEventArgs>();
 		private CancellationTokenSource _TokenSource = new CancellationTokenSource();
 
-		public FileSystemWatcher(IFileSystemEntry dir) {
+		public FileSystemWatcher(IWin32FileSystemEntry dir) {
 			this._Target = dir;
 			this._Watcher = new Lazy<IO.FileSystemWatcher>(this.WatcherFactory);
 		}
@@ -135,8 +135,8 @@ namespace CatWalk.IOSystem.FileSystem {
 
 		#endregion
 
-		private FileSystemEntry CreateEntry(string path) {
-			return new FileSystemEntry(this._Target, IO::Path.GetFileName(path), path);
+		private Win32FileSystemEntry CreateEntry(string path) {
+			return new Win32FileSystemEntry(this._Target, IO::Path.GetFileName(path), path);
 		}
 
 		private void _Watcher_Deleted(object sender, IO.FileSystemEventArgs e) {

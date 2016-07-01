@@ -10,11 +10,11 @@ using System.IO;
 using Microsoft.Win32.SafeHandles;
 using System.ComponentModel;
 
-namespace CatWalk.IOSystem.FileSystem {
+namespace CatWalk.IOSystem.FileSystem.Win32 {
 	using IO = System.IO;
 
 	[StructLayout(LayoutKind.Sequential)]
-	internal class FileInformation : IFileInformation {
+	public class FileInformation : IFileInformation {
 		private const int ERROR_FILE_NOT_FOUND = 2;
 		private ByHandleFileInformation _Info;
 		private Exception _GetFileInformationByHandleException;

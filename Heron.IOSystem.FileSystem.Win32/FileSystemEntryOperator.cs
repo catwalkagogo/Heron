@@ -8,10 +8,11 @@ using System.Windows;
 using CatWalk.Heron.IOSystem;
 using CatWalk.IOSystem;
 using CatWalk.IOSystem.FileSystem;
+using CatWalk.IOSystem.FileSystem.Win32;
 using CatWalk.Win32.Shell;
 using CatWalk.Windows;
 
-namespace CatWalk.Heron.FileSystem {
+namespace CatWalk.Heron.FileSystem.Win32 {
 	public class FileSystemEntryOperator : IEntryOperator {
 		private FileSystemEntryOperator() {}
 
@@ -60,39 +61,39 @@ namespace CatWalk.Heron.FileSystem {
 		}
 
 		public IEnumerable<ISystemEntry> CanCopyTo(IEnumerable<ISystemEntry> entries, ISystemEntry dest) {
-			return entries.Where(entry => dest is IFileSystemEntry || entry is IFileSystemEntry);
+			return entries.Where(entry => dest is IWin32FileSystemEntry || entry is IWin32FileSystemEntry);
 		}
 
 		public IEnumerable<ISystemEntry> CanCopyToClipboard(IEnumerable<ISystemEntry> entries) {
-			return entries.Where(entry => entry is IFileSystemEntry);
+			return entries.Where(entry => entry is IWin32FileSystemEntry);
 		}
 
 		public bool CanCreate(ISystemEntry parent) {
-			return parent is IFileSystemEntry;
+			return parent is IWin32FileSystemEntry;
 		}
 
 		public IEnumerable<ISystemEntry> CanDelete(IEnumerable<ISystemEntry> entries) {
-			return entries.Where(entry => entry is FileSystemEntry);
+			return entries.Where(entry => entry is Win32FileSystemEntry);
 		}
 
 		public IEnumerable<ISystemEntry> CanMoveTo(IEnumerable<ISystemEntry> entries, ISystemEntry dest) {
-			return entries.Where(entry => dest is IFileSystemEntry || entry is IFileSystemEntry);
+			return entries.Where(entry => dest is IWin32FileSystemEntry || entry is IWin32FileSystemEntry);
 		}
 
 		public IEnumerable<ISystemEntry> CanMoveToClipboard(IEnumerable<ISystemEntry> entries) {
-			return entries.Where(entry => entry is IFileSystemEntry);
+			return entries.Where(entry => entry is IWin32FileSystemEntry);
 		}
 
 		public IEnumerable<ISystemEntry> CanOpen(IEnumerable<ISystemEntry> entries) {
-			return entries.Where(entry => entry is IFileSystemEntry);
+			return entries.Where(entry => entry is IWin32FileSystemEntry);
 		}
 
 		public bool CanPasteTo(ISystemEntry dest) {
-			return dest is IFileSystemEntry && Clipboard.ContainsFileDropList();
+			return dest is IWin32FileSystemEntry && Clipboard.ContainsFileDropList();
 		}
 
 		public bool CanRename(ISystemEntry entry) {
-			return entry is FileSystemEntry;
+			return entry is Win32FileSystemEntry;
 		}
 
 		private Task<IEntryOperationResult> CreateFileOperationTask(IEnumerable<ISystemEntry> entries, CancellationToken token, IProgress<double> progress, Action<FileOperation> op) {
@@ -114,8 +115,8 @@ namespace CatWalk.Heron.FileSystem {
 
 		public Task<IEntryOperationResult> CopyTo(IEnumerable<ISystemEntry> entries, ISystemEntry dest, CancellationToken token, IProgress<double> progress) {
 			entries = this.CanCopyTo(entries, dest).ToArray();
-			var files = entries.Cast<IFileSystemEntry>().Select(fse => fse.FileSystemPath.FullPath).ToArray();
-			var destPath = ((IFileSystemEntry)dest).FileSystemPath.FullPath;
+			var files = entries.Cast<IWin32FileSystemEntry>().Select(fse => fse.FileSystemPath.FullPath).ToArray();
+			var destPath = ((IWin32FileSystemEntry)dest).FileSystemPath.FullPath;
 
 			return this.CreateFileOperationTask(entries, token, progress, (ops) => {
 				ops.Copy(files, destPath);
@@ -124,8 +125,8 @@ namespace CatWalk.Heron.FileSystem {
 
 		public Task<IEntryOperationResult> MoveTo(IEnumerable<ISystemEntry> entries, ISystemEntry dest, CancellationToken token, IProgress<double> progress) {
 			entries = this.CanMoveTo(entries, dest).ToArray();
-			var files = entries.Cast<IFileSystemEntry>().Select(fse => fse.FileSystemPath.FullPath).ToArray();
-			var destPath = ((IFileSystemEntry)dest).FileSystemPath.FullPath;
+			var files = entries.Cast<IWin32FileSystemEntry>().Select(fse => fse.FileSystemPath.FullPath).ToArray();
+			var destPath = ((IWin32FileSystemEntry)dest).FileSystemPath.FullPath;
 
 			return this.CreateFileOperationTask(entries, token, progress, (ops) => {
 				ops.Move(files, destPath);
@@ -134,7 +135,7 @@ namespace CatWalk.Heron.FileSystem {
 
 		public Task<IEntryOperationResult> Delete(IEnumerable<ISystemEntry> entries, bool canUndo, CancellationToken token, IProgress<double> progress) {
 			entries = this.CanDelete(entries).ToArray();
-			var files = entries.Cast<IFileSystemEntry>().Select(fse => fse.FileSystemPath.FullPath).ToArray();
+			var files = entries.Cast<IWin32FileSystemEntry>().Select(fse => fse.FileSystemPath.FullPath).ToArray();
 
 			return this.CreateFileOperationTask(entries, token, progress, (ops) => {
 				ops.Delete(files);
@@ -145,7 +146,7 @@ namespace CatWalk.Heron.FileSystem {
 			if (!this.CanRename(entry)) {
 				throw new ArgumentException("entry");
 			}
-			var files = Seq.Make(entry).Cast<IFileSystemEntry>().Select(fse => fse.FileSystemPath.FullPath).ToArray();
+			var files = Seq.Make(entry).Cast<IWin32FileSystemEntry>().Select(fse => fse.FileSystemPath.FullPath).ToArray();
 
 			return this.CreateFileOperationTask(Seq.Make(entry), token, progress, (ops) => {
 				ops.Rename(files[0], newName);
@@ -156,7 +157,7 @@ namespace CatWalk.Heron.FileSystem {
 			if (!this.CanCreate(parent)) {
 				throw new ArgumentException("parent");
 			}
-			var entries = Seq.Make(parent).Cast<IFileSystemEntry>().ToArray();
+			var entries = Seq.Make(parent).Cast<IWin32FileSystemEntry>().ToArray();
 			var parentEntry = entries.First();
 
 			return this.CreateFileOperationTask(entries, token, progress, (ops) => {
@@ -166,7 +167,7 @@ namespace CatWalk.Heron.FileSystem {
 
 		public Task<IEntryOperationResult> Open(IEnumerable<ISystemEntry> entries, CancellationToken token, IProgress<double> progress) {
 			entries = this.CanOpen(entries).ToArray();
-			var files = entries.Cast<IFileSystemEntry>().Select(fse => fse.FileSystemPath.FullPath).ToArray();
+			var files = entries.Cast<IWin32FileSystemEntry>().Select(fse => fse.FileSystemPath.FullPath).ToArray();
 
 			return Task.Run<IEntryOperationResult>(() => {
 				FileOperations.ExecuteDefaultAction(IntPtr.Zero, files);
@@ -177,7 +178,7 @@ namespace CatWalk.Heron.FileSystem {
 
 		public Task<IEntryOperationResult> CopyToClipboard(IEnumerable<ISystemEntry> entries, CancellationToken token, IProgress<double> progress) {
 			entries = this.CanCopyToClipboard(entries).ToArray();
-			var files = entries.Cast<IFileSystemEntry>().Select(fse => fse.FileSystemPath.FullPath).ToArray();
+			var files = entries.Cast<IWin32FileSystemEntry>().Select(fse => fse.FileSystemPath.FullPath).ToArray();
 
 			return Task.Run<IEntryOperationResult>(() => {
 				ClipboardUtility.CopyFiles(files);
@@ -188,7 +189,7 @@ namespace CatWalk.Heron.FileSystem {
 
 		public Task<IEntryOperationResult> MoveToClipboard(IEnumerable<ISystemEntry> entries, CancellationToken token, IProgress<double> progress) {
 			entries = this.CanMoveToClipboard(entries).ToArray();
-			var files = entries.Cast<IFileSystemEntry>().Select(fse => fse.FileSystemPath.FullPath).ToArray();
+			var files = entries.Cast<IWin32FileSystemEntry>().Select(fse => fse.FileSystemPath.FullPath).ToArray();
 
 			return Task.Run<IEntryOperationResult>(() => {
 				ClipboardUtility.CutFiles(files);
@@ -203,7 +204,7 @@ namespace CatWalk.Heron.FileSystem {
 			}
 
 			var entries = Seq.Make(dest);
-			var destPath = ((IFileSystemEntry)dest).FileSystemPath.FullPath;
+			var destPath = ((IWin32FileSystemEntry)dest).FileSystemPath.FullPath;
 
 			return Task.Run<IEntryOperationResult>(() => {
 
@@ -228,11 +229,11 @@ namespace CatWalk.Heron.FileSystem {
 			}, token);
 		}
 
-		public IEnumerable<ISystemEntry> CanCreateShortcut(IFileSystemEntry target) {
+		public IEnumerable<ISystemEntry> CanCreateShortcut(IWin32FileSystemEntry target) {
 			return Seq.Make(target);
 		}
 
-		public Task<IEntryOperationResult> CreateShortcut(IFileSystemEntry target, string shortcutFileDest, CancellationToken token, Action<ShellLink, IFileSystemEntry> linkInitializer = null) {
+		public Task<IEntryOperationResult> CreateShortcut(IWin32FileSystemEntry target, string shortcutFileDest, CancellationToken token, Action<ShellLink, IWin32FileSystemEntry> linkInitializer = null) {
 			return Task.Run<IEntryOperationResult>(() => {
 				var link = new ShellLink();
 				link.TargetPath = target.FileSystemPath.FullPath;
