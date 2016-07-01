@@ -74,51 +74,10 @@ namespace CatWalk.Heron.Windows.Controls {
 			this._ChildrenView = (CollectionViewSource)this.FindResource(ChildrenViewKey);
 
 			this._DefaultGridView = (GridView)this.FindResource(DefaultViewKey);
-			this._Disposables.Add(this._DefaultGridView.Columns
-				.CollectionChangedAsObservable()
-				.Subscribe(e => {
-					this.FitColumn();
-				}));
-
-			this._Disposables.Add(Observable.FromEventPattern<SizeChangedEventArgs>(this, "SizeChanged")
-				.Delay(TimeSpan.FromMilliseconds(10))
-				.ObserveOnUIDispatcher()
-				.Subscribe(e => {
-				this.FitColumn();
-			}));
-
-			this.FitColumn();
 		}
 
 		private CompositeDisposable _FitColumnEvents = new CompositeDisposable();
-		private void AttachFitColumnEvents() {
-			this._FitColumnEvents.Clear();
 
-			var columns = this._DefaultGridView.Columns;
-			foreach (var column in columns) {
-				// カラム自動調整
-				this._FitColumnEvents.Add(column
-					.ObserveProperty(_ => _.ActualWidth)
-					.Subscribe(_ => {
-						this.FitColumn();
-					}));
-			}
-			
-		}
-
-		private void FitColumn() {
-			var columns = this._DefaultGridView.Columns;
-			// 調整
-			var idx = 0;
-			var widthButThis = columns.Where((c, i) => i != idx).Sum(c => c.ActualWidth);
-			var sv = (ScrollViewer)this.GetVisualChild(v => v is ScrollViewer);
-
-			if(sv != null) {
-				var totalWidth = Math.Max(0, sv.ViewportWidth - 6);
-
-				columns[idx].Width = totalWidth - widthButThis;
-			}
-		}
 	}
 
 	public class RequireEntryImageParameter{

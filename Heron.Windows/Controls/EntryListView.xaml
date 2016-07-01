@@ -7,10 +7,13 @@
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
 	xmlns:local="clr-namespace:CatWalk.Heron.Windows.Controls"
 	xmlns:conv="clr-namespace:CatWalk.Heron.Windows.Converters"
+	xmlns:ext="clr-namespace:CatWalk.Windows.Extensions;assembly=CatWalk.Windows"
 	mc:Ignorable="d" 
 	d:DesignHeight="300" d:DesignWidth="300"
 	HorizontalAlignment="Stretch"
-	VerticalAlignment="Stretch">
+	VerticalAlignment="Stretch"
+	ext:GridViewBehaviours.AutoFitGridIndex="0">
+	
 	<ListView.Resources>
 		<ResourceDictionary>
 			<CollectionViewSource x:Key="{x:Static local:EntryListView.ChildrenViewKey}" Source="{Binding CurrentEntry.Children}">

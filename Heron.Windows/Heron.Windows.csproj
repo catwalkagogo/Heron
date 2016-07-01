@@ -95,6 +95,7 @@
       <DependentUpon>AddressBar.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\FactoryDataTemplateSelector.cs" />
+    <Compile Include="Controls\GridViewBehaviours.cs" />
     <Compile Include="Controls\Panel.xaml.cs">
       <DependentUpon>Panel.xaml</DependentUpon>
     </Compile>

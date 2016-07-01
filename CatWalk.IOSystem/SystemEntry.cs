@@ -18,7 +18,7 @@ namespace CatWalk.IOSystem {
 		/// コンストラクタ。parentがnullの場合はルートフォルダになります。
 		/// </summary>
 		/// <param name="parent">親のISystemDirectory</param>
-		/// <param name="id">同階層内で一意な識別子</param>
+		/// <param name="name">同階層内で一意な識別子</param>
 		protected SystemEntry(ISystemEntry parent, string name){
 			if(name == null){
 				throw new ArgumentNullException(nameof(name));
