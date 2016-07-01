@@ -110,6 +110,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration\DBStorage.cs" />
+    <Compile Include="Configuration\GenericJsonConverter.cs" />
     <Compile Include="PluginManager.cs" />
     <Compile Include="Program.xaml.cs">
       <DependentUpon>Program.xaml</DependentUpon>
