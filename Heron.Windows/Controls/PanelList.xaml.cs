@@ -22,6 +22,7 @@ namespace CatWalk.Heron.Windows.Controls {
 	/// Interaction logic for PanelList.xaml
 	/// </summary>
 	public partial class PanelList : ListBox {
+		public const string DefaultPanelTemplateKey = "DefaultPanelTemplate";
 		public static Factory<SystemEntryViewModel, DataTemplate> ItemDataTemplateFactory = new Factory<SystemEntryViewModel, DataTemplate>();
 
 		public PanelList() {
@@ -31,7 +32,7 @@ namespace CatWalk.Heron.Windows.Controls {
 		}
 
 		private class PanelTemplateSelector : FactoryDataTemplateSelector<SystemEntryViewModel> {
-			public PanelTemplateSelector() : base(ItemDataTemplateFactory, "DefaultPanelTemplate") { }
+			public PanelTemplateSelector() : base(ItemDataTemplateFactory, DefaultPanelTemplateKey) { }
 
 			protected override SystemEntryViewModel ItemDataSelector(object item) {
 				// 現在のISystemItemに応じてViewModelを作成する

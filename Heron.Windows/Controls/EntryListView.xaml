@@ -1,17 +1,19 @@
-﻿<ListView x:Class="CatWalk.Heron.Windows.Controls.EntryListView"
-			 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-			 mc:Ignorable="d" 
-			 d:DesignHeight="300" d:DesignWidth="300"
-			HorizontalAlignment="Stretch"
-			VerticalAlignment="Stretch">
+﻿<ListView
+	x:Class="CatWalk.Heron.Windows.Controls.EntryListView"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+	xmlns:local="clr-namespace:CatWalk.Heron.Windows.Controls"
+	mc:Ignorable="d" 
+	d:DesignHeight="300" d:DesignWidth="300"
+	HorizontalAlignment="Stretch"
+	VerticalAlignment="Stretch">
 	<ListView.Resources>
 		<ResourceDictionary>
 			<CollectionViewSource x:Key="ChildrenView" x:Name="_ChildrenView" Source="{Binding CurrentEntry.Children}">
 			</CollectionViewSource>
-			<DataTemplate x:Key="DefaultItemTemplate">
+			<DataTemplate x:Key="{x:Static local:EntryListView.DefaultItemTemplateKey}">
 				<TextBlock Text="{Binding Name}" />
 			</DataTemplate>
 		</ResourceDictionary>

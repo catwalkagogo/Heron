@@ -19,6 +19,8 @@ namespace CatWalk.Heron.Windows.Controls {
 	/// Interaction logic for LogList.xaml
 	/// </summary>
 	public partial class EntryListView : ListView {
+		public const string DefaultItemTemplateKey = "DefaultItemTemplate";
+
 		public static Factory<SystemEntryViewModel, DataTemplate> ItemDataTemplateFactory = new Factory<SystemEntryViewModel, DataTemplate>();
 
 		public EntryListView() {
@@ -28,7 +30,7 @@ namespace CatWalk.Heron.Windows.Controls {
 		}
 
 		private class EntryItemTemplateSelector : FactoryDataTemplateSelector<SystemEntryViewModel> {
-			public EntryItemTemplateSelector() : base(ItemDataTemplateFactory, "DefaultItemTemplate") { }
+			public EntryItemTemplateSelector() : base(ItemDataTemplateFactory, DefaultItemTemplateKey) { }
 		}
 	}
 }
