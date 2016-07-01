@@ -1,4 +1,7 @@
-﻿using CatWalk.Windows.Extensions;
+﻿using CatWalk.Heron.ViewModel.IOSystem;
+using CatWalk.Heron.ViewModel.Windows;
+using CatWalk.IOSystem;
+using CatWalk.Windows.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,22 +21,23 @@ namespace CatWalk.Heron.Windows.Controls {
 	/// <summary>
 	/// Interaction logic for PanelList.xaml
 	/// </summary>
-	public partial class PanelList : UserControl {
+	public partial class PanelList : ListBox {
+		public static Factory<SystemEntryViewModel, DataTemplate> ItemDataTemplateFactory = new Factory<SystemEntryViewModel, DataTemplate>();
+
 		public PanelList() {
 			InitializeComponent();
 
-			this.DataContextChanged += PanelList_DataContextChanged;
+			this.ItemTemplateSelector = new PanelTemplateSelector();
 		}
 
-		private void PanelList_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e) {
-			var unko = e.NewValue;
+		private class PanelTemplateSelector : FactoryDataTemplateSelector<SystemEntryViewModel> {
+			public PanelTemplateSelector() : base(ItemDataTemplateFactory, "DefaultPanelTemplate") { }
 
-			GridItemsPanel.SetIsEnabled(this._ListBox, true);
-		}
-
-		public PanelTemplateSelector PanelTemplateSelector {
-			get {
-				return this._PanelTemplateSelector;
+			protected override SystemEntryViewModel ItemDataSelector(object item) {
+				// 現在のISystemItemに応じてViewModelを作成する
+				var panelVM = (PanelViewModel)item;
+				var entry = panelVM.ListView.CurrentEntry;
+				return entry;
 			}
 		}
 	}

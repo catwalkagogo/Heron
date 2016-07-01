@@ -93,6 +93,7 @@
     <Compile Include="Controls\AddressBar.xaml.cs">
       <DependentUpon>AddressBar.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\FactoryDataTemplateSelector.cs" />
     <Compile Include="Controls\Panel.xaml.cs">
       <DependentUpon>Panel.xaml</DependentUpon>
     </Compile>
@@ -105,7 +106,6 @@
     <Compile Include="Controls\PanelList.xaml.cs">
       <DependentUpon>PanelList.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\PanelTemplateSelector.cs" />
     <Compile Include="Converters\Converters.cs" />
     <Compile Include="FrameworkMessageReceiver.cs" />
     <Compile Include="Input\IInputGestureInfo.cs" />

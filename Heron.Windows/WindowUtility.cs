@@ -19,16 +19,6 @@ namespace CatWalk.Heron.Windows {
 			}
 		}
 
-		private static MainWindow _LatestMainWindow;
-		public static MainWindow LatestActiveWindow {
-			get {
-				return _LatestMainWindow ?? MainWindows.FirstOrDefault(win => win.IsActive) ?? MainWindows.FirstOrDefault();
-			}
-			internal set {
-				_LatestMainWindow = value;
-			}
-		}
-
 		public static void ArrangeMainWindows(ArrangeMode mode) {
 			Arranger arranger = null;
 			switch (mode) {

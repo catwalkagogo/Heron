@@ -12,6 +12,8 @@ namespace CatWalk.Heron {
 		public const int PRIORITY_BUILTIN = Int32.MaxValue;
 		public const int PRIORITY_LOWEST = Int32.MinValue;
 
+		public Application Application { get; private set; }
+
 		/// <summary>
 		/// プラグイン用Storage
 		/// </summary>
@@ -20,6 +22,7 @@ namespace CatWalk.Heron {
 		public void Load(Application app) {
 			app.ThrowIfNull("app");
 
+			this.Application = app;
 			this.Storage = new PartialStorage(this.GetType().FullName, app.Configuration);
 
 			this.IsLoaded = true;

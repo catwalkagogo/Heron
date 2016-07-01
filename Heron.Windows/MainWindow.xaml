@@ -14,7 +14,6 @@
 		win:WindowUtility.DialogResult="{Binding DialogResult}"
 		win:Messaging.IsCommunicateViewModelMessages="True"
 		win:Messaging.IsCommunicateWindowMessages="True"
-		Activated="Window_Activated"
 		x:Name="_this">
 	<Window.Resources>
 		<win:JobCountToProgressStateConverter x:Key="JobCountToProgressStateConverter" />
@@ -47,10 +46,16 @@
 		<Grid.RowDefinitions>
 			<RowDefinition Height="auto" />
 			<RowDefinition Height="*" />
+			<RowDefinition Height="4" />
+			<RowDefinition x:Name="_OutputRowDefinition" Height="120" />
 		</Grid.RowDefinitions>
 
 		<ctrl:PanelList Grid.Row="1" Grid.Column="0" x:Name="_PanelList" DataContext="{Binding Panels}">
 			
 		</ctrl:PanelList>
+
+		<GridSplitter Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ResizeDirection="Rows" ResizeBehavior="PreviousAndNext" />
+
+		<ctrl:JobList Grid.Row="3" x:Name="_JobList"></ctrl:JobList>
 	</Grid>
 </Window>
