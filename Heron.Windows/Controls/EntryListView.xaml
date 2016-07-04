@@ -5,6 +5,7 @@
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+	xmlns:win="clr-namespace:CatWalk.Heron.Windows"
 	xmlns:local="clr-namespace:CatWalk.Heron.Windows.Controls"
 	xmlns:conv="clr-namespace:CatWalk.Heron.Windows.Converters"
 	xmlns:ext="clr-namespace:CatWalk.Windows.Extensions;assembly=CatWalk.Windows"
@@ -28,11 +29,11 @@
 			<local:EntryListViewViewFactoryConverter
 				x:Key="{x:Static local:EntryListView.ViewFactoryConverterKey}"
 				ListView="{x:Reference _this}"
-				Factory="{x:Static local:EntryListView.ViewFactory}">
+				Factory="{x:Static win:WindowsPlugin.Current.EntryListViewFactory}">
 			</local:EntryListViewViewFactoryConverter>
 			<local:EntryListViewEntryImageFactoryConverter
 				x:Key="EntryImageFactoryConverter"
-				Factory="{x:Static local:EntryListView.EntryImageFactory}">
+				Factory="{x:Static win:WindowsPlugin.Current.EntryImageFactory}">
 			</local:EntryListViewEntryImageFactoryConverter>
 
 			<GridView x:Key="{x:Static local:EntryListView.DefaultViewKey}">

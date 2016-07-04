@@ -49,7 +49,7 @@ namespace CatWalk.Heron {
 		internal void AddMainWindow(MainWindowViewModel vm) {
 			vm.ThrowIfNull("vm");
 			this.Children.Add(vm);
-			var v = this.ViewFactory.Create(vm);
+			var v = this.MainWindowViewFactory.Create(vm);
 			this._MainWindows.Add(vm);
 		}
 

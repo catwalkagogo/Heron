@@ -21,7 +21,7 @@ using CatWalk.Collections;
 
 namespace CatWalk.Heron.FileSystem.Win32 {
 	using Drawing = System.Drawing;
-	public class FileSystemProvider : SystemProvider, IDisposable{
+	public class Win32FileSystemProvider : SystemProvider, IDisposable{
 		private static readonly ColumnDefinition _ExtensionColumn = new ExtensionColumn();
 		private static readonly ColumnDefinition _BaseNameColumn = new BaseNameColumn();
 		private Dictionary<ImageListSize, ImageList> _ImageLists = new Dictionary<ImageListSize,ImageList>();
@@ -30,9 +30,9 @@ namespace CatWalk.Heron.FileSystem.Win32 {
 
 		public override object GetViewModel(object parent, SystemEntryViewModel entry, object previous) {
 			if(entry.Entry is IFileSystemEntry) {
-				var vm = previous as FileSystemViewModel;
+				var vm = previous as Win32FileSystemViewModel;
 				if(vm == null) {
-					vm = new FileSystemViewModel();
+					vm = new Win32FileSystemViewModel();
 				}
 				return vm;
 			} else {
@@ -208,7 +208,7 @@ namespace CatWalk.Heron.FileSystem.Win32 {
 			}
 		}
 
-		~FileSystemProvider() {
+		~Win32FileSystemProvider() {
 			this.Dispose(false);
 		}
 

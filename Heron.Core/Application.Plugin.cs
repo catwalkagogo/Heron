@@ -14,13 +14,14 @@ using CatWalk.Mvvm;
 using CatWalk.Heron.ViewModel;
 
 namespace CatWalk.Heron {
-	using ViewFactory = Factory<object, object>;
-
 	public abstract partial class Application : ControlViewModel, IJobManagerSite {
+		public const string MainWindowViewFactoryName = "MainWindowView";
+
 		protected virtual async Task InitializePlugin() {
 			this._PluginManager = new Lazy<IPluginManager>(() => {
 				return this.GetPluginManager();
 			});
+			this._Factories[MainWindowViewFactoryName] = new Factory<MainWindowViewModel, object>();
 		}
 
 		protected abstract IPluginManager GetPluginManager();
@@ -32,15 +33,49 @@ namespace CatWalk.Heron {
 			}
 		}
 
+		#region Factory
 
-		#region Plugin
-
-		private Lazy<ViewFactory> _ViewFactory = new Lazy<ViewFactory>(() => new ViewFactory());
-		public ViewFactory ViewFactory {
+		private IDictionary<string, Factory> _Factories = new Dictionary<string, Factory>();
+		public IDictionary<string, Factory> Factories {
 			get {
-				return this._ViewFactory.Value;
+				return this._Factories;
 			}
 		}
+
+		public Factory GetFactory(string name) {
+			Factory factory;
+			if(this.Factories.TryGetValue(name, out factory)) {
+				return factory;
+			}
+
+			return null;
+		}
+
+		public Factory<TSource, TDest> GetFactory<TSource, TDest>(string name) {
+			return this.GetFactory(name) as Factory<TSource, TDest>;
+		}
+
+		public Factory<T1, T2, TDest> GetFactory<T1, T2, TDest>(string name) {
+			return this.GetFactory(name) as Factory<T1, T2, TDest>;
+		}
+
+		public Factory<T1, T2, T3, TDest> GetFactory<T1, T2, T3, TDest>(string name) {
+			return this.GetFactory(name) as Factory<T1, T2, T3, TDest>;
+		}
+
+		public Factory<T1, T2, T3, T4, TDest> GetFactory<T1, T2, T3, T4, TDest>(string name) {
+			return this.GetFactory(name) as Factory<T1, T2, T3, T4, TDest>;
+		}
+
+		public Factory<MainWindowViewModel, object> MainWindowViewFactory {
+			get {
+				return this.GetFactory<MainWindowViewModel, object>(MainWindowViewFactoryName);
+			}
+		}
+
+		#endregion
+
+		#region Plugin
 
 		private Lazy<IPluginManager> _PluginManager;
 		public IPluginManager PluginManager {

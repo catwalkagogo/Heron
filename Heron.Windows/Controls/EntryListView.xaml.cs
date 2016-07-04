@@ -26,7 +26,6 @@ namespace CatWalk.Heron.Windows.Controls {
 	using Interop;
 	using System.Collections.Specialized;
 	using System.Reactive.Disposables;
-	using Win32 = CatWalk.Win32;
 
 	/// <summary>
 	/// Interaction logic for LogList.xaml
@@ -41,9 +40,6 @@ namespace CatWalk.Heron.Windows.Controls {
 		private GridView _DefaultGridView;
 		private CompositeDisposable _Disposables = new CompositeDisposable();
 
-		public static Factory<SystemEntryViewModel, ViewBase> ViewFactory { get; private set; } = new Factory<SystemEntryViewModel, ViewBase>();
-		public static Factory<RequireEntryImageParameter, ImageSource> EntryImageFactory { get; private set; } = new Factory<RequireEntryImageParameter, ImageSource>();
-
 		public IEnumerable<GridViewColumn> GridViewColumns {
 			get { return (IEnumerable<GridViewColumn>)GetValue(GridViewColumnsProperty); }
 			set { SetValue(GridViewColumnsProperty, value); }
@@ -57,17 +53,6 @@ namespace CatWalk.Heron.Windows.Controls {
 				notify.NotifyToCollection(listView._DefaultGridView.Columns);
 			})); 
 
-		static EntryListView() {
-			EntryImageFactory.Register(p => true, p => {
-				// Shellからデフォルトアイコンを使用
-				if (p.Entry.IsDirectory) {
-					return IconUtility.GetShellIcon(IconUtility.FolderIconIndex, Win32::IconSize.Small);
-				} else {
-					return IconUtility.GetShellIcon(IconUtility.FileIconIndex, Win32::IconSize.Small);
-				}
-			}, Factory.PriorityLowest);
-		}
-
 		public EntryListView() {
 			InitializeComponent();
 
@@ -78,16 +63,6 @@ namespace CatWalk.Heron.Windows.Controls {
 
 		private CompositeDisposable _FitColumnEvents = new CompositeDisposable();
 
-	}
-
-	public class RequireEntryImageParameter{
-		public SystemEntryViewModel Entry { get; private set; }
-
-		public RequireEntryImageParameter(SystemEntryViewModel entry) {
-			entry.ThrowIfNull(nameof(entry));
-
-			this.Entry = entry;
-		}
 	}
 
 	internal class EntryListViewViewFactoryConverter : FactoryConverter {
@@ -106,8 +81,7 @@ namespace CatWalk.Heron.Windows.Controls {
 
 	internal class EntryListViewEntryImageFactoryConverter : FactoryConverter {
 		public override object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
-			var request = new RequireEntryImageParameter((SystemEntryViewModel)value);
-			var view = base.Convert(request, targetType, parameter, culture);
+			var view = base.Convert(value, targetType, parameter, culture);
 			return view;
 		}
 	}

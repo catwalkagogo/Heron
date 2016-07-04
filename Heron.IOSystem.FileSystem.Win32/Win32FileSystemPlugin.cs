@@ -8,13 +8,13 @@ using Reactive.Bindings.Extensions;
 using Reactive.Bindings;
 
 namespace CatWalk.Heron.FileSystem.Win32 {
-	public class FileSystemPlugin : Plugin{
-		private FileSystemProvider _Provider;
-		private FileSystemEntryOperator _Operator;
+	public class Win32FileSystemPlugin : Plugin{
+		private Win32FileSystemProvider _Provider;
+		private Win32FileSystemEntryOperator _Operator;
 
 		protected override void OnLoaded(PluginEventArgs e) {
-			this._Provider = new FileSystemProvider();
-			this._Operator = FileSystemEntryOperator.Default;
+			this._Provider = new Win32FileSystemProvider();
+			this._Operator = Win32FileSystemEntryOperator.Default;
 			var app = e.Application;
 			app.RegisterSystemProvider(this._Provider);
 			app.RegisterEntryOperator(this._Operator);

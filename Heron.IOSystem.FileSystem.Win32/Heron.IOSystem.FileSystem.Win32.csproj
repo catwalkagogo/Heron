@@ -76,11 +76,11 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FileSystemEntryFilter.cs" />
-    <Compile Include="FileSystemEntryOperator.cs" />
-    <Compile Include="FileSystemPlugin.cs" />
-    <Compile Include="FileSystemProvider.cs" />
-    <Compile Include="FileSystemViewModel.cs" />
+    <Compile Include="Win32FileSystemEntryFilter.cs" />
+    <Compile Include="Win32FileSystemEntryOperator.cs" />
+    <Compile Include="Win32FileSystemPlugin.cs" />
+    <Compile Include="Win32FileSystemProvider.cs" />
+    <Compile Include="Win32FileSystemViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

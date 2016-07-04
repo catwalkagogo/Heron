@@ -12,10 +12,10 @@ using Reactive.Bindings;
 using CatWalk.Heron.ViewModel.IOSystem;
 
 namespace CatWalk.Heron.FileSystem.Win32 {
-	public class FileSystemViewModel : ControlViewModel{
+	public class Win32FileSystemViewModel : ControlViewModel{
 		private ReactiveProperty<SystemEntryViewModel> _Entry;
 
-		public FileSystemViewModel() {
+		public Win32FileSystemViewModel() {
 			this._Entry = new ReactiveProperty<SystemEntryViewModel>();
 		}
 

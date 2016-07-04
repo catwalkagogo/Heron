@@ -13,13 +13,13 @@ using CatWalk.Win32.Shell;
 using CatWalk.Windows;
 
 namespace CatWalk.Heron.FileSystem.Win32 {
-	public class FileSystemEntryOperator : IEntryOperator {
-		private FileSystemEntryOperator() {}
+	public class Win32FileSystemEntryOperator : IEntryOperator {
+		private Win32FileSystemEntryOperator() {}
 
-		private static Lazy<FileSystemEntryOperator> _Default = new Lazy<FileSystemEntryOperator>(() => {
-			return new FileSystemEntryOperator();
+		private static Lazy<Win32FileSystemEntryOperator> _Default = new Lazy<Win32FileSystemEntryOperator>(() => {
+			return new Win32FileSystemEntryOperator();
 		});
-		public static FileSystemEntryOperator Default {
+		public static Win32FileSystemEntryOperator Default {
 			get {
 				return _Default.Value;
 			}
