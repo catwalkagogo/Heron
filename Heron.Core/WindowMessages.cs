@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CatWalk.Heron.ViewModel.Windows;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -124,6 +125,10 @@ namespace CatWalk.Heron {
 			public IntPtr Handle { get; set; }
 
 			public RequestHandleMessage() { }
+		}
+
+		public class RequestMainWindow : MessageBase {
+			public MainWindowViewModel MainWindow { get; set; }
 		}
 	}
 

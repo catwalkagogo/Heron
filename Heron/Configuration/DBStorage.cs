@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System.IO;
 using CatWalk;
+using Newtonsoft.Json.Converters;
 
 namespace CatWalk.Heron.Configuration {
 	public class DBStorage : Storage {
@@ -253,6 +254,7 @@ namespace CatWalk.Heron.Configuration {
 			TypeNameHandling = TypeNameHandling.All,
 			Formatting = Formatting.None,
 			ContractResolver = new CustomJsonResolver(),
+			//Converters = new JsonConverter[] { new ExpandoObjectConverter()}
 		};
 
 		protected virtual string Serialize(object value) {

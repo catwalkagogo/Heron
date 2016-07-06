@@ -34,11 +34,7 @@ namespace CatWalk.Heron {
 				this._MainWindowsActivatedSubscribers.Dispose();
 				this._MainWindowsActivatedSubscribers.Clear();
 
-				var index = 0;
 				foreach (var win in this._MainWindows) {
-					// インデックス貼り直し
-					win.Index = index++;
-
 					this._MainWindowsActivatedSubscribers.Add(win.ObserveProperty(_ => _.IsActive).Subscribe(isActive => {
 						this.LastActiveMainWindow = win;
 					}));

@@ -131,39 +131,6 @@ namespace CatWalk.Heron.Configuration {
 			}
 		}
 
-		public virtual Task<T> GetAsync<T>(string key, T def) {
-			return this.GetAsync(key, def, CancellationToken.None);
-		}
-
-		public Task<T> GetAsync<T>(string key, T def, CancellationToken token) {
-			return Task.Run<T>(() => {
-				return this.Get(key, def);
-			}, token);
-		}
-
-		public Task<IReadOnlyDictionary<string, object>> GetAllAsync(string[] keys) {
-			return this.GetAllAsync(keys, CancellationToken.None);
-		}
-
-		public async Task<IReadOnlyDictionary<string, object>> GetAllAsync(string[] keys, CancellationToken token) {
-			keys.ThrowIfNull(nameof(keys));
-
-			var tasks = keys.Select(key => new KeyValuePair<string, Task<object>>(key, this.GetAsync<object>(key, null))).ToArray();
-			Task.WaitAll(tasks.Select(p => p.Value).ToArray());
-
-			return new ReadOnlyDictionary<string, object>(tasks.ToDictionary(p => p.Key, p => p.Value.Result));
-		}
-
-		public virtual Task SetAsync<T>(string key, T value) {
-			return this.SetAsync(key, value, CancellationToken.None);
-		}
-
-		public Task SetAsync<T>(string key, T value, CancellationToken token) {
-			return Task.Run(() => {
-				this[key] = value;
-			}, token);
-		}
-
 		#region IDisposable Members
 
 		public void Dispose() {

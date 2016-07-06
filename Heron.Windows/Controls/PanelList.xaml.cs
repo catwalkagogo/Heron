@@ -25,6 +25,7 @@ using System.Collections.ObjectModel;
 using System.Reactive.Disposables;
 using System.Windows.Controls.Primitives;
 using System.Reactive.Concurrency;
+using CatWalk.Heron.Configuration;
 
 namespace CatWalk.Heron.Windows.Controls {
 	/// <summary>
@@ -50,12 +51,27 @@ namespace CatWalk.Heron.Windows.Controls {
 
 			this._ListBox.ItemTemplateSelector = new PanelTemplateSelector();
 
-			this.InitializeGrid();
+			/*
+			this.ObserveProperty<object>(DataContextProperty).Take(1).Subscribe(_ => {
+				var m = new WindowMessages.RequestMainWindow();
+				WindowsPlugin.Current.Application.Messenger.Post<WindowMessages.RequestMainWindow>(m, this.DataContext).ContinueWith(t => {
+					if (m.MainWindow != null) {
+						var storage = m.MainWindow.Storage;
+						storage.GetAsync<GridPositions>("PanelGridPositions").ContinueWith(t2 => {
+							this.InitializeGrid(t2.Result);
+						});
+					} else {
+						throw new InvalidOperationException();
+					}
+				});
+
+			});*/
+			this.InitializeGrid(/*new GridPositions()*/);
 		}
 
 		#region Grid
 
-		private void InitializeGrid() {
+		private void InitializeGrid(/*GridPositions pos*/) {
 			var gridOvservation = this.ObserveProperty<Orientation>(OrientationProperty)
 				.Select(o => Tuple.Create(o, this._ListBox.Items.Count))
 				.Merge(this._ListBox.Items.ObserveProperty(_ => _.Count)
@@ -71,7 +87,7 @@ namespace CatWalk.Heron.Windows.Controls {
 				if (_.Item1 == Orientation.Horizontal) {
 					var count = _.Item2;
 
-					foreach (var def in this.GetColumnDefinitions(count, false)) {
+					foreach (var def in this.GetColumnDefinitions(count, false/*, pos.ColumnLengths*/)) {
 						this._SplitterGrid.ColumnDefinitions.Add(def);
 					}
 					foreach (var column in Enumerable.Range(0, count / 2).Select(i => i * 2 + 1)) {
@@ -90,9 +106,10 @@ namespace CatWalk.Heron.Windows.Controls {
 						this._SplitterGrid.ColumnDefinitions.Add(def);
 					}
 				}
-				this.SetColumnsDefinition(_.Item1, _.Item2);
+				this.SetColumnsDefinition(_.Item1, _.Item2/*, pos.ColumnLengths*/);
 
 				// Row
+				/*
 				if (_.Item1 == Orientation.Vertical) {
 					var count = _.Item2;
 
@@ -116,15 +133,17 @@ namespace CatWalk.Heron.Windows.Controls {
 					}
 				}
 				this.SetRowsDefinition(_.Item1, _.Item2);
+				*/
 			});
 			this._Disposables.Add(splitterSubscribe);
 		}
 
-		private void SetColumnsDefinition(Orientation o, int count) {
+		private void SetColumnsDefinition(Orientation o, int count/*, GridLength[] lengths*/) {
 			IEnumerable<ColumnDefinition> defs;
 
 			if (o == Orientation.Horizontal) {
-				defs = this.GetColumnDefinitions(count, true);
+				defs = this.GetColumnDefinitions(count, true/*, lengths*/);
+
 			} else {
 				defs = Seq.Make(new ColumnDefinition() {
 					Width = new GridLength(1, GridUnitType.Star)
@@ -133,10 +152,17 @@ namespace CatWalk.Heron.Windows.Controls {
 			GridItemsPanel.SetColumnDefinitionsSource(this._ListBox, defs);
 		}
 
-		private IEnumerable<ColumnDefinition> GetColumnDefinitions(int count, bool isList) {
+		private IEnumerable<ColumnDefinition> GetColumnDefinitions(int count, bool isList/*, GridLength[] lengths*/) {
+		/*	if(lengths == null) {
+				lengths = new GridLength[0];
+			}*/
+
 			for(var i = 0; i < count; i++) {
+				//var width = (i < lengths.Length) ? lengths[i] : new GridLength(1, GridUnitType.Star);
+				var width = new GridLength(1, GridUnitType.Star);
+
 				var def = new ColumnDefinition() {
-					Width = new GridLength(1, GridUnitType.Star)
+					Width = width
 				};
 
 				if (isList) {
@@ -226,6 +252,11 @@ namespace CatWalk.Heron.Windows.Controls {
 				return entry;
 			}
 		}
+		/*
+		internal struct GridPositions {
+			public GridLength[] ColumnLengths;
+			public GridLength[] RowLengths;
+		}*/
 	}
 
 	internal abstract class PanelGridIndexConverter : IMultiValueConverter {

@@ -13,7 +13,16 @@ using System.Threading;
 
 namespace CatWalk.Heron.ViewModel.Windows {
 	public abstract class AppWindowsViewModel : ControlViewModel{
-		public ReactiveProperty<MainWindowViewModel> MainWindow { get; private set; }
+		private MainWindowViewModel _MainWindow;
+		public MainWindowViewModel MainWindow {
+			get {
+				return this._MainWindow;
+			}
+			set {
+				this._MainWindow = value;
+				this.OnPropertyChanged(nameof(MainWindow));
+			}
+		}
 		public Application Application { get; private set; }
 
 		public AppWindowsViewModel(Application app) : this(app, null, app.SynchronizationContext){}
@@ -25,15 +34,14 @@ namespace CatWalk.Heron.ViewModel.Windows {
 			app.ThrowIfNull();
 			this.Application = app;
 
-			this.MainWindow = this.ObserveProperty(_ => _.Ancestors)
-				.OfType<AppWindowsViewModel>()
-				.Select(vm => vm.MainWindow.Value)
-				.Concat(
-					this.ObserveProperty(_ => _.Ancestors)
-						.OfType<MainWindowViewModel>()
-				)
-				.ToReactiveProperty();
-			this.Disposables.Add(this.MainWindow);
+			this.Disposables.Add(this.ObserveProperty(_ => _.Ancestors)
+				.Subscribe(ans => {
+					this.MainWindow = (MainWindowViewModel)ans.FirstOrDefault(elm => elm is MainWindowViewModel);
+				}));
+
+			this.Messenger.Subscribe<WindowMessages.RequestMainWindow>(m => {
+				m.MainWindow = this.MainWindow;
+			}, this);
 		}
 
 		public Messenger Messenger {

@@ -49,6 +49,7 @@
     <Compile Include="Configuration\IStorage.cs" />
     <Compile Include="Configuration\PartialStorage.cs" />
     <Compile Include="Configuration\Storage.cs" />
+    <Compile Include="Configuration\StorageExtensions.cs" />
     <Compile Include="Factory.cs" />
     <Compile Include="I18N.cs" />
     <Compile Include="IJob.cs" />
@@ -82,7 +83,6 @@
     <Compile Include="IOSystem\SystemProvider.cs" />
     <Compile Include="IPlugin.cs" />
     <Compile Include="IPluginManager.cs" />
-    <Compile Include="MainWindowManager.cs" />
     <Compile Include="Messages.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="PluginAssemblyAttribute.cs" />

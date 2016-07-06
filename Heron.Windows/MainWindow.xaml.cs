@@ -20,6 +20,7 @@ using System.Reactive.Linq;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using CatWalk.Heron.Windows.Controls;
+using CatWalk.Heron.Configuration;
 using System.ComponentModel;
 
 namespace CatWalk.Heron.Windows {
