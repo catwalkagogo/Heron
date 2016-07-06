@@ -32,6 +32,10 @@ namespace CatWalk.Heron {
 			return this.GetCreators(args).Select(c => c.DynamicInvoke(args));
 		}
 
+		public bool CanCreate(object[] args) {
+			return this._Creators.Any(_ => (bool)_.Predicate.DynamicInvoke(args));
+		}
+
 		private struct Creator : IComparable<Creator>{
 			public Delegate Predicate { get; private set; }
 			public Delegate Create { get; private set; }
@@ -62,6 +66,10 @@ namespace CatWalk.Heron {
 		public IEnumerable<TDest> CreateAll(TSource src) {
 			return this.CreateAll(new object[] { src }).Cast<TDest>();
 		}
+
+		public bool CanCreate(TSource src) {
+			return this.CanCreate(new object[] { src });
+		}
 	}
 
 	public class Factory<T1, T2, TDest> : Factory {
@@ -76,6 +84,10 @@ namespace CatWalk.Heron {
 
 		public IEnumerable<TDest> CreateAll(T1 p1, T2 p2) {
 			return this.CreateAll(new object[] { p1, p2 }).Cast<TDest>();
+		}
+
+		public bool CanCreate(T1 p1, T2 p2) {
+			return this.CanCreate(new object[] { p1, p2 });
 		}
 	}
 
@@ -92,6 +104,11 @@ namespace CatWalk.Heron {
 		public IEnumerable<TDest> CreateAll(T1 p1, T2 p2, T3 p3) {
 			return this.CreateAll(new object[] { p1, p2, p3 }).Cast<TDest>();
 		}
+
+		public bool CanCreate(T1 p1, T2 p2, T3 p3) {
+			return this.CanCreate(new object[] { p1, p2, p3 });
+		}
+
 	}
 
 	public class Factory<T1, T2, T3, T4, TDest> : Factory {
@@ -106,6 +123,10 @@ namespace CatWalk.Heron {
 
 		public IEnumerable<TDest> CreateAll(T1 p1, T2 p2, T3 p3, T4 p4) {
 			return this.CreateAll(new object[] { p1, p2, p3, p4 }).Cast<TDest>();
+		}
+
+		public bool CanCreate(T1 p1, T2 p2, T3 p3, T4 p4) {
+			return this.CanCreate(new object[] { p1, p2, p3, p4 });
 		}
 	}
 

@@ -1,4 +1,4 @@
-﻿<ListBox
+﻿<UserControl
 	x:Class="CatWalk.Heron.Windows.Controls.PanelList"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -6,34 +6,65 @@
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
 	xmlns:ext="clr-namespace:CatWalk.Windows.Extensions;assembly=CatWalk.Windows"
 	xmlns:local="clr-namespace:CatWalk.Heron.Windows.Controls"
+	xmlns:win="clr-namespace:CatWalk.Heron.Windows"
+	x:Name="_this"
 	mc:Ignorable="d" 
-	x:Name="_ListBox"
-	ext:GridItemsPanel.IsEnabled="True"
-	ItemsSource="{Binding}"
-	SelectedItem="{Binding ActivePanel, Mode=TwoWay}"
-	d:DesignHeight="300" d:DesignWidth="300"
-	ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-	ScrollViewer.VerticalScrollBarVisibility="Disabled">
+	win:PluginExtensions.NotifyCreatedEvent="True"
+	d:DesignHeight="300" d:DesignWidth="300">
+	<Grid>
+		<ListBox
+		x:Name="_ListBox"
+		ext:GridItemsPanel.IsEnabled="True"
+		ItemsSource="{Binding}"
+		SelectedItem="{Binding ActivePanel, Mode=TwoWay}"
+		ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+		ScrollViewer.VerticalScrollBarVisibility="Disabled"
+		AlternationCount="{Binding Items.Count, ElementName=_ListBox}">
 
-	<ListBox.Resources>
-		<ResourceDictionary>
-			<DataTemplate x:Key="{x:Static local:PanelList.DefaultPanelTemplateKey}">
-				<local:Panel></local:Panel>
-			</DataTemplate>
-		</ResourceDictionary>
-	</ListBox.Resources>
+			<ListBox.Resources>
+				<ResourceDictionary>
+					<DataTemplate x:Key="{x:Static local:PanelList.DefaultPanelTemplateKey}">
+						<local:Panel></local:Panel>
+					</DataTemplate>
+					<local:PanelGridColumnConverter x:Key="PanelGridColumnConverter" />
+					<local:PanelGridRowConverter x:Key="PanelGridRowConverter" />
+				</ResourceDictionary>
+			</ListBox.Resources>
 
-	<ListBox.ItemContainerStyle>
-		<Style TargetType="ListBoxItem">
-			<Setter Property="HorizontalContentAlignment" Value="Stretch"></Setter>
-			<Setter Property="VerticalContentAlignment" Value="Stretch"></Setter>
-			<Setter Property="Template">
-				<Setter.Value>
-					<ControlTemplate TargetType="ListBoxItem">
-						<ContentPresenter />
-					</ControlTemplate>
-				</Setter.Value>
-			</Setter>
-		</Style>
-	</ListBox.ItemContainerStyle>
-</ListBox>
+
+			<ListBox.ItemContainerStyle>
+				<Style TargetType="ListBoxItem">
+					<Setter Property="Grid.Column">
+						<Setter.Value>
+							<MultiBinding Converter="{StaticResource PanelGridColumnConverter}">
+								<Binding RelativeSource="{RelativeSource Self}" Path="(ItemsControl.AlternationIndex)"></Binding>
+								<Binding ElementName="_this" Path="Orientation"></Binding>
+							</MultiBinding>
+						</Setter.Value>
+					</Setter>
+					<Setter Property="Grid.Row">
+						<Setter.Value>
+							<MultiBinding Converter="{StaticResource PanelGridRowConverter}">
+								<Binding RelativeSource="{RelativeSource Self}" Path="(ItemsControl.AlternationIndex)"></Binding>
+								<Binding ElementName="_this" Path="Orientation"></Binding>
+							</MultiBinding>
+						</Setter.Value>
+					</Setter>
+					<Setter Property="HorizontalAlignment" Value="Stretch"></Setter>
+					<Setter Property="VerticalAlignment" Value="Stretch"></Setter>
+					<Setter Property="Template">
+						<Setter.Value>
+							<ControlTemplate TargetType="ListBoxItem">
+								<ContentPresenter />
+							</ControlTemplate>
+						</Setter.Value>
+					</Setter>
+				</Style>
+			</ListBox.ItemContainerStyle>
+		</ListBox>
+
+		<Grid x:Name="_SplitterGrid">
+		</Grid>
+
+	</Grid>
+</UserControl>

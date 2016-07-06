@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -8,7 +9,21 @@ using System.Threading.Tasks;
 using CatWalk.IOSystem;
 
 namespace CatWalk.Heron.IOSystem {
-	public class EntryOperatorCollection : Collection<IEntryOperator>, IEntryOperator{
+	public class EntryOperatorCollection : ICollection<IEntryOperator>, IEntryOperator{
+		private ICollection<IEntryOperator> _Collection = new LinkedList<IEntryOperator>();
+
+		public int Count {
+			get {
+				return _Collection.Count;
+			}
+		}
+
+		public bool IsReadOnly {
+			get {
+				return _Collection.IsReadOnly;
+			}
+		}
+
 		private IEnumerable<T> Call<T>(Func<IEntryOperator, IEnumerable<T>> call) {
 			return this.Call(call, CancellationToken.None);
 		}
@@ -168,6 +183,38 @@ namespace CatWalk.Heron.IOSystem {
 
 		public Task PasteTo(ISystemEntry dest, CancellationToken token, IProgress<double> progress) {
 			return this.Call(op => this.CanPasteTo(dest), op => this.PasteTo(dest, token, progress), token);
+		}
+
+		#endregion
+
+		#region ICollection
+
+		public void Add(IEntryOperator item) {
+			_Collection.Add(item);
+		}
+
+		public void Clear() {
+			_Collection.Clear();
+		}
+
+		public bool Contains(IEntryOperator item) {
+			return _Collection.Contains(item);
+		}
+
+		public void CopyTo(IEntryOperator[] array, int arrayIndex) {
+			_Collection.CopyTo(array, arrayIndex);
+		}
+
+		public bool Remove(IEntryOperator item) {
+			return _Collection.Remove(item);
+		}
+
+		public IEnumerator<IEntryOperator> GetEnumerator() {
+			return _Collection.GetEnumerator();
+		}
+
+		IEnumerator IEnumerable.GetEnumerator() {
+			return _Collection.GetEnumerator();
 		}
 
 		#endregion

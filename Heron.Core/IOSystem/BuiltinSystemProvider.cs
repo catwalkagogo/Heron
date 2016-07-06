@@ -2,63 +2,68 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
-using CatWalk.IOSystem;
-using CatWalk;
 using CatWalk.Heron.ViewModel.IOSystem;
+using CatWalk.IOSystem;
 
 namespace CatWalk.Heron.IOSystem {
-	/*
-	public abstract class SystemProvider : ISystemProvider {
-		public virtual string Name {
+	internal class BuiltinSystemProvider : ISystemProvider {
+		public string DisplayName {
 			get {
-				return this.GetType().Name;
+				return "Builtin";
 			}
 		}
-		public virtual string DisplayName {
+
+		public string Name {
 			get {
-				return this.Name;
+				return "Builtin";
 			}
+		}
+
+		public bool CanGetColumnDefinitions(ISystemEntry entry) {
+			return true;
+		}
+
+		public bool CanGetGroupings(ISystemEntry entry) {
+			return true;
+		}
+
+		public bool CanGetOrderDefinitions(SystemEntryViewModel entry) {
+			return true;
+		}
+
+		public bool CanGetViewModel(object parent, SystemEntryViewModel entry, object previous) {
+			return false;
 		}
 
 		public IEnumerable<IColumnDefinition> GetColumnDefinitions(ISystemEntry entry) {
 			return (new ColumnDefinition[]{
 				ColumnDefinition.NameColumn,
 				ColumnDefinition.DisplayNameColumn,
-			}).Concat(this.GetAdditionalColumnProviders(entry));
-		}
-		protected virtual IEnumerable<ColumnDefinition> GetAdditionalColumnProviders(ISystemEntry entry) {
-			return new ColumnDefinition[0];
+			});
 		}
 
-		public abstract ParsePathResult ParsePath(ISystemEntry root, string path);
+		private static readonly NameEntryGroupDescription _DisplayNameEntryGroupDescription = new NameEntryGroupDescription();
 
-		public abstract IEnumerable<ISystemEntry> GetRootEntries(ISystemEntry parent);
-		public virtual object GetEntryIcon(ISystemEntry entry, Size<int> size, CancellationToken token) {
+		public IEnumerable<IGroupDefinition> GetGroupings(ISystemEntry entry) {
+			return Seq.Make(_DisplayNameEntryGroupDescription);
+		}
+
+		public IEnumerable<OrderDefinition> GetOrderDefinitions(SystemEntryViewModel entry) {
+			return entry.ChildrenColumns.Where(_ => _.CanSort).Select(_ => OrderDefinition.FromColumnDefinition(_));
+		}
+
+		public IEnumerable<ISystemEntry> GetRootEntries(ISystemEntry parent) {
+			return new ISystemEntry[0];
+		}
+
+		public object GetViewModel(object parent, SystemEntryViewModel entry, object previous) {
 			return null;
 		}
-		public abstract object GetViewModel(object parent, SystemEntryViewModel entry, object previous);
-		
-		private static readonly NameEntryGroupDescription _DisplayNameEntryGroupDescription = new NameEntryGroupDescription();
-		
-		public IEnumerable<IGroupDefinition> GetGroupings(ISystemEntry entry) {
-			return Seq.Make(_DisplayNameEntryGroupDescription).Concat(this.GetAdditionalGroupings(entry));
-		}
 
-		protected virtual IEnumerable<IGroupDefinition> GetAdditionalGroupings(ISystemEntry entry) {
-			return new IGroupDefinition[0];
+		public ParsePathResult ParsePath(ISystemEntry root, string path) {
+			return new ParsePathResult(false, null, false);
 		}
-		
-		public IEnumerable<OrderDefinition> GetOrderDefinitions(SystemEntryViewModel entry) {
-			return entry.Columns.Values.Select(vm => OrderDefinition.FromColumnDefinition(vm.Definition));
-		}
-
-		public abstract bool CanGetColumnDefinitions(ISystemEntry entry);
-		public abstract object CanGetEntryIcon(ISystemEntry entry, Size<int> size);
-		public abstract bool CanGetViewModel(object parent, SystemEntryViewModel entry, object previous);
-		public abstract bool CanGetGroupings(ISystemEntry entry);
-		public abstract bool CanGetOrderDefinitions(SystemEntryViewModel entry);
 
 		#region NameGroup
 
@@ -67,7 +72,7 @@ namespace CatWalk.Heron.IOSystem {
 
 			static NameEntryGroupDescription() {
 				Candidates =
-					new[] { 
+					new[] {
 						new DelegateEntryGroup<int>(0x0001, "0 - 9", entry => entry.Name[0].IsDecimalNumber())
 					}
 					.Concat(
@@ -86,7 +91,7 @@ namespace CatWalk.Heron.IOSystem {
 				return Candidates.FirstOrDefault(grp => grp.Filter(entry));
 			}
 		}
-		
+
 		#endregion
-	}*/
+	}
 }

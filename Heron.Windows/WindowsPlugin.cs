@@ -15,9 +15,6 @@ namespace CatWalk.Heron.Windows {
 
 	public class WindowsPlugin : Plugin{
 		public static WindowsPlugin Current {get; private set;	}
-		public const string PanelTemplateFactoryKey = "Heron.Windows.PanelTemplateFactory";
-		public const string EntryListViewFactoryKey = "Heron.Windows.EntryListViewFactory";
-		public const string EntryImageFactoryKey = "Heron.Windows.EntryImageFactory";
 
 		protected override void OnLoaded(PluginEventArgs e) {
 			base.OnLoaded(e);
@@ -31,6 +28,23 @@ namespace CatWalk.Heron.Windows {
 			InitializeFactory(app);
 		}
 
+		#region CreatedEvent
+
+		public event EventHandler<FrameworkElementCreatedEventArgs> FrameworkElementCreated;
+
+		internal void OnFrameworkElementCreated(FrameworkElement element) {
+			element.ThrowIfNull(nameof(element));
+
+			var handler = this.FrameworkElementCreated;
+			if(handler != null) {
+				handler(this, new FrameworkElementCreatedEventArgs(element));
+			}
+		}
+
+		#endregion
+
+		#region Factory
+
 		private void InitializeFactory(Application app) {
 			app.MainWindowViewFactory.Register(
 				vm => vm is MainWindowViewModel,
@@ -41,38 +55,39 @@ namespace CatWalk.Heron.Windows {
 					return window;
 				});
 
-			app.Factories[PanelTemplateFactoryKey] = new Factory<SystemEntryViewModel, DataTemplate>();
-			app.Factories[EntryListViewFactoryKey] = new Factory<SystemEntryViewModel, ViewBase>();
-			app.Factories[EntryImageFactoryKey] = new Factory<SystemEntryViewModel, ImageSource>();
+			app.Factories[Factories.PanelTemplateFactoryKey] = new Factory<SystemEntryViewModel, DataTemplate>();
+			app.Factories[Factories.EntryListViewFactoryKey] = new Factory<SystemEntryViewModel, ViewBase>();
+			app.Factories[Factories.EntryImageFactoryKey] = new Factory<SystemEntryViewModel, Size<double>, ImageSource>();
 
-			EntryImageFactory.Register(p => true, p => {
+			EntryImageFactory.Register((p, s) => true, (p, s) => {
 				// Shellからデフォルトアイコンを使用
 				if(p.Entry.IsDirectory) {
-					return IconUtility.GetShellIcon(IconUtility.FolderIconIndex, Win32::IconSize.Small);
+					return IconUtility.GetShellIcon(IconUtility.FolderIconIndex, Win32::Shell.ShellIcon.GetIconSizeFromSize(s));
 				} else {
-					return IconUtility.GetShellIcon(IconUtility.FileIconIndex, Win32::IconSize.Small);
+					return IconUtility.GetShellIcon(IconUtility.FileIconIndex, Win32::Shell.ShellIcon.GetIconSizeFromSize(s));
 				}
 			}, Factory.PriorityLowest);
 
 		}
 
-
 		public Factory<SystemEntryViewModel, DataTemplate> PanelTemplateFactory {
 			get {
-				return this.Application.GetFactory<SystemEntryViewModel, DataTemplate>(PanelTemplateFactoryKey);
+				return this.Application.GetFactory<SystemEntryViewModel, DataTemplate>(Factories.PanelTemplateFactoryKey);
 			}
 		}
 
 		public Factory<SystemEntryViewModel, ViewBase> EntryListViewFactory {
 			get {
-				return this.Application.GetFactory<SystemEntryViewModel, ViewBase>(EntryListViewFactoryKey);
+				return this.Application.GetFactory<SystemEntryViewModel, ViewBase>(Factories.EntryListViewFactoryKey);
 			}
 		}
-		public Factory<SystemEntryViewModel, ImageSource> EntryImageFactory {
+		public Factory<SystemEntryViewModel, Size<double>, ImageSource> EntryImageFactory {
 			get {
-				return this.Application.GetFactory<SystemEntryViewModel, ImageSource>(EntryImageFactoryKey);
+				return this.Application.GetFactory<SystemEntryViewModel, Size<double>, ImageSource>(Factories.EntryImageFactoryKey);
 			}
 		}
+
+		#endregion
 
 		public override bool CanUnload(Application app) {
 			return false;
@@ -84,7 +99,7 @@ namespace CatWalk.Heron.Windows {
 
 		public override int Priority {
 			get {
-				return PRIORITY_BUILTIN;
+				return PriorityBuiltin;
 			}
 		}
 
@@ -92,6 +107,16 @@ namespace CatWalk.Heron.Windows {
 			get {
 				return "WPF View";
 			}
+		}
+	}
+
+	public class FrameworkElementCreatedEventArgs : EventArgs {
+		public FrameworkElement Element { get; private set; }
+
+		public FrameworkElementCreatedEventArgs(FrameworkElement element) {
+			element.ThrowIfNull(nameof(element));
+
+			this.Element = element;
 		}
 	}
 }

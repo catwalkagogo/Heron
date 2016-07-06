@@ -9,8 +9,8 @@ using System.IO;
 using System.Threading;
 
 namespace CatWalk.IOSystem.FileSystem.Win32 {
-	public class FileSystemDriveDirectory : FileSystemEntryBase{
-		public FileSystemDriveDirectory(ISystemEntry parent, string name) : base(parent, name){
+	public class Win32FileSystemDriveDirectory : FileSystemEntryBase{
+		public Win32FileSystemDriveDirectory(ISystemEntry parent, string name) : base(parent, name){
 		}
 
 		public override bool IsDirectory {
@@ -26,12 +26,12 @@ namespace CatWalk.IOSystem.FileSystem.Win32 {
 		}
 
 		public override IEnumerable<ISystemEntry> GetChildren(CancellationToken token, IProgress<double> progress) {
-			return DriveInfo.GetDrives().WithCancellation(token).Select(drive => new FileSystemDrive(this, drive.Name[0]));
+			return DriveInfo.GetDrives().WithCancellation(token).Select(drive => new Win32FileSystemDrive(this, drive.Name[0]));
 		}
 
 		public override ISystemEntry GetChild(string name, CancellationToken token, IProgress<double> progress) {
 			name.ThrowIfNullOrEmpty("name");
-			return new FileSystemDrive(this, name[0]);
+			return new Win32FileSystemDrive(this, name[0]);
 		}
 	}
 }

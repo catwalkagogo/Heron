@@ -14,7 +14,7 @@ using Microsoft.Win32;
 namespace CatWalk.Win32.Shell {
 	public static class ShellIcon{
 		#region GetIcon
-		
+		/*
 		public static Icon GetIcon(string path, IconSize size){
 			IntPtr hIcon;
 			GetIcon(path, size, out hIcon);
@@ -64,6 +64,7 @@ namespace CatWalk.Win32.Shell {
 			}
 			return null;
 		}
+		*/
 		/*
 		public static ImageSource GetIconImageSource(string path, IconSize size){
 			IntPtr hIcon;
@@ -77,6 +78,7 @@ namespace CatWalk.Win32.Shell {
 			return null;
 		}
 		*/
+		/*
 		public static void GetIcon(string path, IconSize size, out IntPtr hIcon){
 			object value;
 			string ext = Path.GetExtension(path);
@@ -278,7 +280,7 @@ namespace CatWalk.Win32.Shell {
 
 			Shell32.ExtractIconEx(res, idx, out hLargeIcon, out hSmallIcon, 1);
 		}
-
+		*/
 		public static void GetUnknownIconImage(out Image largeIcon, out Image smallIcon){
 			IntPtr hLargeIcon;
 			IntPtr hSmallIcon;
@@ -440,6 +442,14 @@ namespace CatWalk.Win32.Shell {
 		}
 
 		#endregion
+
+		public static IconSize GetIconSizeFromSize(Size<int> size) {
+			return (size.Width <= 16 && size.Height <= 16) ? IconSize.Small : IconSize.Large;
+		}
+
+		public static IconSize GetIconSizeFromSize(Size<double> size) {
+			return (size.Width <= 16 && size.Height <= 16) ? IconSize.Small : IconSize.Large;
+		}
 	}
 }
 

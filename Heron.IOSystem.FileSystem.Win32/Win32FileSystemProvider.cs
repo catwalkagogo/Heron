@@ -20,36 +20,36 @@ using CatWalk.Heron.ViewModel.IOSystem;
 using CatWalk.Collections;
 
 namespace CatWalk.Heron.FileSystem.Win32 {
-	using Drawing = System.Drawing;
-	public class Win32FileSystemProvider : SystemProvider, IDisposable{
+	
+	public class Win32FileSystemProvider : ISystemProvider{
 		private static readonly ColumnDefinition _ExtensionColumn = new ExtensionColumn();
 		private static readonly ColumnDefinition _BaseNameColumn = new BaseNameColumn();
-		private Dictionary<ImageListSize, ImageList> _ImageLists = new Dictionary<ImageListSize,ImageList>();
 
-		#region GetViewModel
-
-		public override object GetViewModel(object parent, SystemEntryViewModel entry, object previous) {
-			if(entry.Entry is IFileSystemEntry) {
-				var vm = previous as Win32FileSystemViewModel;
-				if(vm == null) {
-					vm = new Win32FileSystemViewModel();
-				}
-				return vm;
-			} else {
-				return null;
+		public string DisplayName {
+			get {
+				return this.Name;
 			}
 		}
 
-		#endregion
+		public string Name {
+			get {
+				return "Win32FileSystemProvider";
+			}
+		}
 
-		#region GetAdditionalColumnProviders
 
-		protected override IEnumerable<ColumnDefinition> GetAdditionalColumnProviders(ISystemEntry entry) {
+		#region Column
+
+		public bool CanGetColumnDefinitions(ISystemEntry entry) {
+			return entry is Win32FileSystemDrive || entry is Win32FileSystemEntry || entry is Win32FileSystemDriveDirectory;
+		}
+
+		public IEnumerable<IColumnDefinition> GetColumnDefinitions(ISystemEntry entry) {
 			entry.ThrowIfNull("entry");
 			IEnumerable<ColumnDefinition> columns = new ColumnDefinition[]{
 			};
 			var fsentry = entry as Win32FileSystemEntry;
-			if(fsentry != null) {
+			if (fsentry != null) {
 				var source = new FileInfoSource(fsentry);
 				columns = columns.Concat(new ColumnDefinition[]{
 					new CreationTimeColumn(source),
@@ -61,7 +61,7 @@ namespace CatWalk.Heron.FileSystem.Win32 {
 					new OwnerColumn(new ResetLazyColumnValueSource<NTAccount>(() => fsentry.Owner)),
 					new AccessControlColumn(new ResetLazyColumnValueSource<FileSecurity>(() => fsentry.AccessControl)),
 				});
-				if(entry.IsDirectory) {
+				if (entry.IsDirectory) {
 				} else {
 					columns = columns.Concat(new ColumnDefinition[]{
 						new FileSizeColumn(source),
@@ -69,8 +69,8 @@ namespace CatWalk.Heron.FileSystem.Win32 {
 				}
 			}
 
-			var drive = entry as FileSystemDrive;
-			if(drive != null) {
+			var drive = entry as Win32FileSystemDrive;
+			if (drive != null) {
 				var source = new DriveInfoSource(drive);
 				columns = columns.Concat(new ColumnDefinition[]{
 					new VolumeLabelColumn(source),
@@ -87,14 +87,58 @@ namespace CatWalk.Heron.FileSystem.Win32 {
 
 		#endregion
 
+		public bool CanGetViewModel(object parent, SystemEntryViewModel entry, object previous) {
+			return false;
+		}
+
+		#region Grouping
+
+		public bool CanGetGroupings(ISystemEntry entry) {
+			return entry is Win32FileSystemDrive || entry is Win32FileSystemEntry || entry is Win32FileSystemDriveDirectory;
+		}
+
+		private static readonly IGroupDefinition _FileSizeGroup = new FileSizeEntryGroupDefinition();
+		private static readonly IGroupDefinition _CreationTimeGroup = new MonthlyGroupDefinition<CreationTimeColumn>();
+		private static readonly IGroupDefinition _LastWriteTimeGroup = new MonthlyGroupDefinition<LastWriteTimeColumn>();
+		private static readonly IGroupDefinition _LastAccessTimeGroup = new MonthlyGroupDefinition<LastAccessTimeColumn>();
+
+		public IEnumerable<IGroupDefinition> GetGroupings(ISystemEntry entry) {
+			if(entry is IFileSystemEntry) {
+				return new IGroupDefinition[]{
+					_FileSizeGroup,
+					_CreationTimeGroup,
+					_LastWriteTimeGroup,
+					_LastAccessTimeGroup,
+				};
+			} else {
+				return new IGroupDefinition[0];
+			}
+		}
+
+		#endregion
+
+		public bool CanGetOrderDefinitions(SystemEntryViewModel entry) {
+			return false;
+		}
+
+		public IEnumerable<OrderDefinition> GetOrderDefinitions(SystemEntryViewModel entry) {
+			throw new NotImplementedException();
+		}
+
+
+		public object GetViewModel(object parent, SystemEntryViewModel entry, object previous) {
+			throw new NotImplementedException();
+		}
+
+
 		#region ParsePath
 
-		public override ParsePathResult ParsePath(ISystemEntry root, string path) {
+		public ParsePathResult ParsePath(ISystemEntry root, string path) {
 			root.ThrowIfNull("root");
 			path.ThrowIfNull("path");
 			var filePath = new FilePath(path, FilePathKind.Absolute, FilePathFormats.Windows);
 			if(filePath.IsValid && filePath.PathKind == FilePathKind.Absolute) {
-				var drives = new FileSystemDriveDirectory(root, "Drives");
+				var drives = new Win32FileSystemDriveDirectory(root, "Drives");
 				var drive = drives.GetChild(filePath.Fragments[0]);
 				ISystemEntry entry;
 				entry = drive;
@@ -111,105 +155,9 @@ namespace CatWalk.Heron.FileSystem.Win32 {
 
 		#region GetRootEntries
 
-		public override IEnumerable<ISystemEntry> GetRootEntries(ISystemEntry parent) {
+		public IEnumerable<ISystemEntry> GetRootEntries(ISystemEntry parent) {
 			parent.ThrowIfNull("parent");
-			return Seq.Make(new FileSystemDriveDirectory(parent, "Drives"));
-		}
-
-		#endregion
-
-		#region GetEntryIcon
-
-		public override object GetEntryIcon(ISystemEntry entry, Size<int> size, CancellationToken token) {
-			entry.ThrowIfNull("entry");
-			var ife = entry as IFileSystemEntry;
-			if(ife != null) {
-				var bmp = new WriteableBitmap(size.Width, size.Height, 96, 96, PixelFormats.Pbgra32, null);
-				Task.Factory.StartNew(new Action(delegate {
-					var list = this.GetImageList(size);
-					int overlay;
-					var index = list.GetIconIndexWithOverlay(ife.FileSystemPath.FullPath, out overlay);
-					Drawing::Bitmap bitmap = null;
-					Drawing::Imaging.BitmapData bitmapData = null;
-					try {
-						bitmap = list.Draw(index, overlay, ImageListDrawOptions.PreserveAlpha);
-						bitmapData = bitmap.LockBits(new Drawing::Rectangle(0, 0, bitmap.Width, bitmap.Height), Drawing::Imaging.ImageLockMode.ReadOnly, bitmap.PixelFormat);
-						bmp.Dispatcher.BeginInvoke(new Action(delegate {
-							try {
-								bmp.WritePixels(
-									new System.Windows.Int32Rect(((int)bmp.Width - bitmap.Width) / 2, ((int)bmp.Height - bitmap.Height) / 2, bitmap.Width, bitmap.Height),
-									bitmapData.Scan0,
-									bitmapData.Stride * bitmapData.Height,
-									bitmapData.Stride);
-							} finally {
-								bitmap.UnlockBits(bitmapData);
-								bitmap.Dispose();
-							}
-						}));
-					} catch {
-						if(bitmapData != null) {
-							bitmap.UnlockBits(bitmapData);
-						}
-						if(bitmap != null) {
-							bitmap.Dispose();
-						}
-					}
-				}), token);
-				return bmp;
-			} else {
-				return base.GetEntryIcon(entry, size, token);
-			}
-		}
-
-		private ImageList GetImageList(Size<int> size) {
-			lock(this._ImageLists) {
-				var ilsize = GetImageListSize(size);
-				ImageList list;
-				if(this._ImageLists.TryGetValue(ilsize, out list)) {
-					return list;
-				} else {
-					list = new ImageList(ilsize);
-					this._ImageLists.Add(ilsize, list);
-					return list;
-				}
-			}
-		}
-
-		private static ImageListSize GetImageListSize(Size<int> size) {
-			if(size.Width <= 16 && size.Height <= 16) {
-				return ImageListSize.Small;
-			} else if(size.Width <= 32 && size.Height <= 32) {
-				return ImageListSize.Large;
-			} else if(size.Width <= 48 && size.Height <= 48) {
-				return ImageListSize.ExtraLarge;
-			} else {
-				return ImageListSize.Jumbo;
-			}
-		}
-
-
-		#endregion
-
-		#region IDisposable
-
-		public void Dispose() {
-			this.Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		private bool _Disposed = false;
-
-		protected virtual void Dispose(bool disposing) {
-			if(!this._Disposed) {
-				foreach(var list in this._ImageLists.Values) {
-					list.Dispose();
-				}
-				this._Disposed = true;
-			}
-		}
-
-		~Win32FileSystemProvider() {
-			this.Dispose(false);
+			return Seq.Make(new Win32FileSystemDriveDirectory(parent, "Drives"));
 		}
 
 		#endregion
@@ -276,7 +224,7 @@ namespace CatWalk.Heron.FileSystem.Win32 {
 			}
 
 			protected override FileAttributes SelectValue(IFileInformation value) {
-				return ((FileInformation)value).Attributes;
+				return ((Win32FileInformation)value).Attributes;
 			}
 		}
 
@@ -310,7 +258,7 @@ namespace CatWalk.Heron.FileSystem.Win32 {
 		#region Drive Columns
 
 		public class DriveInfoSource : ResetLazyColumnValueSource<DriveInfo> {
-			public DriveInfoSource(FileSystemDrive drive)
+			public DriveInfoSource(Win32FileSystemDrive drive)
 				: base(() => drive.DriveInfo) {
 
 			}
@@ -390,35 +338,13 @@ namespace CatWalk.Heron.FileSystem.Win32 {
 		}
 		#endregion
 
-		#region Grouping
-		/*
-		private static readonly EntryGroupDescription _FileSizeGroup = new FileSizeEntryGroupDescription();
-		private static readonly EntryGroupDescription _CreationTimeGroup = new MonthlyGroupDescription<CreationTimeColumn>();
-		private static readonly EntryGroupDescription _LastWriteTimeGroup = new MonthlyGroupDescription<LastWriteTimeColumn>();
-		private static readonly EntryGroupDescription _LastAccessTimeGroup = new MonthlyGroupDescription<LastAccessTimeColumn>();
-
-		protected override IEnumerable<EntryGroupDescription> GetAdditionalGroupings(ISystemEntry entry) {
-			if(entry is IFileSystemEntry) {
-				return new EntryGroupDescription[]{
-					_FileSizeGroup,
-					_CreationTimeGroup,
-					_LastWriteTimeGroup,
-					_LastAccessTimeGroup,
-				};
-			} else {
-				return base.GetAdditionalGroupings(entry);
-			}
-		}
-		*/
-		#endregion
-
 		#region FileSizeGroup
-		/*
-		private class FileSizeEntryGroupDescription : EntryGroupDescription {
+		
+		private class FileSizeEntryGroupDefinition : IGroupDefinition {
 			private static readonly DelegateEntryGroup<int>[] _Candidates;
-			private static readonly string COLUMN = typeof(FileSizeColumn).FullName;
+			private static readonly Type COLUMN = typeof(FileSizeColumn);
 
-			static FileSizeEntryGroupDescription() {
+			static FileSizeEntryGroupDefinition() {
 				const long K = 1024;
 				const long M = K * K;
 				const long G = M * K;
@@ -447,11 +373,11 @@ namespace CatWalk.Heron.FileSystem.Win32 {
 				};
 			}
 
-			protected override IEntryGroup GroupNameFromItem(SystemEntryViewModel entry, int level, System.Globalization.CultureInfo culture) {
+			public IGroup GetGroupName(SystemEntryViewModel entry) {
 				return _Candidates.FirstOrDefault(grp => grp.Filter(entry));
 			}
 		}
-		*/
+		
 		#endregion
 
 	}

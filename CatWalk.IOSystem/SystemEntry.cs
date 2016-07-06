@@ -28,6 +28,18 @@ namespace CatWalk.IOSystem {
 			//this.DisplayName = name;
 		}
 
+		public virtual string DisplayPath {
+			get {
+				return this.Path;
+			}
+		}
+
+		public virtual string DisplayName {
+			get {
+				return this.Name;
+			}
+		}
+
 		#region Implemented
 
 		/// <summary>

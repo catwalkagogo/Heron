@@ -22,6 +22,11 @@ namespace CatWalk.IOSystem.FileSystem {
 
 		public abstract IFilePathFormat FilePathFormat { get; }
 
+		public override string DisplayPath {
+			get {
+				return this.FileSystemPath.FullPath;
+			}
+		}
 
 		#region Directory
 

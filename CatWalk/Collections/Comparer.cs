@@ -11,7 +11,7 @@ namespace CatWalk.Collections{
 		private Func<T, object> selector;
 		public SelectEqualityComparer(Func<T, object> selector){
 			if(selector == null){
-				throw new ArgumentNullException("selector");
+				throw new ArgumentNullException(nameof(selector));
 			}
 			this.selector = selector;
 		}

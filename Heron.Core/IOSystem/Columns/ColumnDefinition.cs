@@ -110,6 +110,26 @@ namespace CatWalk.Heron.IOSystem {
 			}
 		}
 
+		private static DisplayNameColumnDefinition _DisplayNameColumn = new DisplayNameColumnDefinition();
+		public static ColumnDefinition<string> DisplayNameColumn {
+			get {
+				return _DisplayNameColumn;
+			}
+		}
+
+		private class DisplayNameColumnDefinition : ColumnDefinition<string> {
+
+			public override string DisplayName {
+				get {
+					return "Display Name";
+				}
+			}
+
+			protected override object GetValueImpl(ISystemEntry entry, bool noCache, CancellationToken token) {
+				return entry.DisplayName;
+			}
+		}
+
 		#endregion
 	}
 

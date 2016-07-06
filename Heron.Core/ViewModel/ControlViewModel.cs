@@ -48,19 +48,19 @@ namespace CatWalk.Heron.ViewModel {
 
 		#region Job
 
-		public Job CreateJob(Action<Job> action) {
+		public Job CreateJob(string message, Action<Job> action) {
 			Job job = null;
-			job = Job.Create(new Action(() => {
+			job = Job.Create(message, new Action(() => {
 				action(job);
 			}));
-			this.AddJob(job);
+			this.RegisterJob(job);
 			return job;
 		}
 
-		public Job CreateJob(Func<Job, Task> taskFactory) {
+		public Job CreateJob(string message, Func<Job, Task> taskFactory) {
 			Job job = null;
-			job = Job.Create(taskFactory(job));
-			this.AddJob(job);
+			job = Job.Create(message, taskFactory(job));
+			this.RegisterJob(job);
 			return job;
 		}
 
@@ -113,7 +113,7 @@ namespace CatWalk.Heron.ViewModel {
 			return job;
 		}
 		*/
-		public void AddJob(Job job) {
+		public void RegisterJob(Job job) {
 			job.ThrowIfNull("job");
 
 			var site = Seq.Make(this).Concat(this.Ancestors).OfType<IJobManagerSite>().FirstOrDefault();

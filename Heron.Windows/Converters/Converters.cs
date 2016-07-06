@@ -396,8 +396,17 @@ namespace CatWalk.Heron.Windows.Converters{
 		#endregion
 	}
 
-	public class FactoryConverter : IValueConverter {
-		public Factory Factory { get; set; }
+	public class FactoryConverter : DependencyObject, IValueConverter {
+		public Factory Factory {
+			get { return (Factory)GetValue(FactoryProperty); }
+			set { SetValue(FactoryProperty, value); }
+		}
+
+		// Using a DependencyProperty as the backing store for Factory.  This enables animation, styling, binding, etc...
+		public static readonly DependencyProperty FactoryProperty =
+			DependencyProperty.Register("Factory", typeof(Factory), typeof(FactoryConverter), new PropertyMetadata(null));
+
+
 
 		public FactoryConverter() {
 		}

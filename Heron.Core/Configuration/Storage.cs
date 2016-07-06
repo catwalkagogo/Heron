@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using CatWalk.Mvvm;
 using System.Threading;
+using System.Collections.ObjectModel;
 
 namespace CatWalk.Heron.Configuration {
 	public abstract class Storage : ViewModelBase, IStorage{
@@ -138,6 +139,19 @@ namespace CatWalk.Heron.Configuration {
 			return Task.Run<T>(() => {
 				return this.Get(key, def);
 			}, token);
+		}
+
+		public Task<IReadOnlyDictionary<string, object>> GetAllAsync(string[] keys) {
+			return this.GetAllAsync(keys, CancellationToken.None);
+		}
+
+		public async Task<IReadOnlyDictionary<string, object>> GetAllAsync(string[] keys, CancellationToken token) {
+			keys.ThrowIfNull(nameof(keys));
+
+			var tasks = keys.Select(key => new KeyValuePair<string, Task<object>>(key, this.GetAsync<object>(key, null))).ToArray();
+			Task.WaitAll(tasks.Select(p => p.Value).ToArray());
+
+			return new ReadOnlyDictionary<string, object>(tasks.ToDictionary(p => p.Key, p => p.Value.Result));
 		}
 
 		public virtual Task SetAsync<T>(string key, T value) {

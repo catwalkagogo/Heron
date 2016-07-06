@@ -22,12 +22,12 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 		private readonly ResetLazy<ColumnDictionary> _Columns;
 		public SystemEntryViewModel Parent { get; private set; }
 		public ISystemEntry Entry { get; private set; }
-		public SystemProvider Provider { get; private set; }
+		public ISystemProvider Provider { get; private set; }
 		//private readonly IDictionary<string, ISet<IEntryGroup>> _ChildrenGroups = new ObservableDictionary<string, ISet<IEntryGroup>>();
 
 		#region Constructor
 
-		public SystemEntryViewModel(SystemEntryViewModel parent, SystemProvider provider, ISystemEntry entry) {
+		public SystemEntryViewModel(SystemEntryViewModel parent, ISystemProvider provider, ISystemEntry entry) {
 			entry.ThrowIfNull("entry");
 			provider.ThrowIfNull("provider");
 			/*if(!parent.IsDirectory) {

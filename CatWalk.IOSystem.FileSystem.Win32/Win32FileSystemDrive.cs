@@ -11,10 +11,10 @@ using CatWalk.IO;
 
 namespace CatWalk.IOSystem.FileSystem.Win32 {
 	using IO = System.IO;
-	public class FileSystemDrive : FileSystemEntryBase, IWin32FileSystemEntry{
+	public class Win32FileSystemDrive : FileSystemEntryBase, IWin32FileSystemEntry{
 		public char DriveLetter{get; private set;}
 
-		public FileSystemDrive(ISystemEntry parent, char driveLetter) : base(parent, ValidateDriveLetter(driveLetter).ToString()){
+		public Win32FileSystemDrive(ISystemEntry parent, char driveLetter) : base(parent, ValidateDriveLetter(driveLetter).ToString()){
 			this.DriveLetter = ValidateDriveLetter(driveLetter);
 			this.FileSystemPath = new FilePath(this.DriveLetter + ":" + IO::Path.DirectorySeparatorChar, FilePathFormats.Windows);
 		}

@@ -50,7 +50,9 @@
     <Compile Include="Configuration\PartialStorage.cs" />
     <Compile Include="Configuration\Storage.cs" />
     <Compile Include="Factory.cs" />
+    <Compile Include="I18N.cs" />
     <Compile Include="IJob.cs" />
+    <Compile Include="IOSystem\BuiltinSystemProvider.cs" />
     <Compile Include="IOSystem\Columns\CacheColumnDefinition.cs" />
     <Compile Include="IOSystem\Columns\ColumnDefinition.cs" />
     <Compile Include="IOSystem\EntryOperatorCollection.cs" />
@@ -58,6 +60,12 @@
     <Compile Include="IOSystem\Columns\IColumnDefinition.cs" />
     <Compile Include="IOSystem\Columns\IColumnValueSource.cs" />
     <Compile Include="IOSystem\IEntryOperator.cs" />
+    <Compile Include="IOSystem\SystemProviderCollection.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="ViewModel\IOSystem\Filtering\CompositeEntryFilter.cs" />
     <Compile Include="ViewModel\IOSystem\Filtering\DelegateEntryFilter.cs" />
     <Compile Include="ViewModel\IOSystem\Filtering\EntryFilterCollection.cs" />
@@ -97,6 +105,7 @@
     <Compile Include="ViewModel\IOSystem\Ordering\SystemEntryViewModelComparer.cs" />
     <Compile Include="ViewModel\Job.cs" />
     <Compile Include="ViewModel\JobManager.cs" />
+    <Compile Include="ViewModel\OutputMessage.cs" />
     <Compile Include="ViewModel\ViewModelBase.cs" />
     <Compile Include="ViewModel\Windows\AppWindowsViewModel.cs" />
     <Compile Include="ViewModel\Windows\ListViewModel.cs" />
@@ -146,6 +155,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <PropertyGroup>

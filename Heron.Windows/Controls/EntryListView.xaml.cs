@@ -26,11 +26,11 @@ namespace CatWalk.Heron.Windows.Controls {
 	using Interop;
 	using System.Collections.Specialized;
 	using System.Reactive.Disposables;
-
+	using System.Windows.Controls.Primitives;
 	/// <summary>
 	/// Interaction logic for LogList.xaml
 	/// </summary>
-	public partial class EntryListView : ListView {
+	public partial class EntryListView : UserControl {
 		public const string DefaultItemTemplateKey = "DefaultItemTemplate";
 		public const string DefaultViewKey = "DefaultView";
 		public const string ChildrenViewKey = "ChildrenView";
@@ -39,6 +39,12 @@ namespace CatWalk.Heron.Windows.Controls {
 		private CollectionViewSource _ChildrenView;
 		private GridView _DefaultGridView;
 		private CompositeDisposable _Disposables = new CompositeDisposable();
+
+		public Selector Selector {
+			get {
+				return this._ListView;
+			}
+		}
 
 		public IEnumerable<GridViewColumn> GridViewColumns {
 			get { return (IEnumerable<GridViewColumn>)GetValue(GridViewColumnsProperty); }
@@ -81,7 +87,7 @@ namespace CatWalk.Heron.Windows.Controls {
 
 	internal class EntryListViewEntryImageFactoryConverter : FactoryConverter {
 		public override object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
-			var view = base.Convert(value, targetType, parameter, culture);
+			var view =  this.Factory.Create(new object[] { value, new Size<double>(16, 16) });
 			return view;
 		}
 	}

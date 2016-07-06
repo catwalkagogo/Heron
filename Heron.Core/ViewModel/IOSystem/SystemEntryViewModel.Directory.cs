@@ -16,11 +16,13 @@ using CatWalk.ComponentModel;
 using System.Reactive.Linq;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
+using System.Reactive.Concurrency;
 
 namespace CatWalk.Heron.ViewModel.IOSystem {
 	public partial class SystemEntryViewModel : ViewModelBase, IHierarchicalViewModel<SystemEntryViewModel>, IDisposable {
 		private ChildrenCollection _Children;
 		private IIOSystemWatcher _Watcher;
+		private ReactiveProperty<IEnumerable<IColumnDefinition>> _ChildrenColumns;
 
 		private void InitDirectory() {
 			var entry = this.Entry;
@@ -31,6 +33,13 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 				this._Watcher.IsEnabled = false;
 				this._Watcher.CollectionChanged += _Watcher_CollectionChanged;
 			}
+
+			this._ChildrenColumns = this.Children
+				.CollectionChangedAsObservable()
+				.Select(_ => this.Children.SelectMany(c => c.Columns.Keys).Distinct())
+				.ToReactiveProperty(new SynchronizationContextScheduler(this.SynchronizationContext));
+			this.Disposables.Add(this._ChildrenColumns);
+			this.Disposables.Add(this._ChildrenColumns.Subscribe(_ => this.OnPropertyChanged(nameof(ChildrenColumns))));
 
 			// Enter
 			this.Disposables.Add(this.ObserveProperty(_ => _.Host)
@@ -394,6 +403,19 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 						}
 						break;
 					}
+			}
+		}
+
+		#endregion
+
+		#region ChildrenColumns
+
+		/// <summary>
+		/// 子エントリーのカラム定義を取得
+		/// </summary>
+		public IEnumerable<IColumnDefinition> ChildrenColumns {
+			get {
+				return this._ChildrenColumns.Value;
 			}
 		}
 

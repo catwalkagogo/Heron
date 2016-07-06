@@ -11,7 +11,7 @@ using Reactive.Bindings.Extensions;
 using CatWalk.Threading;
 
 namespace CatWalk.Heron.ViewModel {
-	public class Job : ViewModelBase, IJob {
+	public class Job : OutputMessage, IJob {
 		private double _Progress;
 		private JobStatus _Status = JobStatus.Pending;
 		private string _Name;
@@ -35,6 +35,23 @@ namespace CatWalk.Heron.ViewModel {
 		public Job(CancellationTokenSource tokenSource){
 			tokenSource.ThrowIfNull("tokenSource");
 			this._CancellationTokenSource = tokenSource;
+
+			this.Disposables.Add(this.ObserveProperty(_ => _.Status).Subscribe(status => {
+				switch (status) {
+					case JobStatus.Cancelled:
+						this.Priority = MessagePriority.Warning;
+						break;
+					case JobStatus.Completed:
+						this.Priority = MessagePriority.Success;
+						break;
+					case JobStatus.Failed:
+						this.Priority = MessagePriority.Error;
+						break;
+					default:
+						this.Priority = MessagePriority.Info;
+						break;
+				}
+			}));
 		}
 
 		public void Start() {
@@ -49,23 +66,26 @@ namespace CatWalk.Heron.ViewModel {
 
 		#region Create
 
-		public static Job Create(Action action) {
-			return Create(new Task(action), null);
+		public static Job Create(string message, Action action) {
+			return Create(message, new Task(action), null);
 		}
 
-		public static Job Create(Action action, CancellationTokenSource tokenSource) {
-			return Create(new Task(action), tokenSource);
+		public static Job Create(string message, Action action, CancellationTokenSource tokenSource) {
+			return Create(message, new Task(action), tokenSource);
 		}
 
-		public static Job Create(Task task) {
-			return Create(task, new CancellationTokenSource());
+		public static Job Create(string message, Task task) {
+			return Create(message, task, new CancellationTokenSource());
 		}
 
-		public static Job Create(Task task, CancellationTokenSource tokenSource) {
+		public static Job Create(string message, Task task, CancellationTokenSource tokenSource) {
 			task.ThrowIfNull("task");
 			tokenSource.ThrowIfNull("tokenSource");
 
-			var job = new Job();
+			var job = new Job() {
+				Message = message,
+				Priority = MessagePriority.Info
+			};
 			if (task.Status != TaskStatus.Created) {
 				throw new ArgumentException("task is already running");
 			}

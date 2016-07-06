@@ -84,14 +84,14 @@ namespace CatWalk.Heron {
 			}
 		}
 
-		public void RegisterSystemProvider(SystemProvider provider) {
+		public void RegisterSystemProvider(ISystemProvider provider) {
 			provider.ThrowIfNull("provider");
 
-			this._RootProvider.Providers.Add(provider);
+			this._RootProvider.Add(provider);
 		}
 
-		public void UnregisterSystemProvider(SystemProvider provider) {
-			this._RootProvider.Providers.RemoveAll(p => provider == p);
+		public bool UnregisterSystemProvider(ISystemProvider provider) {
+			return this._RootProvider.Remove(provider);
 		}
 
 		public void RegisterEntryOperator(IEntryOperator op) {
@@ -100,14 +100,8 @@ namespace CatWalk.Heron {
 			this._EntryOperators.Add(op);
 		}
 
-		public void UnregisterEntryOperator(IEntryOperator op) {
-			var c = this._EntryOperators;
-			for(var i = c.Count - 1; i > 0; i--) {
-				var o = c[i];
-				if(o == op) {
-					c.RemoveAt(i);
-				}
-			}
+		public bool UnregisterEntryOperator(IEntryOperator op) {
+			return this._EntryOperators.Remove(op);
 		}
 
 		#endregion

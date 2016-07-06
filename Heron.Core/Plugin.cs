@@ -7,10 +7,10 @@ using CatWalk.Heron.Configuration;
 using System.Reflection;
 
 namespace CatWalk.Heron {
-	public abstract class Plugin : IPlugin {
-		public const int PRIORITY_NORMAL = 100;
-		public const int PRIORITY_BUILTIN = Int32.MaxValue;
-		public const int PRIORITY_LOWEST = Int32.MinValue;
+	public abstract class Plugin : DisposableObject, IPlugin {
+		public const int PriorityNormal = 100;
+		public const int PriorityBuiltin = Int32.MaxValue;
+		public const int PriorityLowest = Int32.MinValue;
 
 		public Application Application { get; private set; }
 
@@ -79,11 +79,18 @@ namespace CatWalk.Heron {
 
 		public virtual int Priority {
 			get {
-				return PRIORITY_NORMAL;
+				return PriorityNormal;
 			}
 		}
 
 		#endregion
+
+		protected override void Dispose(bool disposing) {
+			if (this.IsLoaded && this.CanUnload(this.Application)) {
+				this.Unload(this.Application);
+			}
+			base.Dispose(disposing);
+		}
 	}
 
 	public class PluginEventArgs : EventArgs {

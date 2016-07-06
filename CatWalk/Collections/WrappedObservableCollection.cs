@@ -28,7 +28,9 @@ namespace CatWalk.Collections{
 			list.ThrowIfNull("list");
 			this.Collection = list;
 		}
-		
+
+		private object _Sync = new object();
+
 		#region Reentrancy
 		
 		private SimpleMonitor monitor = new SimpleMonitor();
@@ -49,63 +51,79 @@ namespace CatWalk.Collections{
 		#region ICollection
 		
 		public virtual void Add(T item){
-			this.CheckReentrancy();
-			var count = this.Collection.Count;
-			this.Collection.Add(item);
-			this.OnPropertyChanged(new PropertyChangedEventArgs("Count"));
-			this.OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
-			this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, count));
+			lock (_Sync) {
+				this.CheckReentrancy();
+				var count = this.Collection.Count;
+				this.Collection.Add(item);
+				this.OnPropertyChanged(new PropertyChangedEventArgs("Count"));
+				this.OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
+				this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, count));
+			}
 		}
 		
 		public virtual void AddRange(IEnumerable<T> items){
-			this.CheckReentrancy();
-			var count = this.Collection.Count;
-			var itemArray = items.ToArray();
-			foreach(var item in itemArray){
-				this.Collection.Add(item);
+			lock (_Sync) {
+				this.CheckReentrancy();
+				var count = this.Collection.Count;
+				var itemArray = items.ToArray();
+				foreach (var item in itemArray) {
+					this.Collection.Add(item);
+				}
+				this.OnPropertyChanged(new PropertyChangedEventArgs("Count"));
+				this.OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
+				this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, itemArray, count));
 			}
-			this.OnPropertyChanged(new PropertyChangedEventArgs("Count"));
-			this.OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
-			this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, itemArray, count));
 		}
 
 		public virtual void Clear(){
-			if(this.Count > 0){
-				this.CheckReentrancy();
-				var items = this.Collection.ToArray();
-				this.Collection.Clear();
-				this.OnPropertyChanged(new PropertyChangedEventArgs("Count"));
-				this.OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
-				this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, items));
+			lock (_Sync) {
+				if (this.Count > 0) {
+					this.CheckReentrancy();
+					var items = this.Collection.ToArray();
+					this.Collection.Clear();
+					this.OnPropertyChanged(new PropertyChangedEventArgs("Count"));
+					this.OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
+					this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, items));
+				}
 			}
 		}
 		
 		public bool Contains(T item){
-			return this.Collection.Contains(item);
+			lock (_Sync) {
+				return this.Collection.Contains(item);
+			}
 		}
 		
 		public virtual bool Remove(T item){
-			this.CheckReentrancy();
-			if(this.Collection.Remove(item)){
-				this.OnPropertyChanged(new PropertyChangedEventArgs("Count"));
-				this.OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
-				this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item));
-				return true;
-			}else{
-				return false;
+			lock (_Sync) {
+				this.CheckReentrancy();
+				if (this.Collection.Remove(item)) {
+					this.OnPropertyChanged(new PropertyChangedEventArgs("Count"));
+					this.OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
+					this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item));
+					return true;
+				} else {
+					return false;
+				}
 			}
 		}
 
 		IEnumerator IEnumerable.GetEnumerator(){
-			return this.GetEnumerator();
+			lock (_Sync) {
+				return this.GetEnumerator();
+			}
 		}
 		
 		public IEnumerator<T> GetEnumerator(){
-			return this.Collection.GetEnumerator();
+			lock (_Sync) {
+				return this.Collection.GetEnumerator();
+			}
 		}
 		
 		public void CopyTo(T[] array, int index){
-			this.Collection.CopyTo(array, index);
+			lock (_Sync) {
+				this.Collection.CopyTo(array, index);
+			}
 		}
 		
 		public int Count{
@@ -150,7 +168,9 @@ namespace CatWalk.Collections{
 
 		#region ICollection
 		public virtual void CopyTo(Array array, int index) {
-			this.ToArray().CopyTo(array, index);
+			lock (_Sync) {
+				this.ToArray().CopyTo(array, index);
+			}
 		}
 
 		public virtual bool IsSynchronized {

@@ -116,6 +116,10 @@
       <Project>{996331ab-d837-42d5-970a-247822be6f29}</Project>
       <Name>Heron.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Heron.Windows.Meta\Heron.Windows.Meta.csproj">
+      <Project>{315f5462-a380-4c81-b2d9-55a2614e0d33}</Project>
+      <Name>Heron.Windows.Meta</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

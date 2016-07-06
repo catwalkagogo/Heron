@@ -21,6 +21,7 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 		//private Lazy<IComparer<ISystemEntry>> _ColumnComparer;
 		private Task _GetValueTask;
 		private object _Sync = new object();
+		private bool _IsShow = true;
 
 		public ColumnViewModel(IColumnDefinition definition, SystemEntryViewModel vm) {
 			definition.ThrowIfNull("provider");
@@ -122,6 +123,16 @@ public int Compare(ISystemEntry x, ISystemEntry y) {
 		public bool CanSort {
 			get {
 				return Definition.CanSort;
+			}
+		}
+
+		public bool IsShow {
+			get {
+				return this._IsShow;
+			}
+			set {
+				this.IsShow = value;
+				this.OnPropertyChanged(nameof(IsShow));
 			}
 		}
 		/*

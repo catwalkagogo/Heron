@@ -20,7 +20,7 @@ namespace CatWalk.Heron {
 		private RootSystemProvider _RootProvider;
 
 		protected virtual async Task InitializeIOSystem() {
-			this._RootProvider = new RootSystemProvider(this);
+			this._RootProvider = new RootSystemProvider();
 			this._RootEntry = new SystemEntryViewModel(null, this._RootProvider, new RootSystemEntry(this));
 
 			this.RegisterSystemProvider(new ConfigurationProvider());
@@ -35,7 +35,7 @@ namespace CatWalk.Heron {
 			}
 		}
 
-		public GenericSystemProvider RootProvider {
+		public RootSystemProvider RootProvider {
 			get {
 				return this._RootProvider;
 			}
@@ -89,49 +89,31 @@ namespace CatWalk.Heron {
 		/// ルートプロバイダ
 		/// 登録されたプロバイダのルートエントリを束ねる
 		/// </summary>
-		internal class RootSystemProvider : GenericSystemProvider {
-			public List<SystemProvider> Providers { get; private set; }
-			public Application Application { get; private set; }
-			public RootSystemProvider(Application app) {
-				app.ThrowIfNull("app");
-				this.Application = app;
-				this.Providers = new List<SystemProvider>();
+		public class RootSystemProvider : SystemProviderCollection {
+			private GenericSystemProvider _GenericProvider;
+
+			public RootSystemProvider() {
+				this.Add(new BuiltinSystemProvider());
+				this._GenericProvider = new GenericSystemProvider();
+				this.Add(this._GenericProvider);
 			}
 
-			public override ParsePathResult ParsePath(ISystemEntry root, string path) {
-				root.ThrowIfNull("root");
-				path.ThrowIfNull("path");
-
-				foreach(var provider in this.Providers) {
-					var result = provider.ParsePath(root, path);
-					if (result.Success) {
-						return result;
-					}
+			public Factory<ISystemEntry, ISystemEntry> RootEntryFactory {
+				get {
+					return this._GenericProvider.RootEntryFactory;
 				}
-
-				var result2 = base.ParsePath(root, path);
-				if(result2.Success) {
-					return result2;
+			}
+			public Factory<object, SystemEntryViewModel, object, object> ViewModelFactory {
+				get {
+					return this._GenericProvider.ViewModelFactory;
 				}
-
-				var fragments = path.Split(SystemEntry.DirectorySeperatorChar);
-				var entry = root;
-				foreach (var name in fragments) {
-					entry = entry.GetChild(name);
-					if (entry == null) {
-						return new ParsePathResult(false, null, false);
-					}
+			}
+			public Factory<ISystemEntry, string, ParsePathResult> ParsePathFactory {
+				get {
+					return this._GenericProvider.ParsePathFactory;
 				}
-				return new ParsePathResult(true, entry, path.EndsWith(SystemEntry.DirectorySeperatorChar.ToString()));
 			}
 
-			public override IEnumerable<ISystemEntry> GetRootEntries(ISystemEntry parent) {
-				return this.Providers.SelectMany(p => p.GetRootEntries(parent)).Concat(base.GetRootEntries(parent));
-			}
-
-			public override object GetViewModel(object parent, SystemEntryViewModel entry, object previous) {
-				return this.Providers.Select(p => p.GetViewModel(parent, entry, previous)).Concat(Seq.Make(base.GetViewModel(parent, entry, previous))).FirstOrDefault(vm => vm != null);
-			}
 		}
 
 		#endregion

@@ -5,11 +5,13 @@ using CatWalk.IOSystem;
 using CatWalk.Heron.ViewModel.IOSystem;
 
 namespace CatWalk.Heron.IOSystem {
-	internal interface ISystemProvider {
+	public interface ISystemProvider {
 		/// <summary>
 		/// プロバイダ表示名を取得する
 		/// </summary>
 		string DisplayName { get; }
+
+		bool CanGetColumnDefinitions(ISystemEntry entry);
 
 		/// <summary>
 		/// カラム定義を取得する
@@ -17,7 +19,9 @@ namespace CatWalk.Heron.IOSystem {
 		/// <param name="entry"></param>
 		/// <returns></returns>
 		IEnumerable<IColumnDefinition> GetColumnDefinitions(ISystemEntry entry);
-
+		/*
+		object CanGetEntryIcon(ISystemEntry entry, Size<int> size);
+		
 		/// <summary>
 		/// システムエントリーのアイコンを取得する
 		/// </summary>
@@ -26,7 +30,7 @@ namespace CatWalk.Heron.IOSystem {
 		/// <param name="token"></param>
 		/// <returns></returns>
 		object GetEntryIcon(ISystemEntry entry, Size<int> size, System.Threading.CancellationToken token);
-
+		*/
 		/// <summary>
 		/// ルートとなるISystemEntryの一覧を取得する
 		/// </summary>
@@ -40,6 +44,9 @@ namespace CatWalk.Heron.IOSystem {
 		string Name { get; }
 
 		ParsePathResult ParsePath(ISystemEntry root, string path);
+
+		bool CanGetViewModel(object parent, SystemEntryViewModel entry, object previous);
+
 		/// <summary>
 		/// SystemEntryViewModelに紐づくViewModelを取得する
 		/// </summary>
@@ -49,12 +56,16 @@ namespace CatWalk.Heron.IOSystem {
 		/// <returns></returns>
 		object GetViewModel(object parent, SystemEntryViewModel entry, object previous);
 
+		bool CanGetGroupings(ISystemEntry entry);
+
 		/// <summary>
 		/// 利用可能なグルーピングを取得する
 		/// </summary>
 		/// <param name="entry"></param>
 		/// <returns></returns>
 		IEnumerable<IGroupDefinition> GetGroupings(ISystemEntry entry);
+
+		bool CanGetOrderDefinitions(SystemEntryViewModel entry);
 
 		IEnumerable<OrderDefinition> GetOrderDefinitions(SystemEntryViewModel entry);
 	}

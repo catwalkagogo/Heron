@@ -9,16 +9,16 @@ using CatWalk.Collections;
 
 namespace CatWalk.IOSystem.FileSystem.Win32 {
 	using IO = System.IO;
-	public class FileSystemWatcher : IIOSystemWatcher{
+	public class Win32FileSystemWatcher : IIOSystemWatcher{
 		private Lazy<IO::FileSystemWatcher> _Watcher;
-		private IWin32FileSystemEntry _Target;
+		private IFileSystemEntry _Target;
 		private Task _NotifyTask;
 		private object _SyncObject = new Object();
 		private const int DelayTime = 1000;
 		private Queue<IO::FileSystemEventArgs> _EventQueue = new Queue<IO.FileSystemEventArgs>();
 		private CancellationTokenSource _TokenSource = new CancellationTokenSource();
 
-		public FileSystemWatcher(IWin32FileSystemEntry dir) {
+		public Win32FileSystemWatcher(IFileSystemEntry dir) {
 			this._Target = dir;
 			this._Watcher = new Lazy<IO.FileSystemWatcher>(this.WatcherFactory);
 		}

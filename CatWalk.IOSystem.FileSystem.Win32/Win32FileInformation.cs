@@ -14,12 +14,12 @@ namespace CatWalk.IOSystem.FileSystem.Win32 {
 	using IO = System.IO;
 
 	[StructLayout(LayoutKind.Sequential)]
-	public class FileInformation : IFileInformation {
+	public class Win32FileInformation : IFileInformation {
 		private const int ERROR_FILE_NOT_FOUND = 2;
 		private ByHandleFileInformation _Info;
 		private Exception _GetFileInformationByHandleException;
 
-		public FileInformation(string file){
+		public Win32FileInformation(string file){
 			//file = IO.Path.GetFullPath(file);
 			Win32Exception ex;
 			using(var hFile = OpenFile(file, out ex)){

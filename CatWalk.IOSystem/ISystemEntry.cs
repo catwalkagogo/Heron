@@ -12,9 +12,18 @@ namespace CatWalk.IOSystem {
 	public interface ISystemEntry : IEquatable<ISystemEntry>{
 		string Name{get;}
 		string Path{get;}
-		//string DisplayName{get;}
+		/// <summary>
+		/// 表示用のパス
+		/// ローカライズ済みのパスや物理パスなど
+		/// </summary>
+		string DisplayPath { get; }
+
+		/// <summary>
+		/// 表示用の名前
+		/// ローカライズ済みの名前など
+		/// </summary>
+		string DisplayName{get;}
 		ISystemEntry Parent{get;}
-		//string DisplayPath{get;}
 		bool IsExists();
 		bool IsExists(CancellationToken token);
 		bool IsExists(CancellationToken token, IProgress<double> progress);

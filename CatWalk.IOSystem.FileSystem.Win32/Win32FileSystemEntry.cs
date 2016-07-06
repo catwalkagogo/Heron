@@ -86,14 +86,14 @@ namespace CatWalk.IOSystem.FileSystem.Win32 {
 
 		public override IFileInformation FileInformation {
 			get {
-				return new FileInformation(this.FileSystemPath.FullPath);
+				return new Win32FileInformation(this.FileSystemPath.FullPath);
 			}
 
 		}
 
 		public FileAttributes FileAttibutes{
 			get{
-				return ((FileInformation)this.FileInformation).Attributes;
+				return ((Win32FileInformation)this.FileInformation).Attributes;
 			}
 		}
 		

@@ -18,6 +18,8 @@ using System.Reactive.Disposables;
 using CatWalk.IOSystem;
 
 namespace CatWalk.Heron.ViewModel.Windows {
+	using static I18N;
+
 	public class ListViewModel : AppWindowsViewModel{
 		private SystemEntryViewModel _Current;
 		private object _EntryViewModel;
@@ -194,46 +196,50 @@ namespace CatWalk.Heron.ViewModel.Windows {
 
 		#region Navigate
 
+		private object _NavigateSync = new object();
+
 		private void Navigate(SystemEntryViewModel entry) {
 			this.Navigate(entry, null);
 		}
 
 		private void Navigate(SystemEntryViewModel entry, string focusName) {
-			if(this._NavigateJob != null) {
-				this._NavigateJob.Cancel();
-			}
-
-			var old = this.CurrentEntry;
-			if(old != null) {
-				old.Exit();
-			}
-			entry.Enter();
-
-			// change current
-			this.CurrentEntry = entry;
-
-			// add history
-			{
-				var focused = this.FocusedItem;
-				var focusedName = focused != null ? focused.Name : null;
-				this._History.Add(new HistoryItem(
-					old.Name,
-					() => {
-						this.Navigate(old, focusedName);
-					}
-				));
-			}
-
-			var job = this.CreateJob(_ => {
-				entry.RefreshChildren(_.CancellationToken, _);
-				SystemEntryViewModel focus;
-				if(entry.Children.TryGetValue(focusName, out focus)) {
-					//this.FocusedItem = focus;
-					// TODO:
+			lock (this._NavigateSync) {
+				if (this._NavigateJob != null) {
+					this._NavigateJob.Cancel();
 				}
-			});
-			this._NavigateJob = job;
-			job.Start();
+
+				var old = this.CurrentEntry;
+				if (old != null) {
+					old.Exit();
+				}
+				entry.Enter();
+
+				// change current
+				this.CurrentEntry = entry;
+
+				// add history
+				{
+					var focused = this.FocusedItem;
+					var focusedName = focused != null ? focused.Name : null;
+					this._History.Add(new HistoryItem(
+						old.Name,
+						() => {
+							this.Navigate(old, focusedName);
+						}
+					));
+				}
+
+				var job = this.CreateJob("Navigate", _ => {
+					entry.RefreshChildren(_.CancellationToken, _);
+					SystemEntryViewModel focus;
+					if (entry.Children.TryGetValue(focusName, out focus)) {
+						//this.FocusedItem = focus;
+						// TODO:
+					}
+				});
+				this._NavigateJob = job;
+				job.Start();
+			}
 		}
 
 		#endregion
@@ -252,7 +258,7 @@ namespace CatWalk.Heron.ViewModel.Windows {
 				this.Navigate(entry);
 			} else {
 				var entries = this.SelectedItems.Select(ent => ent.Entry).ToArray();
-				this.CreateJob(job => {
+				this.CreateJob(_("Open", name), job => {
 					this.Application.EntryOperator.Open(entries, job.CancellationToken, job);
 				}).Start();
 			}
@@ -319,7 +325,7 @@ namespace CatWalk.Heron.ViewModel.Windows {
 
 			var entries = this.SelectedItems.Select(item => item.Entry).ToArray();
 
-			this.CreateJob(job => {
+			this.CreateJob(_("CopyTo", dest.DisplayPath), job => {
 				this.Application.EntryOperator.CopyTo(entries, dest, job.CancellationToken, job).Wait();
 			}).Start();
 		}
@@ -344,7 +350,7 @@ namespace CatWalk.Heron.ViewModel.Windows {
 			}
 
 			var entries = this.SelectedItems.Select(item => item.Entry).ToArray();
-			this.CreateJob(job => {
+			this.CreateJob(_("MoveTo", dest.DisplayPath), job => {
 				this.Application.EntryOperator.MoveTo(entries, dest, job.CancellationToken, job).Wait();
 			}).Start();
 		}
@@ -361,7 +367,7 @@ namespace CatWalk.Heron.ViewModel.Windows {
 
 		public void Delete() {
 			var entries = this.SelectedItems.Select(item => item.Entry).ToArray();
-			this.CreateJob(job => {
+			this.CreateJob(_("Delete"), job => {
 				this.Application.EntryOperator.Delete(entries, false, job.CancellationToken, job).Wait();
 			}).Start();
 		}
@@ -379,7 +385,7 @@ namespace CatWalk.Heron.ViewModel.Windows {
 
 		public void Remove() {
 			var entries = this.SelectedItems.Select(item => item.Entry).ToArray();
-			this.CreateJob(job => {
+			this.CreateJob(_("Remove"), job => {
 				this.Application.EntryOperator.Delete(entries, true, job.CancellationToken, job).Wait();
 			}).Start();
 		}

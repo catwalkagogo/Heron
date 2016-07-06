@@ -1,4 +1,4 @@
-﻿<ListView
+﻿<UserControl
 	x:Name="_this"
 	x:Class="CatWalk.Heron.Windows.Controls.EntryListView"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -9,31 +9,30 @@
 	xmlns:local="clr-namespace:CatWalk.Heron.Windows.Controls"
 	xmlns:conv="clr-namespace:CatWalk.Heron.Windows.Converters"
 	xmlns:ext="clr-namespace:CatWalk.Windows.Extensions;assembly=CatWalk.Windows"
+	win:PluginExtensions.NotifyCreatedEvent="True"
 	mc:Ignorable="d" 
 	d:DesignHeight="300" d:DesignWidth="300"
-	HorizontalAlignment="Stretch"
-	VerticalAlignment="Stretch"
-	ext:GridViewBehaviours.AutoFitGridIndex="0">
-	
-	<ListView.Resources>
+	>
+
+	<UserControl.Resources>
 		<ResourceDictionary>
 			<CollectionViewSource x:Key="{x:Static local:EntryListView.ChildrenViewKey}" Source="{Binding CurrentEntry.Children}">
 			</CollectionViewSource>
 			<!--DataTemplate x:Key="{x:Static local:EntryListView.DefaultItemTemplateKey}">
-				<StackPanel>
-					<TextBlock Text="{Binding Name}" />
-				</StackPanel>
+					<StackPanel>
+						<TextBlock Text="{Binding Name}" />
+					</StackPanel>
 				
-			</DataTemplate -->
+				</DataTemplate -->
 
 			<local:EntryListViewViewFactoryConverter
-				x:Key="{x:Static local:EntryListView.ViewFactoryConverterKey}"
-				ListView="{x:Reference _this}"
-				Factory="{x:Static win:WindowsPlugin.Current.EntryListViewFactory}">
+					x:Key="{x:Static local:EntryListView.ViewFactoryConverterKey}"
+					ListView="{x:Reference _this}"
+					Factory="{Binding EntryListViewFactory, Source={x:Static win:WindowsPlugin.Current}}">
 			</local:EntryListViewViewFactoryConverter>
 			<local:EntryListViewEntryImageFactoryConverter
-				x:Key="EntryImageFactoryConverter"
-				Factory="{x:Static win:WindowsPlugin.Current.EntryImageFactory}">
+					x:Key="EntryImageFactoryConverter"
+					Factory="{Binding EntryImageFactory, Source={x:Static win:WindowsPlugin.Current}}">
 			</local:EntryListViewEntryImageFactoryConverter>
 
 			<GridView x:Key="{x:Static local:EntryListView.DefaultViewKey}">
@@ -49,14 +48,23 @@
 				</GridViewColumn>
 			</GridView>
 		</ResourceDictionary>
-	</ListView.Resources>
-	<ListView.ItemsSource>
-		<Binding Source="{StaticResource ResourceKey={x:Static local:EntryListView.ChildrenViewKey}}" />
-	</ListView.ItemsSource>
+	</UserControl.Resources>
+
+	<ListView
+		x:Name="_ListView"
+		HorizontalAlignment="Stretch"
+		VerticalAlignment="Stretch"
+		ext:GridViewBehaviours.AutoFitGridIndex="0">
 	
-	<ListView.View>
-		<Binding
-			Path="CurrentEntry"
-			Converter="{StaticResource ResourceKey={x:Static local:EntryListView.ViewFactoryConverterKey}}"/>
-	</ListView.View>
-</ListView>
+	
+		<ListView.ItemsSource>
+			<Binding Source="{StaticResource ResourceKey={x:Static local:EntryListView.ChildrenViewKey}}" />
+		</ListView.ItemsSource>
+	
+		<ListView.View>
+			<Binding
+				Path="CurrentEntry"
+				Converter="{StaticResource ResourceKey={x:Static local:EntryListView.ViewFactoryConverterKey}}"/>
+		</ListView.View>
+	</ListView>
+</UserControl>
