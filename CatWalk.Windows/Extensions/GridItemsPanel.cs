@@ -23,15 +23,13 @@ namespace CatWalk.Windows.Extensions {
 
 		private static ItemsPanelTemplate CreateItemsPanel(ItemsControl itemsControl) {
 			var gridFactory = new FrameworkElementFactory(typeof(Grid));
-			gridFactory.AddHandler(Grid.LoadedEvent, new RoutedEventHandler((s, e) => {
+			gridFactory.AddHandler(FrameworkElement.LoadedEvent, new RoutedEventHandler((s, e) => {
 				var grid = (Grid)s;
 
 				{
 					var columnSource = GetColumnDefinitionsSource(itemsControl);
 					if (columnSource != null) {
-						var i = 0;
 						foreach (var def in columnSource) {
-							def.SharedSizeGroup = "column_" + (i++);
 							grid.ColumnDefinitions.Add(def);
 						}
 					} else {
