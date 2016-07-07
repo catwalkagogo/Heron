@@ -313,6 +313,19 @@ namespace CatWalk.Heron.Windows {
 
 		#endregion
 
+		#region GetMainWindow
+
+		public static MainWindow GetMainWindow(this DependencyObject obj) {
+			obj.ThrowIfNull(nameof(obj));
+
+			var window = Window.GetWindow(obj);
+			return window as MainWindow;
+		}
+
+
+
+		#endregion
+
 		#region GetMainWindowViewModel
 
 		public static VM::Windows.MainWindowViewModel GetMainWindowViewModel(this DependencyObject obj) {

@@ -4,10 +4,27 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 
 namespace CatWalk.Windows {
 	public static class VisualTreeExtensions {
+		public static DependencyObject FindAncestor(this DependencyObject element, Func<DependencyObject, bool> predicate) {
+			element.ThrowIfNull(nameof(element));
+			predicate.ThrowIfNull(nameof(predicate));
+
+			if (predicate(element)) {
+				return element;
+			}else {
+				var parent = LogicalTreeHelper.GetParent(element);
+				if(parent != null) {
+					return parent.FindAncestor(predicate);
+				}else {
+					return null;
+				}
+			}
+		}
+
 		public static DependencyObject GetVisualChild(this DependencyObject element, Func<DependencyObject, bool> predicate) {
 			element.ThrowIfNull(nameof(element));
 			predicate.ThrowIfNull(nameof(predicate));
@@ -37,6 +54,22 @@ namespace CatWalk.Windows {
 			}
 
 			return null;
+		}
+
+		/// <summary>
+		/// SelectorでFocusで選択状態によって挙動が変わるのを制御
+		/// </summary>
+		/// <param name="list"></param>
+		public static void FocusSelector(this Selector list) {
+			list.ThrowIfNull(nameof(list));
+
+			var selectedItem = (FrameworkElement)list.ItemContainerGenerator.ContainerFromItem(list.SelectedItem);
+
+			if (selectedItem == null) {
+				list.Focus();
+			} else {
+				selectedItem.Focus();
+			}
 		}
 	}
 }

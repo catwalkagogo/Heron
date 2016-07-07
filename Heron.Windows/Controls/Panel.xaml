@@ -7,22 +7,27 @@
 			 xmlns:win="clr-namespace:CatWalk.Heron.Windows"
 			 win:PluginExtensions.NotifyCreatedEvent="True"
 			 mc:Ignorable="d" 
+			 x:Name="_this"
 			 d:DesignHeight="300" d:DesignWidth="300">
-		
-		<Grid>
-			<Grid.RowDefinitions>
-				<RowDefinition Height="auto"></RowDefinition>
-				<RowDefinition Height="*"></RowDefinition>
-				<RowDefinition Height="auto"></RowDefinition>
-			</Grid.RowDefinitions>
 
-			<local:AddressBar Grid.Row="0"></local:AddressBar>
+	<UserControl.InputBindings>
+		<KeyBinding Key="Tab" Command="{Binding FocusNextPanelCommand, ElementName=_this}"></KeyBinding>
+	</UserControl.InputBindings>
+	
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="auto"></RowDefinition>
+			<RowDefinition Height="*"></RowDefinition>
+			<RowDefinition Height="auto"></RowDefinition>
+		</Grid.RowDefinitions>
 
-			<local:EntryListView
-			x:Name="_ListView"
-			Grid.Row="1"
-			DataContext="{Binding ListView}">
-			</local:EntryListView>
-		</Grid>
+		<local:AddressBar Grid.Row="0"></local:AddressBar>
+
+		<local:EntryListView
+		x:Name="_ListView"
+		Grid.Row="1"
+		DataContext="{Binding ListView}">
+		</local:EntryListView>
+	</Grid>
 
 </UserControl>

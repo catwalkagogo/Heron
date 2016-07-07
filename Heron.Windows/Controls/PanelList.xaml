@@ -14,7 +14,7 @@
 	<Grid>
 		<ListBox
 		x:Name="_ListBox"
-		ext:GridItemsPanel.IsEnabled="True"
+		local:GridItemsPanel.IsEnabled="True"
 		ItemsSource="{Binding}"
 		SelectedItem="{Binding ActivePanel, Mode=TwoWay}"
 		ScrollViewer.HorizontalScrollBarVisibility="Disabled"
@@ -24,7 +24,7 @@
 			<ListBox.Resources>
 				<ResourceDictionary>
 					<DataTemplate x:Key="{x:Static local:PanelList.DefaultPanelTemplateKey}">
-						<local:Panel></local:Panel>
+						<local:Panel PanelList="{x:Reference _this}"></local:Panel>
 					</DataTemplate>
 					<local:PanelGridColumnConverter x:Key="PanelGridColumnConverter" />
 					<local:PanelGridRowConverter x:Key="PanelGridRowConverter" />
@@ -59,6 +59,7 @@
 							</ControlTemplate>
 						</Setter.Value>
 					</Setter>
+					<Setter Property="Focusable" Value="False"></Setter>
 				</Style>
 			</ListBox.ItemContainerStyle>
 		</ListBox>

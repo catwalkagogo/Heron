@@ -62,7 +62,7 @@ namespace CatWalk.Heron.ViewModel.Windows {
 		}
 
 		private string GetStoragePrefix() {
-			return this.ID.IsNullOrEmpty() ? "MainWindow" : "MainWindow_" + this.ID;
+			return (this.ID.IsNullOrEmpty() ? "MainWindow" : "MainWindow_" + this.ID) + ".";
 		}
 
 		public IStorage Storage { get; private set; }

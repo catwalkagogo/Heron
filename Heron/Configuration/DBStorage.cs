@@ -265,7 +265,8 @@ namespace CatWalk.Heron.Configuration {
 			if(value == null) {
 				return null;
 			} else {
-				return JsonConvert.SerializeObject(value, JSON_SETTINGS);
+				var json = JsonConvert.SerializeObject(value, JSON_SETTINGS);
+				return json;
 			}
 		}
 
@@ -273,7 +274,8 @@ namespace CatWalk.Heron.Configuration {
 			if(json == null) {
 				return null;
 			} else {
-				return JsonConvert.DeserializeObject(json, JSON_SETTINGS);
+				var obj = JsonConvert.DeserializeObject(json, JSON_SETTINGS);
+				return obj;
 			}
 		}
 
@@ -483,6 +485,15 @@ namespace CatWalk.Heron.Configuration {
 					lock (this._Cache) {
 						Assembly asm = null;
 
+						if (asm == null) {
+							try {
+								asm = Assembly.Load(assemblyName);
+								this._Cache[assemblyName] = asm;
+							} catch (Exception ex) {
+
+							}
+						}
+
 						this._Cache.TryGetValue(assemblyName, out asm);
 
 						if (asm == null) {
@@ -491,15 +502,6 @@ namespace CatWalk.Heron.Configuration {
 									asm = a;
 									this._Cache[assemblyName] = asm;
 								}
-							}
-						}
-
-						if (asm == null) {
-							try {
-								asm = Assembly.Load(assemblyName);
-								this._Cache[assemblyName] = asm;
-							} catch (Exception ex) {
-
 							}
 						}
 
@@ -518,6 +520,11 @@ namespace CatWalk.Heron.Configuration {
 				} else {
 					return Type.GetType(typeName);
 				}
+			}
+
+			public override void BindToName(Type serializedType, out string assemblyName, out string typeName) {
+				assemblyName = serializedType.GetTypeInfo().Assembly.FullName;
+				typeName = serializedType.FullName;
 			}
 
 			private void CurrentDomain_AssemblyLoad(object sender, AssemblyLoadEventArgs args) {

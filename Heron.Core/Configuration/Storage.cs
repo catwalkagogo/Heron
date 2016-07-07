@@ -121,7 +121,9 @@ namespace CatWalk.Heron.Configuration {
 		public virtual T Get<T>(string key, T def) {
 			object v;
 			if(this.TryGetValue(key, out v)) {
-				if(v is T) {
+				var type = typeof(T);
+				var type2 = v.GetType();
+				if(type.Equals(type2)) {
 					return (T)v;
 				}else {
 					return def;
