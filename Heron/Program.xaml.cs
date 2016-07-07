@@ -75,6 +75,7 @@ namespace CatWalk.Heron {
 					var mainWindow = new MainWindowViewModel(this, this.MainWindows.Count.ToString());
 					mainWindow.Panels.AddPanel(null);
 					mainWindow.Panels.AddPanel(null);
+					mainWindow.Panels.AddPanel(null);
 				}, TaskScheduler.FromCurrentSynchronizationContext());
 			}
 

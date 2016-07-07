@@ -15,6 +15,7 @@
 		win:Messaging.IsCommunicateViewModelMessages="True"
 		win:Messaging.IsCommunicateWindowMessages="True"
 		win:PluginExtensions.NotifyCreatedEvent="True"
+		SnapsToDevicePixels="True"
 		x:Name="_this">
 	<Window.Resources>
 		<win:JobCountToProgressStateConverter x:Key="JobCountToProgressStateConverter" />

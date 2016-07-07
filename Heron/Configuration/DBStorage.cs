@@ -11,6 +11,9 @@ using Newtonsoft.Json.Serialization;
 using System.IO;
 using CatWalk;
 using Newtonsoft.Json.Converters;
+using System.Reflection;
+using System.Runtime.Serialization;
+using System.Globalization;
 
 namespace CatWalk.Heron.Configuration {
 	public class DBStorage : Storage {
@@ -252,8 +255,9 @@ namespace CatWalk.Heron.Configuration {
 
 		private static readonly JsonSerializerSettings JSON_SETTINGS = new JsonSerializerSettings() {
 			TypeNameHandling = TypeNameHandling.All,
-			Formatting = Formatting.None,
+			Formatting = Formatting.Indented,
 			ContractResolver = new CustomJsonResolver(),
+			Binder = new CustomJsonBinder(),
 			//Converters = new JsonConverter[] { new ExpandoObjectConverter()}
 		};
 
@@ -459,7 +463,68 @@ namespace CatWalk.Heron.Configuration {
 					return this.CreateObjectContract(objectType);
 				}
 			}
+		}
 
+		private class CustomJsonBinder : SerializationBinder {
+			private IDictionary<string, Assembly> _Cache = new Dictionary<string, Assembly>();
+
+			public CustomJsonBinder() {
+				AppDomain.CurrentDomain.AssemblyLoad += CurrentDomain_AssemblyLoad;
+
+				AppDomain.CurrentDomain.GetAssemblies().ForEach(asm => {
+					lock (this._Cache) {
+						this._Cache[asm.GetName().Name] = asm;
+					}
+				});
+			}
+
+			public override Type BindToType(string assemblyName, string typeName) {
+				if (!assemblyName.IsNullOrEmpty()) {
+					lock (this._Cache) {
+						Assembly asm = null;
+
+						this._Cache.TryGetValue(assemblyName, out asm);
+
+						if (asm == null) {
+							foreach (var a in AppDomain.CurrentDomain.GetAssemblies()) {
+								if (a.GetName().Name == assemblyName) {
+									asm = a;
+									this._Cache[assemblyName] = asm;
+								}
+							}
+						}
+
+						if (asm == null) {
+							try {
+								asm = Assembly.Load(assemblyName);
+								this._Cache[assemblyName] = asm;
+							} catch (Exception ex) {
+
+							}
+						}
+
+						if (asm == null) {
+							throw new JsonSerializationException(String.Format("Could not load assembly '{0}'.", CultureInfo.InvariantCulture, assemblyName));
+						}
+
+						Type type = asm.GetType(typeName);
+						if (type == null) {
+							throw new JsonSerializationException(String.Format("Could not find type '{0}' in assembly '{1}'.", CultureInfo.InvariantCulture, typeName, asm.FullName));
+						}
+
+
+						return type;
+					}
+				} else {
+					return Type.GetType(typeName);
+				}
+			}
+
+			private void CurrentDomain_AssemblyLoad(object sender, AssemblyLoadEventArgs args) {
+				lock (this._Cache) {
+					this._Cache[args.LoadedAssembly.GetName().Name] = args.LoadedAssembly;
+				}
+			}
 		}
 	}
 }

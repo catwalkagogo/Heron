@@ -12,6 +12,7 @@ using CatWalk.Windows;
 namespace CatWalk.Heron.Windows {
 	using Win32 = CatWalk.Win32;
 	using Win = System.Windows;
+	using VM = ViewModel;
 	public static class WindowUtility {
 		public static IEnumerable<MainWindow> MainWindows {
 			get {
@@ -308,6 +309,17 @@ namespace CatWalk.Heron.Windows {
 		private static void Win_Activated(object sender, EventArgs e) {
 			var win = (Window)sender;
 			SetIsActive(win, win.IsActive);
+		}
+
+		#endregion
+
+		#region GetMainWindowViewModel
+
+		public static VM::Windows.MainWindowViewModel GetMainWindowViewModel(this DependencyObject obj) {
+			obj.ThrowIfNull(nameof(obj));
+
+			var window = Window.GetWindow(obj);
+			return window.DataContext as VM::Windows.MainWindowViewModel;
 		}
 
 		#endregion

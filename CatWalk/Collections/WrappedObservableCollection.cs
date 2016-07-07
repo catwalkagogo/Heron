@@ -79,11 +79,10 @@ namespace CatWalk.Collections{
 			lock (_Sync) {
 				if (this.Count > 0) {
 					this.CheckReentrancy();
-					var items = this.Collection.ToArray();
 					this.Collection.Clear();
 					this.OnPropertyChanged(new PropertyChangedEventArgs("Count"));
 					this.OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
-					this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, items));
+					this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
 				}
 			}
 		}

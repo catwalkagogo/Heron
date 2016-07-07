@@ -51,7 +51,14 @@ namespace CatWalk.Heron.Windows.Controls {
 
 			this._ListBox.ItemTemplateSelector = new PanelTemplateSelector();
 
-			/*
+			this._ArrangeGridCommand = this._ListBox.Items.ObserveProperty(_ => _.Count)
+				.Select(c => c != 0)
+				.ToReactiveCommand();
+			this._ArrangeGridCommand.Subscribe(_ => {
+				this.ArrangeGrid();
+			});
+			this._Disposables.Add(this._ArrangeGridCommand);
+
 			this.ObserveProperty<object>(DataContextProperty).Take(1).Subscribe(_ => {
 				var m = new WindowMessages.RequestMainWindow();
 				WindowsPlugin.Current.Application.Messenger.Post<WindowMessages.RequestMainWindow>(m, this.DataContext).ContinueWith(t => {
@@ -64,14 +71,29 @@ namespace CatWalk.Heron.Windows.Controls {
 						throw new InvalidOperationException();
 					}
 				});
+			});
 
-			});*/
-			this.InitializeGrid(/*new GridPositions()*/);
+			this.Loaded += PanelList_Loaded;
+
+		}
+
+		private void PanelList_Loaded(object sender, RoutedEventArgs e) {
+			Window.GetWindow(this).Closing += PanelList_Closing;
+		}
+
+		private void PanelList_Closing(object sender, System.ComponentModel.CancelEventArgs e) {
+			// 設定保存
+			var pos = new GridPositions() {
+				ColumnLengths = this._SplitterGrid.ColumnDefinitions.Where((_, i) => i % 2 == 0).Select(_ => _.Width).ToArray(),
+				RowLengths = this._SplitterGrid.RowDefinitions.Where((_, i) => i % 2 == 0).Select(_ => _.Height).ToArray(),
+			};
+
+			this.GetMainWindowViewModel().Storage.SetAsync("PanelGridPositions", pos);
 		}
 
 		#region Grid
 
-		private void InitializeGrid(/*GridPositions pos*/) {
+		private void InitializeGrid(GridPositions pos) {
 			var gridOvservation = this.ObserveProperty<Orientation>(OrientationProperty)
 				.Select(o => Tuple.Create(o, this._ListBox.Items.Count))
 				.Merge(this._ListBox.Items.ObserveProperty(_ => _.Count)
@@ -79,70 +101,84 @@ namespace CatWalk.Heron.Windows.Controls {
 				.DistinctUntilChanged();
 
 			var splitterSubscribe = gridOvservation.Subscribe(_ => {
-				this._SplitterGrid.ColumnDefinitions.Clear();
-				this._SplitterGrid.RowDefinitions.Clear();
-				this._SplitterGrid.Children.Clear();
+				this.SetSplitterDefinitions(_.Item1, _.Item2, pos);
 
 				// Column
-				if (_.Item1 == Orientation.Horizontal) {
-					var count = _.Item2;
-
-					foreach (var def in this.GetColumnDefinitions(count, false/*, pos.ColumnLengths*/)) {
-						this._SplitterGrid.ColumnDefinitions.Add(def);
-					}
-					foreach (var column in Enumerable.Range(0, count / 2).Select(i => i * 2 + 1)) {
-						var splitter = new GridSplitter() {
-							VerticalAlignment = VerticalAlignment.Stretch,
-							ResizeBehavior = GridResizeBehavior.PreviousAndNext,
-							Width = 8,
-						};
-						Grid.SetColumn(splitter, column);
-						this._SplitterGrid.Children.Add(splitter);
-					}
-				} else {
-					foreach (var def in Seq.Make(new ColumnDefinition() {
-						Width = new GridLength(1, GridUnitType.Star)
-					})) {
-						this._SplitterGrid.ColumnDefinitions.Add(def);
-					}
-				}
-				this.SetColumnsDefinition(_.Item1, _.Item2/*, pos.ColumnLengths*/);
+				this.SetPanelColumnsDefinition(_.Item1, _.Item2, pos.ColumnLengths);
 
 				// Row
-				/*
-				if (_.Item1 == Orientation.Vertical) {
-					var count = _.Item2;
-
-					foreach (var def in this.GetRowDefinitions(count, false)) {
-						this._SplitterGrid.RowDefinitions.Add(def);
-					}
-					foreach (var Row in Enumerable.Range(0, count / 2).Select(i => i * 2 + 1)) {
-						var splitter = new GridSplitter() {
-							VerticalAlignment = VerticalAlignment.Stretch,
-							ResizeBehavior = GridResizeBehavior.PreviousAndNext,
-							Width = 8,
-						};
-						Grid.SetRow(splitter, Row);
-						this._SplitterGrid.Children.Add(splitter);
-					}
-				} else {
-					foreach (var def in Seq.Make(new RowDefinition() {
-						Height = new GridLength(1, GridUnitType.Star)
-					})) {
-						this._SplitterGrid.RowDefinitions.Add(def);
-					}
-				}
-				this.SetRowsDefinition(_.Item1, _.Item2);
-				*/
+				this.SetPanelRowsDefinition(_.Item1, _.Item2, pos.RowLengths);
 			});
 			this._Disposables.Add(splitterSubscribe);
 		}
 
-		private void SetColumnsDefinition(Orientation o, int count/*, GridLength[] lengths*/) {
+		private void SetSplitterDefinitions(Orientation o, int count, GridPositions pos) {
+			this._SplitterGrid.ColumnDefinitions.Clear();
+			this._SplitterGrid.RowDefinitions.Clear();
+			this._SplitterGrid.Children.Clear();
+
+			// Column
+			this.SetSplitterColumnsDefinition(o, count, pos.ColumnLengths);
+
+			// Row
+			this.SetSplitterRowDefinition(o, count, pos.RowLengths);
+
+		}
+
+		private void SetSplitterColumnsDefinition(Orientation o, int count, GridLength[] lengths) {
+			if (o == Orientation.Horizontal) {
+				foreach (var def in this.GetColumnDefinitions(count, false, lengths)) {
+					this._SplitterGrid.ColumnDefinitions.Add(def);
+				}
+				foreach (var column in Enumerable.Range(0, Math.Max(0, count - 1)).Select(i => i * 2 + 1)) {
+					var splitter = new GridSplitter() {
+						VerticalAlignment = VerticalAlignment.Stretch,
+						ResizeBehavior = GridResizeBehavior.PreviousAndNext,
+						Width = 8,
+					};
+					splitter.InputBindings.Add(new MouseBinding(this._ArrangeGridCommand, new MouseGesture(MouseAction.LeftDoubleClick)));
+					Grid.SetColumn(splitter, column);
+					this._SplitterGrid.Children.Add(splitter);
+				}
+			} else {
+				foreach (var def in Seq.Make(new ColumnDefinition() {
+					Width = new GridLength(1, GridUnitType.Star)
+				})) {
+					this._SplitterGrid.ColumnDefinitions.Add(def);
+				}
+			}
+
+		}
+
+		private  void SetSplitterRowDefinition(Orientation o, int count, GridLength[] lengths) {
+			if (o == Orientation.Vertical) {
+				foreach (var def in this.GetRowDefinitions(count, false, lengths)) {
+					this._SplitterGrid.RowDefinitions.Add(def);
+				}
+				foreach (var Row in Enumerable.Range(0, count / 2).Select(i => i * 2 + 1)) {
+					var splitter = new GridSplitter() {
+						VerticalAlignment = VerticalAlignment.Stretch,
+						ResizeBehavior = GridResizeBehavior.PreviousAndNext,
+						Width = 8,
+					};
+					splitter.InputBindings.Add(new MouseBinding(this._ArrangeGridCommand, new MouseGesture(MouseAction.LeftDoubleClick)));
+					Grid.SetRow(splitter, Row);
+					this._SplitterGrid.Children.Add(splitter);
+				}
+			} else {
+				foreach (var def in Seq.Make(new RowDefinition() {
+					Height = new GridLength(1, GridUnitType.Star)
+				})) {
+					this._SplitterGrid.RowDefinitions.Add(def);
+				}
+			}
+		}
+
+		private void SetPanelColumnsDefinition(Orientation o, int count, GridLength[] lengths) {
 			IEnumerable<ColumnDefinition> defs;
 
 			if (o == Orientation.Horizontal) {
-				defs = this.GetColumnDefinitions(count, true/*, lengths*/);
+				defs = this.GetColumnDefinitions(count, true, lengths);
 
 			} else {
 				defs = Seq.Make(new ColumnDefinition() {
@@ -152,14 +188,13 @@ namespace CatWalk.Heron.Windows.Controls {
 			GridItemsPanel.SetColumnDefinitionsSource(this._ListBox, defs);
 		}
 
-		private IEnumerable<ColumnDefinition> GetColumnDefinitions(int count, bool isList/*, GridLength[] lengths*/) {
-		/*	if(lengths == null) {
+		private IEnumerable<ColumnDefinition> GetColumnDefinitions(int count, bool isList, GridLength[] lengths) {
+			if(lengths == null) {
 				lengths = new GridLength[0];
-			}*/
+			}
 
 			for(var i = 0; i < count; i++) {
-				//var width = (i < lengths.Length) ? lengths[i] : new GridLength(1, GridUnitType.Star);
-				var width = new GridLength(1, GridUnitType.Star);
+				var width = (i < lengths.Length) ? lengths[i] : new GridLength(1, GridUnitType.Star);
 
 				var def = new ColumnDefinition() {
 					Width = width
@@ -190,11 +225,11 @@ namespace CatWalk.Heron.Windows.Controls {
 			}
 		}
 
-		private void SetRowsDefinition(Orientation o, int count) {
+		private void SetPanelRowsDefinition(Orientation o, int count, GridLength[] lengths) {
 			IEnumerable<RowDefinition> defs;
 
 			if (o == Orientation.Vertical) {
-				defs = this.GetRowDefinitions(count, true);
+				defs = this.GetRowDefinitions(count, true, lengths);
 			} else {
 				defs = Seq.Make(new RowDefinition() {
 					Height = new GridLength(1, GridUnitType.Star)
@@ -203,10 +238,12 @@ namespace CatWalk.Heron.Windows.Controls {
 			GridItemsPanel.SetRowDefinitionsSource(this._ListBox, defs);
 		}
 
-		private IEnumerable<RowDefinition> GetRowDefinitions(int count, bool isList) {
+		private IEnumerable<RowDefinition> GetRowDefinitions(int count, bool isList, GridLength[] lengths) {
 			for (var i = 0; i < count; i++) {
+				var height = (i < lengths.Length) ? lengths[i] : new GridLength(1, GridUnitType.Star);
+
 				var def = new RowDefinition() {
-					Height = new GridLength(1, GridUnitType.Star)
+					Height = height
 				};
 
 				if (isList) {
@@ -236,6 +273,33 @@ namespace CatWalk.Heron.Windows.Controls {
 
 		#endregion
 
+		#region ArrangeGrid
+
+		private ReactiveCommand _ArrangeGridCommand;
+
+		public ReactiveCommand ArrangeGridCommand {
+			get {
+				return this._ArrangeGridCommand;
+			}
+		}
+
+		public void ArrangeGrid() {
+			var o = this.Orientation;
+			var count = this._ListBox.Items.Count;
+			var pos = new GridPositions();
+
+			this.SetSplitterDefinitions(o, count, pos);
+
+			// Column
+			this.SetPanelColumnsDefinition(o, count, pos.ColumnLengths);
+
+			// Row
+			this.SetPanelRowsDefinition(o, count, pos.RowLengths);
+		}
+
+
+		#endregion
+
 		public Selector Selector {
 			get {
 				return this._ListBox;
@@ -252,11 +316,11 @@ namespace CatWalk.Heron.Windows.Controls {
 				return entry;
 			}
 		}
-		/*
+		
 		internal struct GridPositions {
 			public GridLength[] ColumnLengths;
 			public GridLength[] RowLengths;
-		}*/
+		}
 	}
 
 	internal abstract class PanelGridIndexConverter : IMultiValueConverter {

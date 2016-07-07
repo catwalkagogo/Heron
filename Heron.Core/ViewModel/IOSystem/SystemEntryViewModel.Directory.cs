@@ -126,6 +126,9 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 		public void RefreshChildren(CancellationToken token) {
 			this.RefreshChildren(token, null);
 		}
+
+		private readonly object _RefreshChildrenSync = new object();
+		 
 		/// <summary>
 		/// 子エントリを列挙する
 		/// </summary>
@@ -134,13 +137,14 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 		public void RefreshChildren(CancellationToken token, IProgress<double> progress) {
 			this.ThrowIfNotDirectory();
 
-			this._Children.Clear();
+			lock (this._RefreshChildrenSync) {
 
-			var children = this.Entry.GetChildren(token, progress)
-				.Select(child => GetViewModel(this, child));
+				this._Children.Clear();
 
-			foreach(var child in children) {
-				this._Children.Add(child);
+				var children = this.Entry.GetChildren(token, progress)
+					.Select(child => GetViewModel(this, child)).ToArray();
+
+				this._Children.AddRange(children);
 			}
 		}
 
@@ -201,11 +205,6 @@ namespace CatWalk.Heron.ViewModel.IOSystem {
 							}
 						case NotifyCollectionChangedAction.Reset: {
 								this.nameMap.Clear();
-								var i = e.NewStartingIndex;
-								foreach(var item in e.NewItems.Cast<SystemEntryViewModel>()) {
-									this.nameMap[item.Name] = i;
-									i++;
-								}
 								break;
 							}
 					}

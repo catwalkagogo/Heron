@@ -27,7 +27,8 @@ namespace CatWalk.Heron.IOSystem {
 		}
 
 		public IEnumerable<ISystemEntry> GetRootEntries(ISystemEntry parent) {
-			return this.RootEntryFactory.CreateAll(parent);
+			var roots = this.RootEntryFactory.CreateAll(parent).ToArray();
+			return roots;
 		}
 
 		public object GetViewModel(object parent, SystemEntryViewModel entry, object previous) {
